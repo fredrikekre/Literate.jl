@@ -1,6 +1,6 @@
 module Examples
 
-import Compat: replace, popfirst!
+import Compat: replace, popfirst!, @error, @info
 
 import JSON
 
@@ -86,21 +86,15 @@ end
 filename(str) = first(splitext(last(splitdir(str))))
 
 """
-    Examples.script(input, output; kwargs...)
+    Examples.script(inputfile, outputdir; kwargs...)
 
 Create a script file.
 """
-function script(input, output; name = filename(input), kwargs...)
-    str = script(input; name = name, kwargs...)
-    out = isdir(output) ? joinpath(output, name * ".jl") : output
-    write(out, str)
-    return out
-end
-
-function script(input; preprocess = identity, postprocess = identity,
-                name = filename(input), kwargs...)
+function script(inputfile, outputdir; preprocess = identity, postprocess = identity,
+                name = filename(inputfile), kwargs...)
+    @info "generating plain script file from $(inputfile)"
     # read content
-    content = read(input, String)
+    content = read(inputfile, String)
 
     # run custom pre-processing from user
     content = preprocess(content)
@@ -111,12 +105,14 @@ function script(input; preprocess = identity, postprocess = identity,
     ## - remove #nb lines
     ## - remove leading and trailing #jl
     ## - replace @__NAME__
-    for repl in ["\r\n" => "\n",
-                 r"^#md.*\n?"m => "",
-                 r"^#nb.*\n?"m => "",
-                 r"^#jl "m => "",
-                 r" #jl$"m => "",
-                 "@__NAME__" => name]
+    for repl in Pair{Any,Any}[
+                    "\r\n" => "\n",
+                    r"^#md.*\n?"m => "",
+                    r"^#nb.*\n?"m => "",
+                    r"^#jl "m => "",
+                    r" #jl$"m => "",
+                    "@__NAME__" => name,
+                ]
         content = replace(content, repl)
     end
 
@@ -135,26 +131,27 @@ function script(input; preprocess = identity, postprocess = identity,
     # custom post-processing from user
     content = postprocess(String(take!(ioscript)))
 
-    return content
+    # write to file
+    isdir(outputdir) || error("not a directory: $(outputdir)")
+    outputfile = joinpath(outputdir, name * ".jl")
+
+    @info "writing result to $(outputfile)"
+    write(outputfile, content)
+
+    return outputfile
 end
 
 """
-    Examples.markdown(input, output; kwargs...)
+    Examples.markdown(inputfile, outputdir; kwargs...)
 
 Generate a markdown file from the `input` file and write the result to the `output` file.
 """
-function markdown(input, output; name = filename(input), kwargs...)
-    str = markdown(input; name = name, kwargs...)
-    out = isdir(output) ? joinpath(output, name * ".md") : output
-    write(out, str)
-    return out
-end
-
-function markdown(input; preprocess = identity, postprocess = identity,
-                  name = filename(input),
+function markdown(inputfile, outputdir; preprocess = identity, postprocess = identity,
+                  name = filename(inputfile),
                   codefence::Pair = "```@example $(name)" => "```", kwargs...)
+    @info "generating markdown page from $(inputfile)"
     # read content
-    content = read(input, String)
+    content = read(inputfile, String)
 
     # run custom pre-processing from user
     content = preprocess(content)
@@ -165,12 +162,14 @@ function markdown(input; preprocess = identity, postprocess = identity,
     ## - remove leading and trailing #jl lines
     ## - remove leading #md
     ## - replace @__NAME__
-    for repl in ["\r\n" => "\n",
-                 r"^#nb.*\n?"m => "",
-                 r"^#jl.*\n?"m => "",
-                 r".*#jl$\n?"m => "",
-                 r"^#md "m => "",
-                 "@__NAME__" => name]
+    for repl in Pair{Any,Any}[
+                    "\r\n" => "\n",
+                    r"^#nb.*\n?"m => "",
+                    r"^#jl.*\n?"m => "",
+                    r".*#jl$\n?"m => "",
+                    r"^#md "m => "",
+                    "@__NAME__" => name,
+                ]
         content = replace(content, repl)
     end
 
@@ -201,34 +200,27 @@ function markdown(input; preprocess = identity, postprocess = identity,
     # custom post-processing from user
     content = postprocess(String(take!(iomd)))
 
-    return content
+    # write to file
+    isdir(outputdir) || error("not a directory: $(outputdir)")
+    outputfile = joinpath(outputdir, name * ".md")
+
+    @info "writing result to $(outputfile)"
+    write(outputfile, content)
+
+    return outputfile
 end
 
 """
-    Examples.markdown(notebook, output; kwargs...)
+    Examples.notebook(inputfile, outputdir; kwargs...)
 
-Generate a notebook from the `input` file and write the result to the `output` file.
+Generate a notebook from `inputfile` and write the result to `outputdir`.
 """
-function notebook(input, output; execute::Bool=false,
-                  name = filename(input), kwargs...)
-    str = notebook(input; name = name, kwargs...)
-    out = isdir(output) ? joinpath(output, name * ".ipynb") : output
-    write(out, str)
-    if execute
-        try
-            run(`jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --execute $(abspath(out)) --output $(first(splitext(last(splitdir(out))))).ipynb`)
-        catch err
-            print("Error while executing notebook.")
-            rethrow(err)
-        end
-    end
-    return out
-end
-
-function notebook(input; preprocess = identity, postprocess = identity,
-                  name = filename(input), kwargs...)
+function notebook(inputfile, outputdir; preprocess = identity, postprocess = identity,
+                  execute::Bool=false,
+                  name = filename(inputfile), kwargs...)
+    @info "generating notebook from $(inputfile)"
     # read content
-    content = read(input, String)
+    content = read(inputfile, String)
 
     # run custom pre-processing from user
     content = preprocess(content)
@@ -307,7 +299,26 @@ function notebook(input; preprocess = identity, postprocess = identity,
     # custom post-processing from user
     content = postprocess(String(take!(ionb)))
 
-    return content
+    # write to file
+    isdir(outputdir) || error("not a directory: $(outputdir)")
+    outputfile = joinpath(outputdir, name * ".ipynb")
+
+    @info "writing result to $(outputfile)"
+    write(outputfile, content)
+
+    if execute
+        @info "executing notebook $(outputfile)"
+        try
+            run(`jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --execute $(abspath(outputfile)) --output $(filename(outputfile)).ipynb`)
+        catch err
+            @error "error when executing notebook $(outputfile)"
+            rethrow(err)
+        end
+        # clean up
+        rm(joinpath(first(splitdir(outputfile)), ".ipynb_checkpoints"), force=true, recursive = true)
+    end
+
+    return outputfile
 end
 
 end # module
