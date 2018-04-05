@@ -83,19 +83,22 @@ function parse(content)
     return chunks
 end
 
+filename(str) = first(splitext(last(splitdir(str))))
+
 """
     Examples.script(input, output; kwargs...)
 
 Create a script file.
 """
-function script(input, output; kwargs...)
-    str = script(input; kwargs...)
-    write(output, str)
-    return output
+function script(input, output; name = filename(input), kwargs...)
+    str = script(input; name = name, kwargs...)
+    out = isdir(output) ? joinpath(output, name * ".jl") : output
+    write(out, str)
+    return out
 end
 
 function script(input; preprocess = identity, postprocess = identity,
-                name = first(splitext(last(splitdir(input)))), kwargs...)
+                name = filename(input), kwargs...)
     # read content
     content = read(input, String)
 
@@ -140,14 +143,15 @@ end
 
 Generate a markdown file from the `input` file and write the result to the `output` file.
 """
-function markdown(input, output; kwargs...)
-    str = markdown(input; kwargs...)
-    write(output, str)
-    return output
+function markdown(input, output; name = filename(input), kwargs...)
+    str = markdown(input; name = name, kwargs...)
+    out = isdir(output) ? joinpath(output, name * ".md") : output
+    write(out, str)
+    return out
 end
 
 function markdown(input; preprocess = identity, postprocess = identity,
-                  name = first(splitext(last(splitdir(input)))),
+                  name = filename(input),
                   codefence::Pair = "```@example $(name)" => "```", kwargs...)
     # read content
     content = read(input, String)
@@ -205,23 +209,24 @@ end
 
 Generate a notebook from the `input` file and write the result to the `output` file.
 """
-function notebook(input, output; execute::Bool=false, kwargs...)
-    str = notebook(input; kwargs...)
-    # return str
-    write(output, str)
+function notebook(input, output; execute::Bool=false,
+                  name = filename(input), kwargs...)
+    str = notebook(input; name = name, kwargs...)
+    out = isdir(output) ? joinpath(output, name * ".ipynb") : output
+    write(out, str)
     if execute
         try
-            run(`jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --execute $(abspath(output)) --output $(first(splitext(last(splitdir(output))))).ipynb`)
+            run(`jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --execute $(abspath(out)) --output $(first(splitext(last(splitdir(out))))).ipynb`)
         catch err
-            @error("Error while executing notebook")
+            print("Error while executing notebook.")
             rethrow(err)
         end
     end
-    return output
+    return out
 end
 
 function notebook(input; preprocess = identity, postprocess = identity,
-                  name = first(splitext(last(splitdir(input)))), kwargs...)
+                  name = filename(input), kwargs...)
     # read content
     content = read(input, String)
 
