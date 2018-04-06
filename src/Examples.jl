@@ -2,7 +2,7 @@ module Examples
 
 import Compat: replace, popfirst!, @error, @info
 
-import JSON
+import JSON, IJulia
 
 # # Some simple rules:
 #
@@ -249,8 +249,8 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
 
     # create the notebook
     nb = Dict()
-    nb["nbformat"] =  4
-    nb["nbformat_minor"] = 2
+    nb["nbformat"] = IJulia.jupyter_vers.major
+    nb["nbformat_minor"] = IJulia.jupyter_vers.minor
 
     ## create the notebook cells
     chunks = parse(content)
@@ -309,7 +309,7 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     if execute
         @info "executing notebook $(outputfile)"
         try
-            run(`jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --execute $(abspath(outputfile)) --output $(filename(outputfile)).ipynb`)
+            run(`$(IJulia.jupyter)-nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --execute $(abspath(outputfile)) --output $(filename(outputfile)).ipynb`)
         catch err
             @error "error when executing notebook $(outputfile)"
             rethrow(err)
