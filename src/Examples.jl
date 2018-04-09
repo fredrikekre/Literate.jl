@@ -97,6 +97,9 @@ Create a script file.
 """
 function script(inputfile, outputdir; preprocess = identity, postprocess = identity,
                 name = filename(inputfile), kwargs...)
+    # normalize paths
+    inputfile = realpath(abspath(inputfile))
+    outputdir = realpath(abspath(outputdir))
     @info "generating plain script file from $(inputfile)"
     # read content
     content = read(inputfile, String)
@@ -154,6 +157,9 @@ Generate a markdown file from the `input` file and write the result to the `outp
 function markdown(inputfile, outputdir; preprocess = identity, postprocess = identity,
                   name = filename(inputfile),
                   codefence::Pair = "```@example $(name)" => "```", kwargs...)
+    # normalize paths
+    inputfile = realpath(abspath(inputfile))
+    outputdir = realpath(abspath(outputdir))
     @info "generating markdown page from $(inputfile)"
     # read content
     content = read(inputfile, String)
@@ -225,6 +231,9 @@ Generate a notebook from `inputfile` and write the result to `outputdir`.
 function notebook(inputfile, outputdir; preprocess = identity, postprocess = identity,
                   execute::Bool=false,
                   name = filename(inputfile), kwargs...)
+    # normalize paths
+    inputfile = realpath(abspath(inputfile))
+    outputdir = realpath(abspath(outputdir))
     @info "generating notebook from $(inputfile)"
     # read content
     content = read(inputfile, String)
