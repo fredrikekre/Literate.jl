@@ -1,4 +1,5 @@
-# copied from Documenter.jl
+# this file contains some utilities copied from the Documenter.jl package
+# (https://github.com/JuliaDocs/Documenter.jl), see LICENSE.md for license
 module Documenter
 
 @static if VERSION < v"0.7.0-DEV.3951"
