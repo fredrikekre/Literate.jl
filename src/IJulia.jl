@@ -1,4 +1,3 @@
-
 # minimal (modified) subset of IJulia.jl to evaluate notebooks
 module IJulia
 

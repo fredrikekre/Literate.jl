@@ -6,6 +6,8 @@ import JSON
 
 include("IJulia.jl")
 import .IJulia
+include("Documenter.jl")
+import .Documenter
 
 # # Some simple rules:
 #
@@ -326,8 +328,6 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     return outputfile
 end
 
-import Documenter # just copy paste Documenter.Utilities.withoutput instead
-
 function execute_notebook(nb)
     # sandbox module for the notebook (TODO: Do this in Main?)
     m = Module(gensym())
@@ -343,7 +343,7 @@ function execute_notebook(nb)
         # status = (true|false)
         # _: backtrace
         # str combined stdout, stderr output
-        r, status, _, str = Documenter.Utilities.withoutput() do
+        r, status, _, str = Documenter.withoutput() do
             include_string(m, block)
         end
         status || error("something went wrong when evaluating code")
