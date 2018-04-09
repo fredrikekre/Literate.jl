@@ -2,7 +2,10 @@ module Examples
 
 import Compat: replace, popfirst!, @error, @info
 
-import JSON, IJulia
+import JSON
+
+include("IJulia.jl")
+import .IJulia
 
 # # Some simple rules:
 #
@@ -210,6 +213,8 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     return outputfile
 end
 
+const JUPYTER_VERSION = v"4.3.0"
+
 """
     Examples.notebook(inputfile, outputdir; kwargs...)
 
@@ -249,8 +254,8 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
 
     # create the notebook
     nb = Dict()
-    nb["nbformat"] = IJulia.jupyter_vers.major
-    nb["nbformat_minor"] = IJulia.jupyter_vers.minor
+    nb["nbformat"] = JUPYTER_VERSION.major
+    nb["nbformat_minor"] = JUPYTER_VERSION.minor
 
     ## create the notebook cells
     chunks = parse(content)
@@ -260,13 +265,13 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
         if isa(chunk, MDChunk)
             cell["cell_type"] = "markdown"
             cell["metadata"] = Dict()
-            @views map!(x -> x*'\n', chunk.lines[1:end-1], chunk.lines[1:end-1])
+            @views map!(x -> x * '\n', chunk.lines[1:end-1], chunk.lines[1:end-1])
             cell["source"] = chunk.lines
             cell["outputs"] = []
         else # isa(chunk, CodeChunk)
             cell["cell_type"] = "code"
             cell["metadata"] = Dict()
-            @views map!(x -> x*'\n', chunk.lines[1:end-1], chunk.lines[1:end-1])
+            @views map!(x -> x * '\n', chunk.lines[1:end-1], chunk.lines[1:end-1])
             cell["source"] = chunk.lines
             cell["execution_count"] = nothing
             cell["outputs"] = []
@@ -293,32 +298,81 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
 
     nb["metadata"] = metadata
 
-    ionb = IOBuffer()
-    JSON.print(ionb, nb, 2)
-
     # custom post-processing from user
-    content = postprocess(String(take!(ionb)))
+    nb = postprocess(nb)
+
+    if execute
+        @info "executing notebook $(name * ".ipynb")"
+        try
+            # run(`jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --execute $(abspath(outputfile)) --output $(filename(outputfile)).ipynb`)
+            nb = execute_notebook(nb)
+        catch err
+            @error "error when executing notebook $(name * ".ipynb")"
+            rethrow(err)
+        end
+        # clean up (only needed for jupyter-nbconvert)
+        rm(joinpath(outputdir, ".ipynb_checkpoints"), force=true, recursive = true)
+    end
 
     # write to file
     isdir(outputdir) || error("not a directory: $(outputdir)")
     outputfile = joinpath(outputdir, name * ".ipynb")
 
     @info "writing result to $(outputfile)"
-    write(outputfile, content)
-
-    if execute
-        @info "executing notebook $(outputfile)"
-        try
-            run(`$(IJulia.jupyter)-nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --execute $(abspath(outputfile)) --output $(filename(outputfile)).ipynb`)
-        catch err
-            @error "error when executing notebook $(outputfile)"
-            rethrow(err)
-        end
-        # clean up
-        rm(joinpath(first(splitdir(outputfile)), ".ipynb_checkpoints"), force=true, recursive = true)
-    end
+    ionb = IOBuffer()
+    JSON.print(ionb, nb, 1)
+    write(outputfile, seekstart(ionb))
 
     return outputfile
+end
+
+import Documenter # just copy paste Documenter.Utilities.withoutput instead
+
+function execute_notebook(nb)
+    # sandbox module for the notebook (TODO: Do this in Main?)
+    m = Module(gensym())
+    io = IOBuffer()
+
+    execution_count = 0
+    for cell in nb["cells"]
+        cell["cell_type"] == "code" || continue
+        execution_count += 1
+        cell["execution_count"] = execution_count
+        block = join(cell["source"], '\n')
+        # r is the result
+        # status = (true|false)
+        # _: backtrace
+        # str combined stdout, stderr output
+        r, status, _, str = Documenter.Utilities.withoutput() do
+            include_string(m, block)
+        end
+        status || error("something went wrong when evaluating code")
+
+        # str should go into stream
+        if !isempty(str)
+            stream = Dict{String,Any}()
+            stream["output_type"] = "stream"
+            stream["name"] = "stdout"
+            stream["text"] = collect(Any, eachline(IOBuffer(String(str)), chomp = false)) # 0.7 chomp = false => keep = true
+            push!(cell["outputs"], stream)
+        end
+
+        # check if ; is used to suppress output
+        r = Base.REPL.ends_with_semicolon(block) ? nothing : r
+
+        # r should go into execute_result
+        if r !== nothing
+            execute_result = Dict{String,Any}()
+            execute_result["output_type"] = "execute_result"
+            execute_result["metadata"] = Dict()
+            execute_result["execution_count"] = execution_count
+            execute_result["data"] = IJulia.display_dict(r)
+
+            push!(cell["outputs"], execute_result)
+        end
+
+    end
+    nb
 end
 
 end # module
