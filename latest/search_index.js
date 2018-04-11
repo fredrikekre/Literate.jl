@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output formats",
     "title": "Examples.markdown",
     "category": "function",
-    "text": "Examples.markdown(inputfile, outputdir; kwargs...)\n\nGenerate a markdown file from inputfile and write the result to the directoryoutputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .md. name is also used to name all the @example blocks. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\ncodefence: A Pair of opening and closing code fence. Defaults to\n\"```@example $(name)\" => \"```\"\ndocumenter: boolean that says if the output is intended to use with Documenter.jl. Defaults to false. See the the manual section on Interaction with Documenter.\n\n\n\n\n\n"
+    "text": "Examples.markdown(inputfile, outputdir; kwargs...)\n\nGenerate a markdown file from inputfile and write the result to the directoryoutputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .md. name is also used to name all the @example blocks. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\ncodefence: A Pair of opening and closing code fence. Defaults to\n\"```julia\" => \"```\"\nif documenter = false and\n\"```@example $(name)\" => \"```\"\nif documenter = true.\ndocumenter: boolean that says if the output is intended to use with Documenter.jl. Defaults to false. See the the manual section on Interaction with Documenter.\n\n\n\n\n\n"
 },
 
 {
@@ -229,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "6. Interaction with Documenter.jl",
     "title": "6. Interaction with Documenter.jl",
     "category": "section",
-    "text": "TBW"
+    "text": "Examples.jl can be used for any purpose, it spits out regular markdown files, and notebooks. Typically, though, these files will be used to render documentation for your package. The generators (Examples.markdown, Examples.notebook and Examples.script) supports a keyword argument documenter that lets the generator perform some extra things, keeping in mind that the generated files will, eventually, be used with Documenter.jl. So lets take a look at what will happen if we set documenter = true:Examples.markdown:The default code fence will change from\n```julia\n# code\n```\nto Documenters @example blocks:\n```@examples $(name)\n# code\n```\nThe following @meta block will be added to the top of the markdown page, which redirects the \"Edit on GitHub\" link on the top of the page to the source file rather than the generated .md file:\n```@meta\nEditURL = \"$(relpath(inputfile, outputdir))\"\n```Examples.notebook:Documenter style @refs and @id will be removed. This means that you can use @ref and @id in the source file without them leaking to the notebook."
 },
 
 {
@@ -237,7 +237,7 @@ var documenterSearchIndex = {"docs": [
     "page": "7. Example",
     "title": "7. Example",
     "category": "page",
-    "text": ""
+    "text": "EditURL = \"../../../examples/example.jl\""
 },
 
 {
