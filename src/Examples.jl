@@ -106,6 +106,7 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
                 name = filename(inputfile), kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
+    mkpath(outputdir)
     outputdir = realpath(abspath(outputdir))
     @info "generating plain script file from $(inputfile)"
     # read content
@@ -181,6 +182,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
                   codefence::Pair = "```@example $(name)" => "```", kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
+    mkpath(outputdir)
     outputdir = realpath(abspath(outputdir))
     @info "generating markdown page from $(inputfile)"
     # read content
@@ -267,6 +269,7 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
                   name = filename(inputfile), kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
+    mkpath(outputdir)
     outputdir = realpath(abspath(outputdir))
     @info "generating notebook from $(inputfile)"
     # read content
