@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>2. File Format · Examples.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>Examples.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search.html"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html"><strong>1.</strong> Introduction</a></li><li class="current"><a class="toctext" href="fileformat.html"><strong>2.</strong> File Format</a><ul class="internal"><li><a class="toctext" href="#Syntax-1"><strong>2.1.</strong> Syntax</a></li><li><a class="toctext" href="#Filtering-lines-1"><strong>2.2.</strong> Filtering Lines</a></li></ul></li><li><a class="toctext" href="pipeline.html"><strong>3.</strong> Processing pipeline</a></li><li><a class="toctext" href="outputformats.html"><strong>4.</strong> Output formats</a></li><li><a class="toctext" href="customprocessing.html"><strong>5.</strong> Custom pre- and post-processing</a></li><li><a class="toctext" href="documenter.html"><strong>6.</strong> Interaction with Documenter.jl</a></li><li><a class="toctext" href="generated/example.html"><strong>7.</strong> Example</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="fileformat.html"><strong>2.</strong> File Format</a></li></ul><a class="edit-page" href="https://github.com/fredrikekre/Examples.jl/blob/master/docs/src/fileformat.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>2. File Format</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="**2.**-File-Format-1" href="#**2.**-File-Format-1"><strong>2.</strong> File Format</a></h1><p>The source file format for <code>Examples.jl</code> is a regular, commented, julia (<code>.jl</code>) scripts. The idea is that the scripts also serve as documentation on their own and it is also simple to include them in the test-suite, with e.g. <code>include</code>, to make sure the examples stay up do date with other changes in your package.</p><h2><a class="nav-anchor" id="Syntax-1" href="#Syntax-1"><strong>2.1.</strong> Syntax</a></h2><p>The basic syntax is simple:</p><ul><li>lines starting with <code>#&#39;</code> is treated as markdown,</li><li>all other lines are treated as julia code.</li></ul><p>The reason for using <code>#&#39;</code> instead of <code>#</code> is that we want to be able to use <code>#</code> as comments, just as in a regular script. Lets look at a simple example:</p><pre><code class="language-julia">#&#39; # Rational numbers
+#&#39;
+#&#39; In julia rational numbers can be constructed with the `//` operator.
+#&#39; Lets define two rational numbers, `x` and `y`:
+
+x = 1//3
+y = 2//5
+
+#&#39; When adding `x` and `y` together we obtain a new rational number:
+
+z = x + y</code></pre><p>In the lines <code>#&#39;</code> we can use regular markdown syntax, for example the <code>#</code> used for the heading and the backticks for formatting code. The other lines are regular julia code. We note a couple of things:</p><ul><li>The script is valid julia, which means that we can <code>include</code> it and the example will run</li><li>The script is &quot;self-explanatory&quot;, i.e. the markdown lines works as comments and thus serve as good documentation on its own.</li></ul><p>For simple use this is all you need to know, the script above is valid. Let&#39;s take a look at what the above snippet would generate, with default settings:</p><ul><li><p><a href="outputformats.html#Examples.markdown"><code>Examples.markdown</code></a>: leading <code>#&#39;</code> are removed, and code lines are wrapped in <code>@example</code>-blocks:</p><pre><code class="language-markdown"># Rational numbers
+
+In julia rational numbers can be constructed with the `//` operator.
+Lets define two rational numbers, `x` and `y`:
+
+```@example filename
+x = 1//3
+y = 2//5
+```
+
+When adding `x` and `y` together we obtain a new rational number:
+
+```@example filename
+z = x + y
+```</code></pre></li><li><p><a href="outputformats.html#Examples.notebook"><code>Examples.notebook</code></a>: leading <code>#&#39;</code> are removed, markdown lines are placed in <code>&quot;markdown&quot;</code> cells, and code lines in <code>&quot;code&quot;</code> cells:</p><pre><code class="language-none">         │ # Rational numbers
+         │
+         │ In julia rational numbers can be constructed with the `//` operator.
+         │ Lets define two rational numbers, `x` and `y`:
+
+In [1]:  │ x = 1//3
+         │ y = 2//5
+
+Out [1]: │ 2//5
+
+         │ When adding `x` and `y` together we obtain a new rational number:
+
+In [2]:  │ z = x + y
+
+Out [2]: │ 11//15</code></pre></li><li><p><a href="outputformats.html#Examples.script"><code>Examples.script</code></a>: all lines starting with <code>#&#39;</code> are removed:</p><pre><code class="language-julia">x = 1//3
+y = 2//5
+
+z = x + y</code></pre></li></ul><h2><a class="nav-anchor" id="Filtering-lines-1" href="#Filtering-lines-1"><strong>2.2.</strong> Filtering Lines</a></h2><p>It is possible to filter out lines depending on the output format. For this purpose, there are three different &quot;tokens&quot; that can be placed on the start of the line:</p><ul><li><code>#md</code>: markdown output only,</li><li><code>#nb</code>: notebook output only,</li><li><code>#jl</code>: script output only.</li></ul><p>Lines starting with one of these tokens are filtered out in the <a href="pipeline.html#Pre-processing-1">preprocessing step</a>.</p><p>Suppose, for example, that we want to include a docstring within a <code>@docs</code> block using Documenter. Obviously we don&#39;t want to include this in the notebook, since <code>@docs</code> is Documenter syntax that the notebook will not understand. This is a case where we can prepend <code>#md</code> to those lines:</p><pre><code class="language-julia">#md #&#39; ```@docs
+#md #&#39; Examples.markdown
+#md #&#39; Examples.notebook
+#md #&#39; Examples.markdown
+#md #&#39; ```</code></pre><p>The lines in the example above would be filtered out in the preprocessing step, unless we are generating a markdown file. When generating a markdown file we would simple remove the leading <code>#md</code> from the lines. Beware that the space after the tag is also removed.</p><footer><hr/><a class="previous" href="index.html"><span class="direction">Previous</span><span class="title"><strong>1.</strong> Introduction</span></a><a class="next" href="pipeline.html"><span class="direction">Next</span><span class="title"><strong>3.</strong> Processing pipeline</span></a></footer></article></body></html>
