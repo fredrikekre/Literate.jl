@@ -171,15 +171,21 @@ Keyword arguments:
   section of the manual. Defaults to `identity`.
 - `codefence`: A `Pair` of opening and closing code fence. Defaults to
   ````
+  "```julia" => "```"
+  ````
+  if `documenter = false` and
+  ````
   "```@example \$(name)" => "```"
   ````
+  if `documenter = true`.
 - `documenter`: boolean that says if the output is intended to use with Documenter.jl.
   Defaults to `false`. See the the manual section on
   [Interaction with Documenter](@ref Interaction-with-Documenter).
 """
 function markdown(inputfile, outputdir; preprocess = identity, postprocess = identity,
                   name = filename(inputfile), documenter::Bool = false,
-                  codefence::Pair = "```@example $(name)" => "```", kwargs...)
+                  codefence::Pair = documenter ? "```@example $(name)" => "```" : "```julia" => "```",
+                  kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
     mkpath(outputdir)
@@ -208,6 +214,17 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
         content = replace(content, repl)
     end
 
+    # run some Documenter specific things
+    if documenter
+        # change the Edit on GitHub link
+        content = """
+        #' ```@meta
+        #' EditURL = "$(relpath(inputfile, outputdir))"
+        #' ```
+
+        """ * content
+    end
+
     # create the markdown file
     chunks = parse(content)
     iomd = IOBuffer()
@@ -220,7 +237,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
         else # isa(chunk, CodeChunk)
             write(iomd, codefence.first)
             # make sure the code block is finalized if we are printing to ```@example
-            if chunk.continued && startswith(codefence.first, "```@example")
+            if chunk.continued && startswith(codefence.first, "```@example") && documenter
                 write(iomd, "; continued = true")
             end
             write(iomd, '\n')
@@ -296,6 +313,21 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
                 ]
         content = replace(content, repl)
     end
+
+    # run some Documenter specific things
+    if documenter # TODO: safe to do this always?
+        # remove documenter style `@ref`s and `@id`s
+        # TODO: remove @docs, @setup etc? Probably not, since these are complete blocks
+        #       and the user can just mark those lines with #md
+        for repl in Pair{Any,Any}[
+                    r"\[(.*?)\]\(@ref\)" => s"\1",
+                    r"\[(.*?)\]\(@ref .*?\)" => s"\1",
+                    r"\[(.*?)\]\(@id .*?\)" => s"\1",
+                ]
+            content = replace(content, repl)
+        end
+    end
+
 
     # custom post-processing from user
     content = postprocess(content)

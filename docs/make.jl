@@ -5,9 +5,9 @@ using Examples
 EXAMPLE = joinpath(@__DIR__, "..", "examples", "example.jl")
 OUTPUT = joinpath(@__DIR__, "src/generated")
 
-Examples.markdown(EXAMPLE, OUTPUT)
-Examples.notebook(EXAMPLE, OUTPUT)
-Examples.script(EXAMPLE, OUTPUT)
+Examples.markdown(EXAMPLE, OUTPUT; documenter = true)
+Examples.notebook(EXAMPLE, OUTPUT; documenter = true)
+Examples.script(EXAMPLE, OUTPUT; documenter = true)
 
 makedocs(
     modules = [Examples],
