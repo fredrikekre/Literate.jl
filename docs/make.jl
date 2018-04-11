@@ -1,4 +1,3 @@
-using Revise
 using Documenter
 using Examples
 
