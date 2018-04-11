@@ -93,7 +93,14 @@ filename(str) = first(splitext(last(splitdir(str))))
 """
     Examples.script(inputfile, outputdir; kwargs...)
 
-Create a script file.
+Generate a plain script file from `inputfile` and write the result to `outputdir`.
+
+Keyword arguments:
+- `name`: name of the output file, excluding `.jl`. Defaults to the
+  filename of `inputfile`.
+- `preprocess`, `postprocess`: custom pre- and post-processing functions,
+  see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
+  section of the manual. Defaults to `identity`.
 """
 function script(inputfile, outputdir; preprocess = identity, postprocess = identity,
                 name = filename(inputfile), kwargs...)
@@ -103,18 +110,18 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
     @info "generating plain script file from $(inputfile)"
     # read content
     content = read(inputfile, String)
+    # - normalize line endings
+    content = replace(content, "\r\n" => "\n")
 
     # run custom pre-processing from user
     content = preprocess(content)
 
     # run built in pre-processing:
-    ## - normalize line endings
     ## - remove #md lines
     ## - remove #nb lines
     ## - remove leading and trailing #jl
     ## - replace @__NAME__
     for repl in Pair{Any,Any}[
-                    "\r\n" => "\n",
                     r"^#md.*\n?"m => "",
                     r"^#nb.*\n?"m => "",
                     r"^#jl "m => "",
@@ -152,10 +159,25 @@ end
 """
     Examples.markdown(inputfile, outputdir; kwargs...)
 
-Generate a markdown file from the `input` file and write the result to the `output` file.
+Generate a markdown file from `inputfile` and write the result
+to the directory`outputdir`.
+
+Keyword arguments:
+- `name`: name of the output file, excluding `.md`. `name` is also used to name
+  all the `@example` blocks. Defaults to the filename of `inputfile`.
+- `preprocess`, `postprocess`: custom pre- and post-processing functions,
+  see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
+  section of the manual. Defaults to `identity`.
+- `codefence`: A `Pair` of opening and closing code fence. Defaults to
+  ````
+  "```@example \$(name)" => "```"
+  ````
+- `documenter`: boolean that says if the output is intended to use with Documenter.jl.
+  Defaults to `false`. See the the manual section on
+  [Interaction with Documenter](@ref Interaction-with-Documenter).
 """
 function markdown(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                  name = filename(inputfile),
+                  name = filename(inputfile), documenter::Bool = false,
                   codefence::Pair = "```@example $(name)" => "```", kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
@@ -163,18 +185,18 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     @info "generating markdown page from $(inputfile)"
     # read content
     content = read(inputfile, String)
+    # - normalize line endings
+    content = replace(content, "\r\n" => "\n")
 
     # run custom pre-processing from user
     content = preprocess(content)
 
     # run built in pre-processing:
-    ## - normalize line endings
     ## - remove #nb lines
     ## - remove leading and trailing #jl lines
     ## - remove leading #md
     ## - replace @__NAME__
     for repl in Pair{Any,Any}[
-                    "\r\n" => "\n",
                     r"^#nb.*\n?"m => "",
                     r"^#jl.*\n?"m => "",
                     r".*#jl$\n?"m => "",
@@ -227,9 +249,21 @@ const JUPYTER_VERSION = v"4.3.0"
     Examples.notebook(inputfile, outputdir; kwargs...)
 
 Generate a notebook from `inputfile` and write the result to `outputdir`.
+
+Keyword arguments:
+- `name`: name of the output file, excluding `.ipynb`. Defaults to the
+  filename of `inputfile`.
+- `preprocess`, `postprocess`: custom pre- and post-processing functions,
+  see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
+  section of the manual. Defaults to `identity`.
+- `execute`: a boolean deciding if the generated notebook should also
+  be executed or not. Defaults to `false`.
+- `documenter`: boolean that says if the source contains Documenter.jl specific things
+  to filter out during notebook generation. Defaults to `false`. See the the manual
+  section on [Interaction with Documenter](@ref Interaction-with-Documenter).
 """
 function notebook(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                  execute::Bool=false,
+                  execute::Bool=false, documenter::Bool = false,
                   name = filename(inputfile), kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
@@ -237,19 +271,19 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     @info "generating notebook from $(inputfile)"
     # read content
     content = read(inputfile, String)
+    # normalize line endings
+    content = replace(content, "\r\n" => "\n")
 
     # run custom pre-processing from user
     content = preprocess(content)
 
     # run built in pre-processing:
-    ## - normalize line endings
     ## - remove #md lines
     ## - remove leading and trailing #jl lines
     ## - remove leading #nb
     ## - replace @__NAME__
     ## - replace ```math ... ``` with \begin{equation} ... \end{equation}
     for repl in Pair{Any,Any}[
-                    "\r\n" => "\n",
                     r"^#md.*\n?"m => "",
                     r"^#jl.*\n?"m => "",
                     r".*#jl$\n?"m => "",
