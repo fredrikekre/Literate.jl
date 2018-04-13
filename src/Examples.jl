@@ -169,21 +169,21 @@ Keyword arguments:
 - `preprocess`, `postprocess`: custom pre- and post-processing functions,
   see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
   section of the manual. Defaults to `identity`.
+- `documenter`: boolean that tells if the output is intended to use with Documenter.jl.
+  Defaults to `true`. See the the manual section on
+  [Interaction with Documenter](@ref Interaction-with-Documenter).
 - `codefence`: A `Pair` of opening and closing code fence. Defaults to
-  ````
-  "```julia" => "```"
-  ````
-  if `documenter = false` and
   ````
   "```@example \$(name)" => "```"
   ````
-  if `documenter = true`.
-- `documenter`: boolean that says if the output is intended to use with Documenter.jl.
-  Defaults to `false`. See the the manual section on
-  [Interaction with Documenter](@ref Interaction-with-Documenter).
+  if `documenter = true` and
+  ````
+  "```julia" => "```"
+  ````
+  if `documenter = false`.
 """
 function markdown(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                  name = filename(inputfile), documenter::Bool = false,
+                  name = filename(inputfile), documenter::Bool = true,
                   codefence::Pair = documenter ? "```@example $(name)" => "```" : "```julia" => "```",
                   kwargs...)
     # normalize paths
@@ -276,13 +276,13 @@ Keyword arguments:
   see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
   section of the manual. Defaults to `identity`.
 - `execute`: a boolean deciding if the generated notebook should also
-  be executed or not. Defaults to `false`.
+  be executed or not. Defaults to `true`.
 - `documenter`: boolean that says if the source contains Documenter.jl specific things
-  to filter out during notebook generation. Defaults to `false`. See the the manual
+  to filter out during notebook generation. Defaults to `true`. See the the manual
   section on [Interaction with Documenter](@ref Interaction-with-Documenter).
 """
 function notebook(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                  execute::Bool=false, documenter::Bool = false,
+                  execute::Bool=true, documenter::Bool=true,
                   name = filename(inputfile), kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
