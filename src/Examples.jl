@@ -217,7 +217,8 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     # run some Documenter specific things
     if documenter
         # change the Edit on GitHub link
-        pkg = "Examples"
+        repo = get(ENV, "TRAVIS_REPO_SLUG", "")
+        pkg = first(split(last(split(repo, '/')), '.'))
         content = """
         #' ```@meta
         #' EditURL = "@__REPO_ROOT_URL__$(relpath(inputfile, Pkg.dir(pkg)))"
