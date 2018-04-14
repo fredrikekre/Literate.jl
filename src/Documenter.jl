@@ -2,6 +2,8 @@
 # (https://github.com/JuliaDocs/Documenter.jl), see LICENSE.md for license
 module Documenter
 
+using Compat: stdout, stderr, Cvoid
+
 @static if VERSION < v"0.7.0-DEV.3951"
     link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true) =
         Base.link_pipe(pipe, julia_only_read = reader_supports_async, julia_only_write = writer_supports_async)

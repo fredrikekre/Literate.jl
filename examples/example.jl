@@ -1,18 +1,13 @@
 #' # **7.** Example
 #'
-#' *Output generated with Examples.jl based on
-#' [this](../../../examples/example.jl) source file.*
-#'
-#' This is an example source file for input to Examples.jl.
-#'
-#md #' If you are reading this you are seeing the markdown output
-#md #' generated from the source file, here you can see the corresponding
-#md #' notebook output: [example.ipynb](./example.ipynb)
-#nb #' If you are reading this you are seeing the notebook output
-#nb #' generated from the source file, here you can see the corresponding
-#nb #' markdown output: [example.md](./example.md)
+#' This is an example for Examples.jl.
+#' The source file can be found [here](@__REPO_ROOT_URL__examples/example.jl).
+#' The generated markdown can be found here: [`example.md`](./example.md), the
+#' generated notebook can be found here:
+#' [`example.ipynb`](@__NBVIEWER__ROOT_URL__generated/example.ipynb), and the
+#' plain script output can be found here: [`example.jl`](./example.jl).
 
-#' ## Rational numbers in Julia
+#' ### Rational numbers in Julia
 #' Rational number in julia can be constructed with the `//` operator:
 
 x = 1//3

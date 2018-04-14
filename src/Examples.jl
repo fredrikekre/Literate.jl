@@ -217,13 +217,17 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     # run some Documenter specific things
     if documenter
         # change the Edit on GitHub link
+        pkg = "Examples"
         content = """
         #' ```@meta
-        #' EditURL = "$(relpath(inputfile, outputdir))"
+        #' EditURL = "@__REPO_ROOT_URL__$(relpath(inputfile, Pkg.dir(pkg)))"
         #' ```
 
         """ * content
     end
+
+    # fix urls to point to correct file
+    content = fixlinks(content)
 
     # create the markdown file
     chunks = parse(content)
@@ -313,6 +317,9 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
                 ]
         content = replace(content, repl)
     end
+
+    # fix urls to point to correct file
+    content = fixlinks(content)
 
     # run some Documenter specific things
     if documenter # TODO: safe to do this always?
@@ -451,6 +458,19 @@ function execute_notebook(nb)
 
     end
     nb
+end
+
+function fixlinks(content; commit = "master")
+    # replace @__REPO__ to master/commit
+    repo = get(ENV, "TRAVIS_REPO_SLUG", "")
+    root_url = "https://github.com/$(repo)/blob/$(commit)/"
+    content = replace(content, "@__REPO_ROOT_URL__" => root_url)
+    # replace @__NBVIEWER__ to latest or version directory
+    folder = "latest"
+    branch = "gh-pages"
+    nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(repo)/blob/$(branch)/$(folder)/"
+    content = replace(content, "@__NBVIEWER__ROOT_URL__" => nbviewer_root_url)
+    return content
 end
 
 end # module
