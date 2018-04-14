@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output formats",
     "title": "Examples.markdown",
     "category": "function",
-    "text": "Examples.markdown(inputfile, outputdir; kwargs...)\n\nGenerate a markdown file from inputfile and write the result to the directoryoutputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .md. name is also used to name all the @example blocks. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\ncodefence: A Pair of opening and closing code fence. Defaults to\n\"```julia\" => \"```\"\nif documenter = false and\n\"```@example $(name)\" => \"```\"\nif documenter = true.\ndocumenter: boolean that says if the output is intended to use with Documenter.jl. Defaults to false. See the the manual section on Interaction with Documenter.\n\n\n\n\n\n"
+    "text": "Examples.markdown(inputfile, outputdir; kwargs...)\n\nGenerate a markdown file from inputfile and write the result to the directoryoutputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .md. name is also used to name all the @example blocks. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\ndocumenter: boolean that tells if the output is intended to use with Documenter.jl. Defaults to true. See the the manual section on Interaction with Documenter.\ncodefence: A Pair of opening and closing code fence. Defaults to\n\"```@example $(name)\" => \"```\"\nif documenter = true and\n\"```julia\" => \"```\"\nif documenter = false.\n\n\n\n\n\n"
 },
 
 {
@@ -173,7 +173,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output formats",
     "title": "Examples.notebook",
     "category": "function",
-    "text": "Examples.notebook(inputfile, outputdir; kwargs...)\n\nGenerate a notebook from inputfile and write the result to outputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .ipynb. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\nexecute: a boolean deciding if the generated notebook should also be executed or not. Defaults to false.\ndocumenter: boolean that says if the source contains Documenter.jl specific things to filter out during notebook generation. Defaults to false. See the the manual section on Interaction with Documenter.\n\n\n\n\n\n"
+    "text": "Examples.notebook(inputfile, outputdir; kwargs...)\n\nGenerate a notebook from inputfile and write the result to outputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .ipynb. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\nexecute: a boolean deciding if the generated notebook should also be executed or not. Defaults to true.\ndocumenter: boolean that says if the source contains Documenter.jl specific things to filter out during notebook generation. Defaults to true. See the the manual section on Interaction with Documenter.\n\n\n\n\n\n"
 },
 
 {
@@ -237,7 +237,7 @@ var documenterSearchIndex = {"docs": [
     "page": "7. Example",
     "title": "7. Example",
     "category": "page",
-    "text": "EditURL = \"../../../examples/example.jl\""
+    "text": "EditURL = \"https://github.com/fredrikekre/Examples.jl/blob/master/examples/example.jl\""
 },
 
 {
@@ -245,7 +245,7 @@ var documenterSearchIndex = {"docs": [
     "page": "7. Example",
     "title": "7. Example",
     "category": "section",
-    "text": "Output generated with Examples.jl based on this source file.This is an example source file for input to Examples.jl.If you are reading this you are seeing the markdown output generated from the source file, here you can see the corresponding notebook output: example.ipynb"
+    "text": "This is an example for Examples.jl. The source file can be found here. The generated markdown can be found here: example.md, the generated notebook can be found here: example.ipynb, and the plain script output can be found here: example.jl."
 },
 
 {
