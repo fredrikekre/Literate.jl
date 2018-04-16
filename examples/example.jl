@@ -4,7 +4,7 @@
 #' The source file can be found [here](@__REPO_ROOT_URL__examples/example.jl).
 #' The generated markdown can be found here: [`example.md`](./example.md), the
 #' generated notebook can be found here:
-#' [`example.ipynb`](@__NBVIEWER__ROOT_URL__generated/example.ipynb), and the
+#' [`example.ipynb`](@__NBVIEWER_ROOT_URL__generated/example.ipynb), and the
 #' plain script output can be found here: [`example.jl`](./example.jl).
 
 #' ### Rational numbers in Julia
