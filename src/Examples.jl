@@ -121,13 +121,11 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
     ## - remove #md lines
     ## - remove #nb lines
     ## - remove leading and trailing #jl
-    ## - replace @__NAME__
     for repl in Pair{Any,Any}[
                     r"^#md.*\n?"m => "",
                     r"^#nb.*\n?"m => "",
                     r"^#jl "m => "",
                     r" #jl$"m => "",
-                    "@__NAME__" => name,
                 ]
         content = replace(content, repl)
     end
@@ -203,13 +201,11 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     ## - remove #nb lines
     ## - remove leading and trailing #jl lines
     ## - remove leading #md
-    ## - replace @__NAME__
     for repl in Pair{Any,Any}[
                     r"^#nb.*\n?"m => "",
                     r"^#jl.*\n?"m => "",
                     r".*#jl$\n?"m => "",
                     r"^#md "m => "",
-                    "@__NAME__" => name,
                 ]
         content = replace(content, repl)
     end
@@ -306,14 +302,12 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     ## - remove #md lines
     ## - remove leading and trailing #jl lines
     ## - remove leading #nb
-    ## - replace @__NAME__
     ## - replace ```math ... ``` with \begin{equation} ... \end{equation}
     for repl in Pair{Any,Any}[
                     r"^#md.*\n?"m => "",
                     r"^#jl.*\n?"m => "",
                     r".*#jl$\n?"m => "",
                     r"^#nb "m => "",
-                    "@__NAME__" => name,
                 ]
         content = replace(content, repl)
     end
