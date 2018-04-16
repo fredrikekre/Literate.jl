@@ -462,25 +462,25 @@ function execute_notebook(nb)
 end
 
 function fixlinks(content; branch = "gh-pages", commit = "master")
-    if get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true"
-        travis_repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "")
-        # use same logic as Documenter to figure out the deploy folder
-        travis_tag = get(ENV, "TRAVIS_TAG", "")
-        if isempty(travis_tag)
-            folder = "latest"
-        else
-            # use the versioned directory for links, even for the stable and release-
-            # folders since this will never change
-            folder = travis_tag
-        end
-        # replace @__REPO_ROOT_URL__ to master/commit
-        repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)/"
-        content = replace(content, "@__REPO_ROOT_URL__" => repo_root_url)
-        # replace @__NBVIEWER_ROOT_URL__ to latest or version directory
-        nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(travis_repo_slug)/blob/$(branch)/$(folder)/"
-        content = replace(content, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
+    travis_repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "TRAVIS_REPO_SLUG")
+    # use same logic as Documenter to figure out the deploy folder
+    travis_tag = get(ENV, "TRAVIS_TAG", "TRAVIS_TAG")
+    if isempty(travis_tag)
+        folder = "latest"
     else
-        @info "not running on Travis, skipping link-fix."
+        # use the versioned directory for links, even for the stable and release-
+        # folders since this will never change
+        folder = travis_tag
+    end
+    # replace @__REPO_ROOT_URL__ to master/commit
+    repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)/"
+    content = replace(content, "@__REPO_ROOT_URL__" => repo_root_url)
+    # replace @__NBVIEWER_ROOT_URL__ to latest or version directory
+    nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(travis_repo_slug)/blob/$(branch)/$(folder)/"
+    content = replace(content, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
+
+    if get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") != "true"
+        @info "not running on Travis, skipping links will not be correct."
     end
     return content
 end
