@@ -314,7 +314,6 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
                     r".*#jl$\n?"m => "",
                     r"^#nb "m => "",
                     "@__NAME__" => name,
-                    r"```math(.*?)```"s => s"\\begin{equation}\1\\end{equation}",
                 ]
         content = replace(content, repl)
     end
@@ -324,10 +323,12 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
 
     # run some Documenter specific things
     if documenter # TODO: safe to do this always?
-        # remove documenter style `@ref`s and `@id`s
+        ## - replace ```math ... ``` with \begin{equation} ... \end{equation}
+        ## - remove documenter style `@ref`s and `@id`s
         # TODO: remove @docs, @setup etc? Probably not, since these are complete blocks
         #       and the user can just mark those lines with #md
         for repl in Pair{Any,Any}[
+                    r"```math(.*?)```"s => s"\\begin{equation}\1\\end{equation}",
                     r"\[(.*?)\]\(@ref\)" => s"\1",
                     r"\[(.*?)\]\(@ref .*?\)" => s"\1",
                     r"\[(.*?)\]\(@id .*?\)" => s"\1",

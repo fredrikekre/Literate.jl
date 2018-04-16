@@ -33,4 +33,15 @@ if we set `documenter = true`:
 [`Examples.notebook`](@ref):
 - Documenter style `@ref`s and `@id` will be removed. This means that you can use
   `@ref` and `@id` in the source file without them leaking to the notebook.
-
+- Documenter style markdown math
+  ````
+  ```math
+  \int f dx
+  ```
+  ````
+  is replaced with notebook compatible
+  ```
+  \begin{equation}
+  \int f dx
+  \end{equation}
+  ```
