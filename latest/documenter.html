@@ -5,4 +5,8 @@
 # code
 ```</code></pre></li><li>The following <code>@meta</code> block will be added to the top of the markdown page, which redirects the &quot;Edit on GitHub&quot; link on the top of the page to the <em>source file</em> rather than the generated <code>.md</code> file:<pre><code class="language-none">```@meta
 EditURL = &quot;$(relpath(inputfile, outputdir))&quot;
-```</code></pre></li></ul><p><a href="outputformats.html#Examples.notebook"><code>Examples.notebook</code></a>:</p><ul><li>Documenter style <code>@ref</code>s and <code>@id</code> will be removed. This means that you can use <code>@ref</code> and <code>@id</code> in the source file without them leaking to the notebook.</li></ul><footer><hr/><a class="previous" href="customprocessing.html"><span class="direction">Previous</span><span class="title"><strong>5.</strong> Custom pre- and post-processing</span></a><a class="next" href="generated/example.html"><span class="direction">Next</span><span class="title"><strong>7.</strong> Example</span></a></footer></article></body></html>
+```</code></pre></li></ul><p><a href="outputformats.html#Examples.notebook"><code>Examples.notebook</code></a>:</p><ul><li>Documenter style <code>@ref</code>s and <code>@id</code> will be removed. This means that you can use <code>@ref</code> and <code>@id</code> in the source file without them leaking to the notebook.</li><li>Documenter style markdown math<pre><code class="language-none">```math
+\int f dx
+```</code></pre>is replaced with notebook compatible<pre><code class="language-none">\begin{equation}
+\int f dx
+\end{equation}</code></pre></li></ul><footer><hr/><a class="previous" href="customprocessing.html"><span class="direction">Previous</span><span class="title"><strong>5.</strong> Custom pre- and post-processing</span></a><a class="next" href="generated/example.html"><span class="direction">Next</span><span class="title"><strong>7.</strong> Example</span></a></footer></article></body></html>
