@@ -192,7 +192,9 @@ content = """
             https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
 
             """
-            @test read(joinpath(outdir, "inputfile.jl"), String) == expected_script
+            script = read(joinpath(outdir, "inputfile.jl"), String)
+            script = replace(script, "\\" => "/") # normalize \ to / on Windows
+            @test script == expected_script
 
             # no tag -> latest directory
             withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
@@ -280,7 +282,9 @@ end
             ```
 
             """
-            @test read(joinpath(outdir, "inputfile.md"), String) == expected_markdown
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            markdown = replace(markdown, "\\" => "/") # normalize \ to / on Windows
+            @test markdown == expected_markdown
 
             # no tag -> latest directory
             withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
