@@ -131,6 +131,9 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
         content = replace(content, repl)
     end
 
+    # fix urls to point to correct file
+    content = fixlinks(content)
+
     # create the script file
     chunks = parse(content)
     ioscript = IOBuffer()
