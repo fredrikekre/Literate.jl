@@ -159,6 +159,70 @@ content = """
     @__NBVIEWER_ROOT_URL__
     """
 
+@testset "Examples.script" begin
+    mktempdir(@__DIR__) do sandbox
+        cd(sandbox) do
+            # write content to inputfile
+            inputfile = "inputfile.jl"
+            write(inputfile, content)
+            outdir = mktempdir(pwd())
+
+            # test defaults
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+                    "TRAVIS_TAG" => "v1.2.0",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+                Examples.script(inputfile, outdir)
+            end
+            expected_script = """
+            Line 2
+
+            Line 8
+
+            Line 10
+            # #' Line 11
+            # Line 12
+
+            Line 14
+                Line 15
+
+            Line 17
+
+            https://github.com/fredrikekre/Examples.jl/blob/master/
+
+            https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+
+            """
+            @test read(joinpath(outdir, "inputfile.jl"), String) == expected_script
+
+            # no tag -> latest directory
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+                    "TRAVIS_TAG" => "",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+                Examples.script(inputfile, outdir)
+            end
+            script = read(joinpath(outdir, "inputfile.jl"), String)
+            @test contains(script, "fredrikekre/Examples.jl/blob/gh-pages/latest/")
+
+            # pre- and post-processing
+            Examples.script(inputfile, outdir,
+                preprocess = x -> replace(x, "Line 11" => "Foo"),
+                postprocess = x -> replace(x, "Line 12" => "Bar"))
+            script = read(joinpath(outdir, "inputfile.jl"), String)
+            @test !contains(script, "Line 11")
+            @test contains(script, "Foo")
+            @test !contains(script, "Line 12")
+            @test contains(script, "Bar")
+
+            # name
+            Examples.script(inputfile, outdir, name = "foobar")
+            namedscript = read(joinpath(outdir, "foobar.jl"), String)
+            Examples.script(inputfile, outdir)
+            nonamescrip = read(joinpath(outdir, "inputfile.jl"), String)
+            @test namedscript == nonamescrip
+        end
+    end
+end
+
 @testset "Examples.markdown" begin
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do
