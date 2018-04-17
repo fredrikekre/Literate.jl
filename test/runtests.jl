@@ -1,5 +1,135 @@
-using Examples
-using Base.Test
+import Examples
+import Examples: Chunk, MDChunk, CodeChunk
+using Compat.Test
 
-# write your own tests here
-@test 1 == 1
+# compare content of two parsed chunk vectors
+function compare_chunks(chunks1, chunks2)
+    @test length(chunks1) == length(chunks2)
+    for (c1, c2) in zip(chunks1, chunks2)
+        # compare types
+        @test typeof(c1) == typeof(c2)
+        # test that no chunk start or end with ""
+        @test !isempty(first(c1.lines)); @test !isempty(last(c1.lines))
+        @test !isempty(first(c2.lines)); @test !isempty(last(c2.lines))
+        # compare content
+        for (l1, l2) in zip(c1.lines, c2.lines)
+            @test l1 == l2
+        end
+        # test continued code
+        if isa(c1, CodeChunk)
+            @test c1.continued == c2.continued
+        end
+    end
+end
+
+@testset "parser" begin
+    content = """
+    #' Line 1
+    Line 2
+    #' Line 3
+    #'
+    #' Line 5
+    Line 6
+
+    Line 8
+    #' Line 9
+    #-
+    #' Line 11
+    Line 12
+    #-
+    Line 14
+    #' Line 15
+    #-----------------
+    #' Line 17
+    Line 18
+    #-----------------
+    Line 20
+    #' Line 21
+    Line 22
+        Line 23
+    Line 24
+    #-
+    Line 26
+        Line 27
+    #-
+    Line 29
+    #-
+    Line 31
+        Line 32
+    #' Line 33
+    Line 34
+    #-
+    Line 36
+    #-
+        Line 38
+    #-
+    Line 40
+    #-
+    Line 42
+        Line 43
+    #' Line 44
+        Line 45
+    #' Line 46
+    Line 47
+    #' Line 48
+    #Line 49
+    Line 50
+    """
+    expected_chunks = Chunk[
+        MDChunk(["Line 1"]),
+        CodeChunk(["Line 2"], false),
+        MDChunk(["Line 3", "","Line 5"]),
+        CodeChunk(["Line 6", "","Line 8"], false),
+        MDChunk(["Line 9"]),
+        MDChunk(["Line 11"]),
+        CodeChunk(["Line 12"], false),
+        CodeChunk(["Line 14"], false),
+        MDChunk(["Line 15"]),
+        MDChunk(["Line 17"]),
+        CodeChunk(["Line 18"], false),
+        CodeChunk(["Line 20"], false),
+        MDChunk(["Line 21"]),
+        CodeChunk(["Line 22", "    Line 23", "Line 24"], false),
+        CodeChunk(["Line 26", "    Line 27"], true),
+        CodeChunk(["Line 29"], false),
+        CodeChunk(["Line 31", "    Line 32"], true),
+        MDChunk(["Line 33"]),
+        CodeChunk(["Line 34"], false),
+        CodeChunk(["Line 36"], true),
+        CodeChunk(["    Line 38"], true),
+        CodeChunk(["Line 40"], false),
+        CodeChunk(["Line 42", "    Line 43"], true),
+        MDChunk(["Line 44"]),
+        CodeChunk(["    Line 45"], true),
+        MDChunk(["Line 46"]),
+        CodeChunk(["Line 47"], false),
+        MDChunk(["Line 48"]),
+        CodeChunk(["#Line 49", "Line 50"], false),
+        ]
+    parsed_chunks = Examples.parse(content)
+    compare_chunks(parsed_chunks, expected_chunks)
+
+    # test leading/trailing whitespace removal
+    io = IOBuffer()
+    iows = IOBuffer()
+    for c in expected_chunks
+        if isa(c, CodeChunk)
+            foreach(x-> println(io,   x), c.lines)
+            foreach(x-> println(iows, x), c.lines)
+        else
+            foreach(x -> println(io,   "#' ", x), c.lines)
+            foreach(x -> println(iows, "#' ", x), c.lines)
+        end
+        println(io,   "#-")
+        println(iows, "#-")
+        foreach(x -> println(iows), 1:rand(2:5))
+    end
+
+    compare_chunks(Examples.parse(String(take!(io))), Examples.parse(String(take!(iows))))
+
+end # testset parser
+
+
+# @testset "Examples.markdown" begin
+#     content = read("testinput.jl", String)
+# end
