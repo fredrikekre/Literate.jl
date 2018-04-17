@@ -74,6 +74,11 @@ end
     #' Line 48
     #Line 49
     Line 50
+    #'
+    #'
+    #' Line 53
+    #'
+    #'
     """
     expected_chunks = Chunk[
         MDChunk(["Line 1"]),
@@ -105,6 +110,7 @@ end
         CodeChunk(["Line 47"], false),
         MDChunk(["Line 48"]),
         CodeChunk(["#Line 49", "Line 50"], false),
+        MDChunk(["Line 53"]),
         ]
     parsed_chunks = Examples.parse(content)
     compare_chunks(parsed_chunks, expected_chunks)
