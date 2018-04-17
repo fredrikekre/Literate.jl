@@ -22,7 +22,7 @@ function compare_chunks(chunks1, chunks2)
     end
 end
 
-@testset "parser" begin
+@testset "Examples.parse" begin
     content = """
     #' Line 1
     Line 2
@@ -121,10 +121,10 @@ end
     for c in expected_chunks
         if isa(c, CodeChunk)
             foreach(x-> println(io,   x), c.lines)
-            foreach(x-> println(iows, x), c.lines)
+            foreach(x-> println(iows, x, "  "), c.lines)
         else
             foreach(x -> println(io,   "#' ", x), c.lines)
-            foreach(x -> println(iows, "#' ", x), c.lines)
+            foreach(x -> println(iows, "#' ", x, "  "), c.lines)
         end
         println(io,   "#-")
         println(iows, "#-")
@@ -144,7 +144,7 @@ content = """
     #nb Line 6
     #jl #' Line 7
     #jl Line 8
-    #' Line 9 #jl
+    #' Line 9  #jl
     Line 10    #jl
     # #' Line 11
     # Line 12

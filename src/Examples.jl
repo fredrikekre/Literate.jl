@@ -40,6 +40,7 @@ function parse(content)
     push!(chunks, startswith(lines[1], "#'") ? MDChunk() : CodeChunk())
 
     for line in lines
+        line = rstrip(line)
         if startswith(line, "#-") # new chunk
             # assume same as last chunk, will be cleaned up otherwise
             push!(chunks, typeof(chunks[end])())
