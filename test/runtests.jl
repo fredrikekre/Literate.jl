@@ -129,7 +129,123 @@ end
 
 end # testset parser
 
+content = """
+    #' Line 1
+    Line 2
+    #md #' Line 3
+    #md Line 4
+    #nb #' Line 5
+    #nb Line 6
+    #jl #' Line 7
+    #jl Line 8
+    #' Line 9 #jl
+    Line 10    #jl
+    # #' Line 11
+    # Line 12
+    #-
+    Line 14
+        Line 15
+    #' Line 16
+    Line 17
+    #' @__REPO_ROOT_URL__
+    @__REPO_ROOT_URL__
+    #' @__NBVIEWER_ROOT_URL__
+    @__NBVIEWER_ROOT_URL__
+    """
 
-# @testset "Examples.markdown" begin
-#     content = read("testinput.jl", String)
-# end
+@testset "Examples.markdown" begin
+    withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+            "TRAVIS_TAG" => "v1.2.0",
+            "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+        # test defaults
+        mktempdir(@__DIR__) do sandbox
+            cd(sandbox) do
+                # write content to inputfile
+                inputfile = "inputfile.jl"
+                write(inputfile, content)
+                outdir = mktempdir(pwd())
+                Examples.markdown(inputfile, outdir)
+                expected_markdown = """
+                ```@meta
+                EditURL = "https://github.com/fredrikekre/Examples.jl/blob/master/test/$(basename(sandbox))/inputfile.jl"
+                ```
+
+                Line 1
+
+                ```@example inputfile
+                Line 2
+                ```
+
+                Line 3
+
+                ```@example inputfile
+                Line 4
+                # #' Line 11
+                # Line 12
+                ```
+
+                ```@example inputfile; continued = true
+                Line 14
+                    Line 15
+                ```
+
+                Line 16
+
+                ```@example inputfile
+                Line 17
+                ```
+
+                https://github.com/fredrikekre/Examples.jl/blob/master/
+
+                ```@example inputfile
+                https://github.com/fredrikekre/Examples.jl/blob/master/
+                ```
+
+                https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+
+                ```@example inputfile
+                https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+                ```
+
+                """
+                @test read(joinpath(outdir, "inputfile.md"), String) == expected_markdown
+            end
+        end
+        # test kwargs and pre- and post-processing
+        mktempdir(@__DIR__) do sandbox
+            cd(sandbox) do
+                # write content to inputfile
+                inputfile = "inputfile.jl"
+                write(inputfile, content)
+                outdir = mktempdir(pwd())
+                # pre- and post-processing
+                Examples.markdown(inputfile, outdir,
+                    preprocess = x -> replace(x, "Line 11" => "Foo"),
+                    postprocess = x -> replace(x, "Line 12" => "Bar"))
+                markdown = read(joinpath(outdir, "inputfile.md"), String)
+                @test !contains(markdown, "Line 11")
+                @test contains(markdown, "Foo")
+                @test !contains(markdown, "Line 12")
+                @test contains(markdown, "Bar")
+                # documenter = false
+                Examples.markdown(inputfile, outdir, documenter = false)
+                markdown = read(joinpath(outdir, "inputfile.md"), String)
+                @test contains(markdown, "```julia")
+                @test !contains(markdown, "```@example")
+                @test !contains(markdown, "continued = true")
+                @test !contains(markdown, "EditURL")
+                # codefence
+                Examples.markdown(inputfile, outdir, codefence = "```c" => "```")
+                markdown = read(joinpath(outdir, "inputfile.md"), String)
+                @test contains(markdown, "```c")
+                @test !contains(markdown, "```@example")
+                @test !contains(markdown, "```julia")
+                # name
+                Examples.markdown(inputfile, outdir, name = "foobar")
+                markdown = read(joinpath(outdir, "foobar.md"), String)
+                @test contains(markdown, "```@example foobar")
+                @test !contains(markdown, "```@example inputfile")
+            end
+        end
+    end
+end
