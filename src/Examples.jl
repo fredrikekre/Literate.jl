@@ -335,8 +335,8 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     end
 
 
-    # custom post-processing from user
-    content = postprocess(content)
+    # # custom post-processing from user
+    # content = postprocess(content)
 
     # create the notebook
     nb = Dict()
