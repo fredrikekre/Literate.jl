@@ -136,27 +136,37 @@ end
 end # testset parser
 
 content = """
-    #' Line 1
-    Line 2
-    #md #' Line 3
-    #md Line 4
-    #nb #' Line 5
-    #nb Line 6
-    #jl #' Line 7
-    #jl Line 8
-    #' Line 9  #jl
-    Line 10    #jl
-    # #' Line 11
-    # Line 12
+    #' # Example
+    x = 1
+    #md #' Only markdown
+    #md x + 1
+    #nb #' Only notebook
+    #nb x + 2
+    #jl #' Only script
+    #jl x + 3
+    #' Only script too  #jl
+    x + 4               #jl
+    # #' Comment
+    # another comment
     #-
-    Line 14
-        Line 15
-    #' Line 16
-    Line 17
-    #' @__REPO_ROOT_URL__
-    @__REPO_ROOT_URL__
-    #' @__NBVIEWER_ROOT_URL__
-    @__NBVIEWER_ROOT_URL__
+    for i in 1:10
+        print(i)
+    #' some markdown in a code block
+    end
+    #' Link to repo root: @__REPO_ROOT_URL__
+    # Link to repo root: @__REPO_ROOT_URL__
+    #' Link to nbviewer: @__NBVIEWER_ROOT_URL__
+    # Link to nbviewer: @__NBVIEWER_ROOT_URL__
+
+    #' PLACEHOLDER1
+    #' PLACEHOLDER2
+    # PLACEHOLDER3
+    # PLACEHOLDER4
+
+    #' Some math:
+    #' ```math
+    #' \\int f(x) dx
+    #' ```
     """
 
 @testset "Examples.script" begin
@@ -174,22 +184,25 @@ content = """
                 Examples.script(inputfile, outdir)
             end
             expected_script = """
-            Line 2
+            x = 1
 
-            Line 8
+            x + 3
 
-            Line 10
-            # #' Line 11
-            # Line 12
+            x + 4
+            # #' Comment
+            # another comment
 
-            Line 14
-                Line 15
+            for i in 1:10
+                print(i)
 
-            Line 17
+            end
 
-            https://github.com/fredrikekre/Examples.jl/blob/master/
+            # Link to repo root: https://github.com/fredrikekre/Examples.jl/blob/master/
 
-            https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+            # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+
+            # PLACEHOLDER3
+            # PLACEHOLDER4
 
             """
             script = read(joinpath(outdir, "inputfile.jl"), String)
@@ -207,13 +220,15 @@ content = """
 
             # pre- and post-processing
             Examples.script(inputfile, outdir,
-                preprocess = x -> replace(x, "Line 11" => "Foo"),
-                postprocess = x -> replace(x, "Line 12" => "Bar"))
+                preprocess = x -> replace(x, "PLACEHOLDER3" => "3REDLOHECALP"),
+                postprocess = x -> replace(x, "PLACEHOLDER4" => "4REDLOHECALP"))
             script = read(joinpath(outdir, "inputfile.jl"), String)
-            @test !contains(script, "Line 11")
-            @test contains(script, "Foo")
-            @test !contains(script, "Line 12")
-            @test contains(script, "Bar")
+            @test !contains(script, "PLACEHOLDER1")
+            @test !contains(script, "PLACEHOLDER2")
+            @test !contains(script, "PLACEHOLDER3")
+            @test !contains(script, "PLACEHOLDER4")
+            @test contains(script, "3REDLOHECALP")
+            @test contains(script, "4REDLOHECALP")
 
             # name
             Examples.script(inputfile, outdir, name = "foobar")
@@ -244,41 +259,54 @@ end
             EditURL = "https://github.com/fredrikekre/Examples.jl/blob/master/test/$(basename(sandbox))/inputfile.jl"
             ```
 
-            Line 1
+            # Example
 
             ```@example inputfile
-            Line 2
+            x = 1
             ```
 
-            Line 3
+            Only markdown
 
             ```@example inputfile
-            Line 4
-            # #' Line 11
-            # Line 12
+            x + 1
+            # #' Comment
+            # another comment
             ```
 
             ```@example inputfile; continued = true
-            Line 14
-                Line 15
+            for i in 1:10
+                print(i)
             ```
 
-            Line 16
+            some markdown in a code block
 
             ```@example inputfile
-            Line 17
+            end
             ```
 
-            https://github.com/fredrikekre/Examples.jl/blob/master/
+            Link to repo root: https://github.com/fredrikekre/Examples.jl/blob/master/
 
             ```@example inputfile
-            https://github.com/fredrikekre/Examples.jl/blob/master/
+            # Link to repo root: https://github.com/fredrikekre/Examples.jl/blob/master/
             ```
 
-            https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+            Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
 
             ```@example inputfile
-            https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+            # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+            ```
+
+            PLACEHOLDER1
+            PLACEHOLDER2
+
+            ```@example inputfile
+            # PLACEHOLDER3
+            # PLACEHOLDER4
+            ```
+
+            Some math:
+            ```math
+            /int f(x) dx
             ```
 
             """
@@ -297,13 +325,17 @@ end
 
             # pre- and post-processing
             Examples.markdown(inputfile, outdir,
-                preprocess = x -> replace(x, "Line 11" => "Foo"),
-                postprocess = x -> replace(x, "Line 12" => "Bar"))
+                preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
+                postprocess = x -> replace(replace(x, "PLACEHOLDER2" => "2REDLOHECALP"), "PLACEHOLDER4" => "4REDLOHECALP"))
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test !contains(markdown, "Line 11")
-            @test contains(markdown, "Foo")
-            @test !contains(markdown, "Line 12")
-            @test contains(markdown, "Bar")
+            @test !contains(markdown, "PLACEHOLDER1")
+            @test !contains(markdown, "PLACEHOLDER2")
+            @test !contains(markdown, "PLACEHOLDER3")
+            @test !contains(markdown, "PLACEHOLDER4")
+            @test contains(markdown, "1REDLOHECALP")
+            @test contains(markdown, "2REDLOHECALP")
+            @test contains(markdown, "3REDLOHECALP")
+            @test contains(markdown, "4REDLOHECALP")
 
             # documenter = false
             Examples.markdown(inputfile, outdir, documenter = false)
