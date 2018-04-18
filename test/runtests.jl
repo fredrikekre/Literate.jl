@@ -233,10 +233,7 @@ content = """
 
             # name
             Examples.script(inputfile, outdir, name = "foobar")
-            namedscript = read(joinpath(outdir, "foobar.jl"), String)
-            Examples.script(inputfile, outdir)
-            nonamescrip = read(joinpath(outdir, "inputfile.jl"), String)
-            @test namedscript == nonamescrip
+            @test isfile(joinpath(outdir, "foobar.jl"))
         end
     end
 end
@@ -359,6 +356,180 @@ end
             markdown = read(joinpath(outdir, "foobar.md"), String)
             @test contains(markdown, "```@example foobar")
             @test !contains(markdown, "```@example inputfile")
+        end
+    end
+end
+
+@testset "Examples.notebook" begin
+    mktempdir(@__DIR__) do sandbox
+        cd(sandbox) do
+            # write content to inputfile
+            inputfile = "inputfile.jl"
+            write(inputfile, content)
+            outdir = mktempdir(pwd())
+
+            # test defaults
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+                    "TRAVIS_TAG" => "v1.2.0",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+                Examples.notebook(inputfile, outdir, execute = false)
+            end
+            expected_cells = rstrip.((
+            """
+             "cells": [
+            """,
+
+            """
+               "source": [
+                "# Example\\n",
+                "foo, bar"
+               ]
+            """,
+
+            """
+               "source": [
+                "x = 1"
+               ]
+            """,
+
+            """
+               "source": [
+                "Only notebook"
+               ]
+            """,
+
+            """
+               "source": [
+                "x + 2\\n",
+                "# #' Comment\\n",
+                "# another comment"
+               ]
+            """,
+
+            """
+               "source": [
+                "for i in 1:10\\n",
+                "    print(i)"
+               ]
+            """,
+
+            """
+               "source": [
+                "some markdown in a code block"
+               ]
+            """,
+
+            """
+               "source": [
+                "end"
+               ]
+            """,
+
+            """
+               "source": [
+                "Link to repo root: https://github.com/fredrikekre/Examples.jl/blob/master/"
+               ]
+            """,
+
+            """
+               "source": [
+                "# Link to repo root: https://github.com/fredrikekre/Examples.jl/blob/master/"
+               ]
+            """,
+
+            """
+               "source": [
+                "Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/"
+               ]
+            """,
+
+            """
+               "source": [
+                "# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/"
+               ]
+            """,
+
+            """
+               "source": [
+                "PLACEHOLDER1\\n",
+                "PLACEHOLDER2"
+               ]
+            """,
+
+            """
+               "source": [
+                "# PLACEHOLDER3\\n",
+                "# PLACEHOLDER4"
+               ]
+            """,
+
+            """
+               "source": [
+                "Some math:\\n",
+                "\\\\begin{equation}\\n",
+                "\\\\int f(x) dx\\n",
+                "\\\\end{equation}"
+               ]
+            """))
+
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+
+            lastidx = 1
+            for cell in expected_cells
+                idx = Compat.findnext(cell, notebook, lastidx)
+                @test idx !== nothing
+                lastidx = nextind(notebook, last(idx))
+            end
+            # test some of the required metadata
+            for metadata in (" \"nbformat\": ", " \"nbformat_minor\": ", " \"metadata\": {", "  \"language_info\": {",
+                "   \"file_extension\": \".jl\"", "   \"mimetype\": \"application/julia\"",
+                "   \"name\": \"julia\"", "   \"version\": ", "  \"kernelspec\": {",
+                "   \"name\": \"julia-", "   \"display_name\": \"Julia ", "   \"language\": \"julia\"")
+                @test contains(notebook, metadata)
+            end
+            # notebook = replace(notebook, "\\" => "/") # normalize \ to / on Windows
+
+            # no tag -> latest directory
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+                    "TRAVIS_TAG" => "",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+                Examples.notebook(inputfile, outdir, execute = false)
+            end
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+            @test contains(notebook, "fredrikekre/Examples.jl/blob/gh-pages/latest/")
+
+            # pre- and post-processing
+            function post(nb)
+                for cell in nb["cells"]
+                    for i in eachindex(cell["source"])
+                        cell["source"][i] = replace(cell["source"][i], "PLACEHOLDER2" => "2REDLOHECALP")
+                        cell["source"][i] = replace(cell["source"][i], "PLACEHOLDER4" => "4REDLOHECALP")
+                    end
+                end
+                return nb
+            end
+            Examples.notebook(inputfile, outdir, execute = false,
+                preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
+                postprocess = post)
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+            @test !contains(notebook, "PLACEHOLDER1")
+            @test !contains(notebook, "PLACEHOLDER2")
+            @test !contains(notebook, "PLACEHOLDER3")
+            @test !contains(notebook, "PLACEHOLDER4")
+            @test contains(notebook, "1REDLOHECALP")
+            @test contains(notebook, "2REDLOHECALP")
+            @test contains(notebook, "3REDLOHECALP")
+            @test contains(notebook, "4REDLOHECALP")
+
+            # documenter = false
+            Examples.notebook(inputfile, outdir, documenter = false, execute = false)
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+            @test contains(notebook, "# [Example](@id example-id")
+            @test contains(notebook, "[foo](@ref), [bar](@ref bbaarr)")
+
+            # name
+            Examples.notebook(inputfile, outdir, name = "foobar", execute = false)
+            @test isfile(joinpath(outdir, "foobar.ipynb"))
         end
     end
 end
