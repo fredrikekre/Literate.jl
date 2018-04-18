@@ -136,7 +136,8 @@ end
 end # testset parser
 
 content = """
-    #' # Example
+    #' # [Example](@id example-id)
+    #' [foo](@ref), [bar](@ref bbaarr)
     x = 1
     #md #' Only markdown
     #md x + 1
@@ -259,7 +260,8 @@ end
             EditURL = "https://github.com/fredrikekre/Examples.jl/blob/master/test/$(basename(sandbox))/inputfile.jl"
             ```
 
-            # Example
+            # [Example](@id example-id)
+            [foo](@ref), [bar](@ref bbaarr)
 
             ```@example inputfile
             x = 1
