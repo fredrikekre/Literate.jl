@@ -207,7 +207,6 @@ content = """
 
             """
             script = read(joinpath(outdir, "inputfile.jl"), String)
-            script = replace(script, "\\" => "/") # normalize \ to / on Windows
             @test script == expected_script
 
             # no tag -> latest directory
@@ -305,12 +304,11 @@ end
 
             Some math:
             ```math
-            /int f(x) dx
+            \\int f(x) dx
             ```
 
             """
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            markdown = replace(markdown, "\\" => "/") # normalize \ to / on Windows
             @test markdown == expected_markdown
 
             # no tag -> latest directory
@@ -487,7 +485,6 @@ end
                 "   \"name\": \"julia-", "   \"display_name\": \"Julia ", "   \"language\": \"julia\"")
                 @test contains(notebook, metadata)
             end
-            # notebook = replace(notebook, "\\" => "/") # normalize \ to / on Windows
 
             # no tag -> latest directory
             withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",

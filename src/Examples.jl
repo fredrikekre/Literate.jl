@@ -221,7 +221,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
         pkg = first(split(last(split(repo, '/')), '.'))
         content = """
         #' ```@meta
-        #' EditURL = "@__REPO_ROOT_URL__$(relpath(inputfile, Pkg.dir(pkg)))"
+        #' EditURL = "@__REPO_ROOT_URL__$(replace(relpath(inputfile, Pkg.dir(pkg)), "\\" => "/"))"
         #' ```
 
         """ * content
