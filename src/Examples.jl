@@ -391,7 +391,9 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
         @info "executing notebook $(name * ".ipynb")"
         try
             # run(`jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --execute $(abspath(outputfile)) --output $(filename(outputfile)).ipynb`)
-            nb = execute_notebook(nb)
+            cd(outputdir) do
+                nb = execute_notebook(nb)
+            end
         catch err
             @error "error when executing notebook $(name * ".ipynb")"
             rethrow(err)
