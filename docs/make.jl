@@ -1,18 +1,18 @@
 using Documenter
-using Examples
+using Literate
 
 # generate examples
 EXAMPLE = joinpath(@__DIR__, "..", "examples", "example.jl")
 OUTPUT = joinpath(@__DIR__, "src/generated")
 
-Examples.markdown(EXAMPLE, OUTPUT)
-Examples.notebook(EXAMPLE, OUTPUT)
-Examples.script(EXAMPLE, OUTPUT)
+Literate.markdown(EXAMPLE, OUTPUT)
+Literate.notebook(EXAMPLE, OUTPUT)
+Literate.script(EXAMPLE, OUTPUT)
 
 makedocs(
-    modules = [Examples],
+    modules = [Literate],
     format = :html,
-    sitename = "Examples.jl",
+    sitename = "Literate.jl",
     pages = Any[
         "index.md",
         "fileformat.md",
@@ -24,7 +24,7 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/fredrikekre/Examples.jl.git",
+    repo = "github.com/fredrikekre/Literate.jl.git",
     target = "build",
     deps = nothing,
     make = nothing

@@ -1,11 +1,11 @@
 # **1.** Introduction
 
-Welcome to the documentation for `Examples.jl`. A simplistic package
+Welcome to the documentation for `Literate.jl`. A simplistic package
 to help you organize examples for you package documentation.
 
 ### What?
 
-`Examples.jl` is a package that, based on a single source file, generates markdown,
+`Literate.jl` is a package that, based on a single source file, generates markdown,
 for e.g. [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl),
 [Jupyter notebooks](http://jupyter.org/) and uncommented scripts for documentation
 of your package.
@@ -15,20 +15,20 @@ be simple. In short all you have to do is to write a commented julia script!
 
 The package consists mainly of three functions, which all takes the same script file
 as input, but generates different output:
-- [`Examples.markdown`](@ref): generates a markdown file
-- [`Examples.notebook`](@ref): generates an (optionally executed) notebook
-- [`Examples.script`](@ref): generates a plain script file, removing everything
+- [`Literate.markdown`](@ref): generates a markdown file
+- [`Literate.notebook`](@ref): generates an (optionally executed) notebook
+- [`Literate.script`](@ref): generates a plain script file, removing everything
   that is not code
 
 ### Why?
 
-Examples are (probably) the best way to showcase your awesome package, and examples
+Literate are (probably) the best way to showcase your awesome package, and examples
 are often the best way for a new user to learn how to use it. It is therefore important
 that the documentation of your package contains examples for users to read and study.
 However, people are different, and we all prefer different ways of trying out a new
 package. Some people wants to RTFM, others want to explore the package interactively in,
 for example, a notebook, and some people wants to study the source code. The aim of
-`Examples.jl` is to make it easy to give the user all of these options, while still
+`Literate.jl` is to make it easy to give the user all of these options, while still
 keeping maintenance to a minimum.
 
 It is quite common that packages have "example notebooks" to showcase the package.
@@ -42,8 +42,8 @@ by using [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) `@example`-
 This is also great, but it is not quite as interactive as a notebook, for the users
 who prefer that.
 
-`Examples.jl` tries to solve the problems above by creating the output as a part of the doc
-build. `Examples.jl` generates the output from a single source file which makes it easier to
+`Literate.jl` tries to solve the problems above by creating the output as a part of the doc
+build. `Literate.jl` generates the output from a single source file which makes it easier to
 maintain, test, and keep the manual and your example notebooks in sync.
 
 ### How?

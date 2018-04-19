@@ -1,4 +1,4 @@
-module Examples
+module Literate
 
 import Compat: replace, popfirst!, @error, @info
 
@@ -92,7 +92,7 @@ end
 filename(str) = first(splitext(last(splitdir(str))))
 
 """
-    Examples.script(inputfile, outputdir; kwargs...)
+    Literate.script(inputfile, outputdir; kwargs...)
 
 Generate a plain script file from `inputfile` and write the result to `outputdir`.
 
@@ -160,7 +160,7 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
 end
 
 """
-    Examples.markdown(inputfile, outputdir; kwargs...)
+    Literate.markdown(inputfile, outputdir; kwargs...)
 
 Generate a markdown file from `inputfile` and write the result
 to the directory`outputdir`.
@@ -270,7 +270,7 @@ end
 const JUPYTER_VERSION = v"4.3.0"
 
 """
-    Examples.notebook(inputfile, outputdir; kwargs...)
+    Literate.notebook(inputfile, outputdir; kwargs...)
 
 Generate a notebook from `inputfile` and write the result to `outputdir`.
 

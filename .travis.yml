@@ -18,6 +18,6 @@ git:
   depth: 99999999
 after_success:
   # build docs
-  - julia -e 'Pkg.add("Documenter"); Pkg.checkout("Documenter"); cd(Pkg.dir("Examples")); include("docs/make.jl")'
+  - julia -e 'Pkg.add("Documenter"); Pkg.checkout("Documenter"); cd(Pkg.dir("Literate")); include("docs/make.jl")'
   # push coverage results to Codecov
-  - julia -e 'cd(Pkg.dir("Examples")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia -e 'cd(Pkg.dir("Literate")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'

@@ -1,6 +1,6 @@
 # **2.** File Format
 
-The source file format for `Examples.jl` is a regular, commented, julia (`.jl`) scripts.
+The source file format for `Literate.jl` is a regular, commented, julia (`.jl`) scripts.
 The idea is that the scripts also serve as documentation on their own and it is also
 simple to include them in the test-suite, with e.g. `include`, to make sure the examples
 stay up do date with other changes in your package.
@@ -36,7 +36,7 @@ julia code. We note a couple of things:
 For simple use this is all you need to know, the script above is valid. Let's take a look
 at what the above snippet would generate, with default settings:
 
-- [`Examples.markdown`](@ref): leading `#'` are removed, and code lines are wrapped in
+- [`Literate.markdown`](@ref): leading `#'` are removed, and code lines are wrapped in
   `@example`-blocks:
   ````markdown
   # Rational numbers
@@ -56,7 +56,7 @@ at what the above snippet would generate, with default settings:
   ```
   ````
 
-- [`Examples.notebook`](@ref): leading `#'` are removed, markdown lines are placed in
+- [`Literate.notebook`](@ref): leading `#'` are removed, markdown lines are placed in
   `"markdown"` cells, and code lines in `"code"` cells:
   ```
            │ # Rational numbers
@@ -76,7 +76,7 @@ at what the above snippet would generate, with default settings:
   Out [2]: │ 11//15
   ```
 
-- [`Examples.script`](@ref): all lines starting with `#'` are removed:
+- [`Literate.script`](@ref): all lines starting with `#'` are removed:
   ```julia
   x = 1//3
   y = 2//5
@@ -101,9 +101,9 @@ since `@docs` is Documenter syntax that the notebook will not understand. This
 is a case where we can prepend `#md` to those lines:
 ````julia
 #md #' ```@docs
-#md #' Examples.markdown
-#md #' Examples.notebook
-#md #' Examples.markdown
+#md #' Literate.markdown
+#md #' Literate.notebook
+#md #' Literate.markdown
 #md #' ```
 ````
 The lines in the example above would be filtered out in the preprocessing step, unless we are

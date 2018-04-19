@@ -1,6 +1,6 @@
 #' # **7.** Example
 #'
-#' This is an example for Examples.jl.
+#' This is an example for Literate.jl.
 #' The source file can be found [here](@__REPO_ROOT_URL__examples/example.jl).
 #' The generated markdown can be found here: [`example.md`](./example.md), the
 #' generated notebook can be found here:

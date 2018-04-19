@@ -1,4 +1,4 @@
-The Examples.jl package is licensed under the MIT "Expat" License:
+The Literate.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2018: Fredrik Ekre.
 >

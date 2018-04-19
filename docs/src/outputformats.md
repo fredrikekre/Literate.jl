@@ -33,18 +33,18 @@ y = x.^2 - x
 ````
 
 ```@docs
-Examples.markdown
+Literate.markdown
 ```
 
 ## [**4.2.** Notebook output](@id Notebook-output)
 
 ```@docs
-Examples.notebook
+Literate.notebook
 ```
 
 
 ## [**4.3.** Script output](@id Script-output)
 
 ```@docs
-Examples.script
+Literate.script
 ```

@@ -1,5 +1,5 @@
-import Examples
-import Examples: Chunk, MDChunk, CodeChunk
+import Literate
+import Literate: Chunk, MDChunk, CodeChunk
 using Compat.Test
 
 # compare content of two parsed chunk vectors
@@ -22,7 +22,7 @@ function compare_chunks(chunks1, chunks2)
     end
 end
 
-@testset "Examples.parse" begin
+@testset "Literate.parse" begin
     content = """
     #' Line 1
     Line 2
@@ -112,7 +112,7 @@ end
         CodeChunk(["#Line 49", "Line 50"], false),
         MDChunk(["Line 53"]),
         ]
-    parsed_chunks = Examples.parse(content)
+    parsed_chunks = Literate.parse(content)
     compare_chunks(parsed_chunks, expected_chunks)
 
     # test leading/trailing whitespace removal
@@ -131,7 +131,7 @@ end
         foreach(x -> println(iows), 1:rand(2:5))
     end
 
-    compare_chunks(Examples.parse(String(take!(io))), Examples.parse(String(take!(iows))))
+    compare_chunks(Literate.parse(String(take!(io))), Literate.parse(String(take!(iows))))
 
 end # testset parser
 
@@ -170,7 +170,7 @@ content = """
     #' ```
     """
 
-@testset "Examples.script" begin
+@testset "Literate.script" begin
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do
             # write content to inputfile
@@ -179,10 +179,10 @@ content = """
             outdir = mktempdir(pwd())
 
             # test defaults
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
                     "TRAVIS_TAG" => "v1.2.0",
                     "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
-                Examples.script(inputfile, outdir)
+                Literate.script(inputfile, outdir)
             end
             expected_script = """
             x = 1
@@ -198,9 +198,9 @@ content = """
 
             end
 
-            # Link to repo root: https://github.com/fredrikekre/Examples.jl/blob/master/
+            # Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/
 
-            # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+            # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/
 
             # PLACEHOLDER3
             # PLACEHOLDER4
@@ -210,16 +210,16 @@ content = """
             @test script == expected_script
 
             # no tag -> latest directory
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
                     "TRAVIS_TAG" => "",
                     "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
-                Examples.script(inputfile, outdir)
+                Literate.script(inputfile, outdir)
             end
             script = read(joinpath(outdir, "inputfile.jl"), String)
-            @test contains(script, "fredrikekre/Examples.jl/blob/gh-pages/latest/")
+            @test contains(script, "fredrikekre/Literate.jl/blob/gh-pages/latest/")
 
             # pre- and post-processing
-            Examples.script(inputfile, outdir,
+            Literate.script(inputfile, outdir,
                 preprocess = x -> replace(x, "PLACEHOLDER3" => "3REDLOHECALP"),
                 postprocess = x -> replace(x, "PLACEHOLDER4" => "4REDLOHECALP"))
             script = read(joinpath(outdir, "inputfile.jl"), String)
@@ -231,13 +231,13 @@ content = """
             @test contains(script, "4REDLOHECALP")
 
             # name
-            Examples.script(inputfile, outdir, name = "foobar")
+            Literate.script(inputfile, outdir, name = "foobar")
             @test isfile(joinpath(outdir, "foobar.jl"))
         end
     end
 end
 
-@testset "Examples.markdown" begin
+@testset "Literate.markdown" begin
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do
             # write content to inputfile
@@ -246,14 +246,14 @@ end
             outdir = mktempdir(pwd())
 
             # test defaults
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
                     "TRAVIS_TAG" => "v1.2.0",
                     "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
-                Examples.markdown(inputfile, outdir)
+                Literate.markdown(inputfile, outdir)
             end
             expected_markdown = """
             ```@meta
-            EditURL = "https://github.com/fredrikekre/Examples.jl/blob/master/test/$(basename(sandbox))/inputfile.jl"
+            EditURL = "https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl"
             ```
 
             # [Example](@id example-id)
@@ -282,16 +282,16 @@ end
             end
             ```
 
-            Link to repo root: https://github.com/fredrikekre/Examples.jl/blob/master/
+            Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/
 
             ```@example inputfile
-            # Link to repo root: https://github.com/fredrikekre/Examples.jl/blob/master/
+            # Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/
             ```
 
-            Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+            Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/
 
             ```@example inputfile
-            # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/
+            # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/
             ```
 
             PLACEHOLDER1
@@ -312,16 +312,16 @@ end
             @test markdown == expected_markdown
 
             # no tag -> latest directory
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
                     "TRAVIS_TAG" => "",
                     "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
-                Examples.markdown(inputfile, outdir)
+                Literate.markdown(inputfile, outdir)
             end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test contains(markdown, "fredrikekre/Examples.jl/blob/gh-pages/latest/")
+            @test contains(markdown, "fredrikekre/Literate.jl/blob/gh-pages/latest/")
 
             # pre- and post-processing
-            Examples.markdown(inputfile, outdir,
+            Literate.markdown(inputfile, outdir,
                 preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
                 postprocess = x -> replace(replace(x, "PLACEHOLDER2" => "2REDLOHECALP"), "PLACEHOLDER4" => "4REDLOHECALP"))
             markdown = read(joinpath(outdir, "inputfile.md"), String)
@@ -335,7 +335,7 @@ end
             @test contains(markdown, "4REDLOHECALP")
 
             # documenter = false
-            Examples.markdown(inputfile, outdir, documenter = false)
+            Literate.markdown(inputfile, outdir, documenter = false)
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test contains(markdown, "```julia")
             @test !contains(markdown, "```@example")
@@ -343,14 +343,14 @@ end
             @test !contains(markdown, "EditURL")
 
             # codefence
-            Examples.markdown(inputfile, outdir, codefence = "```c" => "```")
+            Literate.markdown(inputfile, outdir, codefence = "```c" => "```")
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test contains(markdown, "```c")
             @test !contains(markdown, "```@example")
             @test !contains(markdown, "```julia")
 
             # name
-            Examples.markdown(inputfile, outdir, name = "foobar")
+            Literate.markdown(inputfile, outdir, name = "foobar")
             markdown = read(joinpath(outdir, "foobar.md"), String)
             @test contains(markdown, "```@example foobar")
             @test !contains(markdown, "```@example inputfile")
@@ -358,7 +358,7 @@ end
     end
 end
 
-@testset "Examples.notebook" begin
+@testset "Literate.notebook" begin
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do
             # write content to inputfile
@@ -367,10 +367,10 @@ end
             outdir = mktempdir(pwd())
 
             # test defaults
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
                     "TRAVIS_TAG" => "v1.2.0",
                     "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
-                Examples.notebook(inputfile, outdir, execute = false)
+                Literate.notebook(inputfile, outdir, execute = false)
             end
             expected_cells = rstrip.((
             """
@@ -425,25 +425,25 @@ end
 
             """
                "source": [
-                "Link to repo root: https://github.com/fredrikekre/Examples.jl/blob/master/"
+                "Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/"
                ]
             """,
 
             """
                "source": [
-                "# Link to repo root: https://github.com/fredrikekre/Examples.jl/blob/master/"
+                "# Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/"
                ]
             """,
 
             """
                "source": [
-                "Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/"
+                "Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/"
                ]
             """,
 
             """
                "source": [
-                "# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Examples.jl/blob/gh-pages/v1.2.0/"
+                "# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/"
                ]
             """,
 
@@ -487,13 +487,13 @@ end
             end
 
             # no tag -> latest directory
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Examples.jl",
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
                     "TRAVIS_TAG" => "",
                     "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
-                Examples.notebook(inputfile, outdir, execute = false)
+                Literate.notebook(inputfile, outdir, execute = false)
             end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
-            @test contains(notebook, "fredrikekre/Examples.jl/blob/gh-pages/latest/")
+            @test contains(notebook, "fredrikekre/Literate.jl/blob/gh-pages/latest/")
 
             # pre- and post-processing
             function post(nb)
@@ -505,7 +505,7 @@ end
                 end
                 return nb
             end
-            Examples.notebook(inputfile, outdir, execute = false,
+            Literate.notebook(inputfile, outdir, execute = false,
                 preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
                 postprocess = post)
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
@@ -519,13 +519,13 @@ end
             @test contains(notebook, "4REDLOHECALP")
 
             # documenter = false
-            Examples.notebook(inputfile, outdir, documenter = false, execute = false)
+            Literate.notebook(inputfile, outdir, documenter = false, execute = false)
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test contains(notebook, "# [Example](@id example-id")
             @test contains(notebook, "[foo](@ref), [bar](@ref bbaarr)")
 
             # name
-            Examples.notebook(inputfile, outdir, name = "foobar", execute = false)
+            Literate.notebook(inputfile, outdir, name = "foobar", execute = false)
             @test isfile(joinpath(outdir, "foobar.ipynb"))
         end
     end
