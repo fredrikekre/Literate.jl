@@ -10,14 +10,17 @@ The generation of output follows the same pipeline for all output formats:
 
 ## [**3.1.** Pre-processing](@id Pre-processing)
 
-The first step is pre-processing of the input file. The file is read to a `String`
-and CRLF style line endings (`"\r\n"`) are replaced with LF line endings (`"\n"`) to simplify
-internal processing. The next step is to apply the user specified pre-processing function.
-See [Custom pre- and post-processing](@ref Custom-pre-and-post-processing).
+The first step is pre-processing of the input file. The file is read to a `String`.
+The first processing step is to apply the user specified pre-processing function,
+see [Custom pre- and post-processing](@ref Custom-pre-and-post-processing).
 
-Next the line filtering is performed, see [Filtering lines](@ref), meaning that lines
-starting with `#md `, `#nb ` or `#jl ` are handled (either just the token itself is removed,
-or the full line, depending on the output target).
+The next step is to perform all of the built-in default replacements.
+CRLF style line endings (`"\r\n"`) are replaced with LF line endings (`"\n"`) to simplify
+internal processing. Next, line filtering is performed, see [Filtering Lines](@ref),
+meaning that lines starting with `#md `, `#nb ` or `#jl ` are handled (either just
+the token itself is removed, or the full line, depending on the output target).
+The last pre-processing step is to expand the convenience "macros" described
+in [Default Replacements](@ref) is expanded.
 
 
 ## [**3.2.** Parsing](@id Parsing)
@@ -108,8 +111,8 @@ The example above would result in two consecutive code-chunks.
 
 After the parsing it is time to generate the output. What is done in this step is
 very different depending on the output target, and it is describe in more detail in
-the Output format sections: [Markdown output](@ref), [Notebook output](@ref) and
-[Script output](@ref). In short, the following is happening:
+the Output format sections: [Markdown Output](@ref), [Notebook Output](@ref) and
+[Script Output](@ref). In short, the following is happening:
 
 * Markdown output: markdown chunks are printed as-is, code chunks are put inside
   a code fence (defaults to `@example`-blocks),

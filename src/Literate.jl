@@ -168,11 +168,14 @@ filename(str) = first(splitext(last(splitdir(str))))
 Generate a plain script file from `inputfile` and write the result to `outputdir`.
 
 Keyword arguments:
-- `name`: name of the output file, excluding `.jl`. Defaults to the
-  filename of `inputfile`.
+- `name`: name of the output file, excluding `.jl`. `name` is also used to
+  replace `@__NAME__`. Defaults to the filename of `inputfile`.
 - `preprocess`, `postprocess`: custom pre- and post-processing functions,
   see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
   section of the manual. Defaults to `identity`.
+- `documenter`: boolean that says if the source contains Documenter.jl specific things
+  to filter out during script generation. Defaults to `true`. See the the manual
+  section on [Interaction with Documenter](@ref Interaction-with-Documenter).
 """
 function script(inputfile, outputdir; preprocess = identity, postprocess = identity,
                 name = filename(inputfile), documenter = true, kwargs...)
@@ -223,7 +226,8 @@ to the directory`outputdir`.
 
 Keyword arguments:
 - `name`: name of the output file, excluding `.md`. `name` is also used to name
-  all the `@example` blocks. Defaults to the filename of `inputfile`.
+  all the `@example` blocks, and to replace `@__NAME__`.
+  Defaults to the filename of `inputfile`.
 - `preprocess`, `postprocess`: custom pre- and post-processing functions,
   see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
   section of the manual. Defaults to `identity`.
@@ -316,8 +320,8 @@ const JUPYTER_VERSION = v"4.3.0"
 Generate a notebook from `inputfile` and write the result to `outputdir`.
 
 Keyword arguments:
-- `name`: name of the output file, excluding `.ipynb`. Defaults to the
-  filename of `inputfile`.
+- `name`: name of the output file, excluding `.ipynb`. `name` is also used to
+  replace `@__NAME__`. Defaults to the filename of `inputfile`.
 - `preprocess`, `postprocess`: custom pre- and post-processing functions,
   see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
   section of the manual. Defaults to `identity`.

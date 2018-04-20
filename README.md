@@ -4,10 +4,17 @@
 |:--------------------------------------- |:----------------------------------------------------------------------------------------------- |
 | [![][docs-latest-img]][docs-latest-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
 
-`Literate.jl` is a package that, based on a single source file, generates markdown,
-for e.g. [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl),
-[Jupyter notebooks](http://jupyter.org/) and uncommented scripts for documentation
-of your package.
+Literate is a package for [Literate Programming](https://en.wikipedia.org/wiki/Literate_programming).
+The main purpose is to facilitate writing Julia examples/tutorials that can be included in
+your package documentation.
+
+Literate can generate markdown pages
+(for e.g. [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)), and
+[Jupyter notebooks](http://jupyter.org/), from the same source file. There is also
+an option to "clean" the source from all metadata, and produce a pure Julia script.
+Using a single source file for multiple purposes reduces maintenance, and makes sure
+your different output formats are synced with each other.
+
 
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg

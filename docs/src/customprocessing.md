@@ -4,8 +4,8 @@ Since all packages are different, and may have different demands on how
 to create a nice example for the documentation it is important that
 the package maintainer does not feel limited by the by default provided syntax
 that this package offers. While you can generally come a long way by utilizing
-[line filtering](@ref Filtering-lines) there might be situations where you need
-to manually hook into the generation and change things. In `Literate.jl` this
+[line filtering](@ref Filtering-Lines) there might be situations where you need
+to manually hook into the generation and change things. In Literate this
 is done by letting the user supply custom pre- and post-processing functions
 that may do transformation of the content.
 

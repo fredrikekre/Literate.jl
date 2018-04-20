@@ -5,9 +5,15 @@ using Literate
 EXAMPLE = joinpath(@__DIR__, "..", "examples", "example.jl")
 OUTPUT = joinpath(@__DIR__, "src/generated")
 
-Literate.markdown(EXAMPLE, OUTPUT)
-Literate.notebook(EXAMPLE, OUTPUT)
-Literate.script(EXAMPLE, OUTPUT)
+function preprocess(str)
+    str = replace(str, "MYVARIABLE" => "z")
+    str = replace(str, "MYVALUE" => "1.0 + 2.0im")
+    return str
+end
+
+Literate.markdown(EXAMPLE, OUTPUT, preprocess = preprocess)
+Literate.notebook(EXAMPLE, OUTPUT, preprocess = preprocess)
+Literate.script(EXAMPLE, OUTPUT, preprocess = preprocess)
 
 makedocs(
     modules = [Literate],
@@ -26,6 +32,7 @@ makedocs(
 deploydocs(
     repo = "github.com/fredrikekre/Literate.jl.git",
     target = "build",
+    julia = "0.6",
     deps = nothing,
     make = nothing
 )

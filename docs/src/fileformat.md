@@ -1,6 +1,6 @@
 # **2.** File Format
 
-The source file format for `Literate.jl` is a regular, commented, julia (`.jl`) scripts.
+The source file format for Literate is a regular, commented, julia (`.jl`) scripts.
 The idea is that the scripts also serve as documentation on their own and it is also
 simple to include them in the test-suite, with e.g. `include`, to make sure the examples
 stay up do date with other changes in your package.
@@ -30,61 +30,19 @@ In the lines `#'` we can use regular markdown syntax, for example the `#`
 used for the heading and the backticks for formatting code. The other lines are regular
 julia code. We note a couple of things:
 - The script is valid julia, which means that we can `include` it and the example will run
+  (for example in the `test/runtests.jl` script, to include the example in the test suite).
 - The script is "self-explanatory", i.e. the markdown lines works as comments and
   thus serve as good documentation on its own.
 
-For simple use this is all you need to know, the script above is valid. Let's take a look
-at what the above snippet would generate, with default settings:
+For simple use this is all you need to know. The following additional special syntax can also be used:
+- `#md`, `#nb`, `#jl`: tags for filtering of lines, see [Filtering Lines](@ref Filtering-Lines).
+- `#-`: tag for manually controlling chunk-splits, see [Custom control over chunk splits](@ref).
 
-- [`Literate.markdown`](@ref): leading `#'` are removed, and code lines are wrapped in
-  `@example`-blocks:
-  ````markdown
-  # Rational numbers
+There is also some default convenience replacements that will always be performed, see
+[Default Replacements](@ref).
 
-  In julia rational numbers can be constructed with the `//` operator.
-  Lets define two rational numbers, `x` and `y`:
 
-  ```@example filename
-  x = 1//3
-  y = 2//5
-  ```
-
-  When adding `x` and `y` together we obtain a new rational number:
-
-  ```@example filename
-  z = x + y
-  ```
-  ````
-
-- [`Literate.notebook`](@ref): leading `#'` are removed, markdown lines are placed in
-  `"markdown"` cells, and code lines in `"code"` cells:
-  ```
-           │ # Rational numbers
-           │
-           │ In julia rational numbers can be constructed with the `//` operator.
-           │ Lets define two rational numbers, `x` and `y`:
-
-  In [1]:  │ x = 1//3
-           │ y = 2//5
-
-  Out [1]: │ 2//5
-
-           │ When adding `x` and `y` together we obtain a new rational number:
-
-  In [2]:  │ z = x + y
-
-  Out [2]: │ 11//15
-  ```
-
-- [`Literate.script`](@ref): all lines starting with `#'` are removed:
-  ```julia
-  x = 1//3
-  y = 2//5
-
-  z = x + y
-  ```
-
-## [**2.2.** Filtering Lines](@id Filtering-lines)
+## [**2.2.** Filtering Lines](@id Filtering-Lines)
 
 It is possible to filter out lines depending on the output format. For this purpose,
 there are three different "tokens" that can be placed on the start of the line:
@@ -109,3 +67,29 @@ is a case where we can prepend `#md` to those lines:
 The lines in the example above would be filtered out in the preprocessing step, unless we are
 generating a markdown file. When generating a markdown file we would simple remove
 the leading `#md ` from the lines. Beware that the space after the tag is also removed.
+
+
+## [**2.3.** Default Replacements](@id Default-Replacements)
+
+The following convenience "macros" are always expanded:
+
+- `@__NAME__`
+
+  expands to the `name` keyword argument to [`Literate.markdown`](@ref),
+  [`Literate.notebook`](@ref) and [`Literate.script`](@ref)
+  (defaults to the filename of the input file).
+
+- `@__REPO__ROOT_URL__`
+
+  expands to `https://github.com/$(ENV["TRAVIS_REPO_SLUG"])/blob/master/`
+  and is a convenient way to use when you want to link to files outside the
+  doc-build directory. For example `@__REPO__ROOT_URL__src/Literate.jl` would link
+  to the source of the Literate module.
+
+- `@__NBVIEWER_ROOT_URL__`
+
+  expands to
+  `https://nbviewer.jupyter.org/github/$(ENV["TRAVIS_REPO_SLUG"])/blob/gh-pages/$(folder)/`
+  where `folder` is the folder that `Documenter.deploydocs` deploys too.
+  This can be used if you want a link that opens the generated notebook in
+  [http://nbviewer.jupyter.org/](http://nbviewer.jupyter.org/).
