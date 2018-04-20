@@ -32,6 +32,7 @@ makedocs(
 deploydocs(
     repo = "github.com/fredrikekre/Literate.jl.git",
     target = "build",
+    osname = "linux",
     julia = "0.6",
     deps = nothing,
     make = nothing
