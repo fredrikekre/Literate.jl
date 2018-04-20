@@ -154,9 +154,11 @@ content = """
         print(i)
     #' some markdown in a code block
     end
+    #' name: @__NAME__
     #' Link to repo root: @__REPO_ROOT_URL__
-    # Link to repo root: @__REPO_ROOT_URL__
     #' Link to nbviewer: @__NBVIEWER_ROOT_URL__
+    # name: @__NAME__
+    # Link to repo root: @__REPO_ROOT_URL__
     # Link to nbviewer: @__NBVIEWER_ROOT_URL__
 
     #' PLACEHOLDER1
@@ -198,8 +200,8 @@ content = """
 
             end
 
+            # name: inputfile
             # Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/
-
             # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/
 
             # PLACEHOLDER3
@@ -232,7 +234,10 @@ content = """
 
             # name
             Literate.script(inputfile, outdir, name = "foobar")
-            @test isfile(joinpath(outdir, "foobar.jl"))
+            script = read(joinpath(outdir, "foobar.jl"), String)
+            @test contains(script, "name: foobar")
+            @test !contains(script, "name: inputfile")
+            @test !contains(script, "name: @__NAME__")
         end
     end
 end
@@ -282,15 +287,13 @@ end
             end
             ```
 
+            name: inputfile
             Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/
-
-            ```@example inputfile
-            # Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/
-            ```
-
             Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/
 
             ```@example inputfile
+            # name: inputfile
+            # Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/
             # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/
             ```
 
@@ -354,6 +357,9 @@ end
             markdown = read(joinpath(outdir, "foobar.md"), String)
             @test contains(markdown, "```@example foobar")
             @test !contains(markdown, "```@example inputfile")
+            @test contains(markdown, "name: foobar")
+            @test !contains(markdown, "name: inputfile")
+            @test !contains(markdown, "name: @__NAME__")
         end
     end
 end
@@ -425,24 +431,16 @@ end
 
             """
                "source": [
-                "Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/"
-               ]
-            """,
-
-            """
-               "source": [
-                "# Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/"
-               ]
-            """,
-
-            """
-               "source": [
+                "name: inputfile\\n",
+                "Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/\\n",
                 "Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/"
                ]
             """,
 
             """
                "source": [
+                "# name: inputfile\\n",
+                "# Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/\\n",
                 "# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/"
                ]
             """,
@@ -526,7 +524,10 @@ end
 
             # name
             Literate.notebook(inputfile, outdir, name = "foobar", execute = false)
-            @test isfile(joinpath(outdir, "foobar.ipynb"))
+            notebook = read(joinpath(outdir, "foobar.ipynb"), String)
+            @test contains(notebook, "name: foobar")
+            @test !contains(notebook, "name: inputfile")
+            @test !contains(notebook, "name: @__NAME__")
         end
     end
 end
