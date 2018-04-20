@@ -518,6 +518,34 @@ end
             @test contains(notebook, "name: foobar")
             @test !contains(notebook, "name: inputfile")
             @test !contains(notebook, "name: @__NAME__")
+
+            # execute = true
+            Literate.notebook(inputfile, outdir)
+            expected_outputs = rstrip.((
+            """
+             "cells": [
+            """,
+
+            """
+                 "data": {
+                  "text/plain": "3"
+                 },
+            """,
+
+            """
+                 "text": [
+                  "12345678910"
+                 ]
+            """))
+
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+
+            lastidx = 1
+            for out in expected_outputs
+                idx = Compat.findnext(out, notebook, lastidx)
+                @test idx !== nothing
+                lastidx = nextind(notebook, last(idx))
+            end
         end
     end
 end
