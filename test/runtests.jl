@@ -1,5 +1,7 @@
 import Literate
 import Literate: Chunk, MDChunk, CodeChunk
+import Compat
+import Compat: occursin
 using Compat.Test
 
 # compare content of two parsed chunk vectors
@@ -218,26 +220,26 @@ content = """
                 Literate.script(inputfile, outdir)
             end
             script = read(joinpath(outdir, "inputfile.jl"), String)
-            @test contains(script, "fredrikekre/Literate.jl/blob/gh-pages/latest/")
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/latest/", script)
 
             # pre- and post-processing
             Literate.script(inputfile, outdir,
                 preprocess = x -> replace(x, "PLACEHOLDER3" => "3REDLOHECALP"),
                 postprocess = x -> replace(x, "PLACEHOLDER4" => "4REDLOHECALP"))
             script = read(joinpath(outdir, "inputfile.jl"), String)
-            @test !contains(script, "PLACEHOLDER1")
-            @test !contains(script, "PLACEHOLDER2")
-            @test !contains(script, "PLACEHOLDER3")
-            @test !contains(script, "PLACEHOLDER4")
-            @test contains(script, "3REDLOHECALP")
-            @test contains(script, "4REDLOHECALP")
+            @test !occursin("PLACEHOLDER1", script)
+            @test !occursin("PLACEHOLDER2", script)
+            @test !occursin("PLACEHOLDER3", script)
+            @test !occursin("PLACEHOLDER4", script)
+            @test occursin("3REDLOHECALP", script)
+            @test occursin("4REDLOHECALP", script)
 
             # name
             Literate.script(inputfile, outdir, name = "foobar")
             script = read(joinpath(outdir, "foobar.jl"), String)
-            @test contains(script, "name: foobar")
-            @test !contains(script, "name: inputfile")
-            @test !contains(script, "name: @__NAME__")
+            @test occursin("name: foobar", script)
+            @test !occursin("name: inputfile", script)
+            @test !occursin("name: @__NAME__", script)
         end
     end
 end
@@ -321,45 +323,45 @@ end
                 Literate.markdown(inputfile, outdir)
             end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test contains(markdown, "fredrikekre/Literate.jl/blob/gh-pages/latest/")
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/latest/", markdown)
 
             # pre- and post-processing
             Literate.markdown(inputfile, outdir,
                 preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
                 postprocess = x -> replace(replace(x, "PLACEHOLDER2" => "2REDLOHECALP"), "PLACEHOLDER4" => "4REDLOHECALP"))
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test !contains(markdown, "PLACEHOLDER1")
-            @test !contains(markdown, "PLACEHOLDER2")
-            @test !contains(markdown, "PLACEHOLDER3")
-            @test !contains(markdown, "PLACEHOLDER4")
-            @test contains(markdown, "1REDLOHECALP")
-            @test contains(markdown, "2REDLOHECALP")
-            @test contains(markdown, "3REDLOHECALP")
-            @test contains(markdown, "4REDLOHECALP")
+            @test !occursin("PLACEHOLDER1", markdown)
+            @test !occursin("PLACEHOLDER2", markdown)
+            @test !occursin("PLACEHOLDER3", markdown)
+            @test !occursin("PLACEHOLDER4", markdown)
+            @test occursin("1REDLOHECALP", markdown)
+            @test occursin("2REDLOHECALP", markdown)
+            @test occursin("3REDLOHECALP", markdown)
+            @test occursin("4REDLOHECALP", markdown)
 
             # documenter = false
             Literate.markdown(inputfile, outdir, documenter = false)
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test contains(markdown, "```julia")
-            @test !contains(markdown, "```@example")
-            @test !contains(markdown, "continued = true")
-            @test !contains(markdown, "EditURL")
+            @test occursin("```julia", markdown)
+            @test !occursin("```@example", markdown)
+            @test !occursin("continued = true", markdown)
+            @test !occursin("EditURL", markdown)
 
             # codefence
             Literate.markdown(inputfile, outdir, codefence = "```c" => "```")
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test contains(markdown, "```c")
-            @test !contains(markdown, "```@example")
-            @test !contains(markdown, "```julia")
+            @test occursin("```c", markdown)
+            @test !occursin("```@example", markdown)
+            @test !occursin("```julia", markdown)
 
             # name
             Literate.markdown(inputfile, outdir, name = "foobar")
             markdown = read(joinpath(outdir, "foobar.md"), String)
-            @test contains(markdown, "```@example foobar")
-            @test !contains(markdown, "```@example inputfile")
-            @test contains(markdown, "name: foobar")
-            @test !contains(markdown, "name: inputfile")
-            @test !contains(markdown, "name: @__NAME__")
+            @test occursin("```@example foobar", markdown)
+            @test !occursin("```@example inputfile", markdown)
+            @test occursin("name: foobar", markdown)
+            @test !occursin("name: inputfile", markdown)
+            @test !occursin("name: @__NAME__", markdown)
         end
     end
 end
@@ -471,7 +473,7 @@ end
                 "   \"file_extension\": \".jl\"", "   \"mimetype\": \"application/julia\"",
                 "   \"name\": \"julia\"", "   \"version\": ", "  \"kernelspec\": {",
                 "   \"name\": \"julia-", "   \"display_name\": \"Julia ", "   \"language\": \"julia\"")
-                @test contains(notebook, metadata)
+                @test occursin(metadata, notebook)
             end
 
             # no tag -> latest directory
@@ -481,7 +483,7 @@ end
                 Literate.notebook(inputfile, outdir, execute = false)
             end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
-            @test contains(notebook, "fredrikekre/Literate.jl/blob/gh-pages/latest/")
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/latest/", notebook)
 
             # pre- and post-processing
             function post(nb)
@@ -497,27 +499,27 @@ end
                 preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
                 postprocess = post)
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
-            @test !contains(notebook, "PLACEHOLDER1")
-            @test !contains(notebook, "PLACEHOLDER2")
-            @test !contains(notebook, "PLACEHOLDER3")
-            @test !contains(notebook, "PLACEHOLDER4")
-            @test contains(notebook, "1REDLOHECALP")
-            @test contains(notebook, "2REDLOHECALP")
-            @test contains(notebook, "3REDLOHECALP")
-            @test contains(notebook, "4REDLOHECALP")
+            @test !occursin("PLACEHOLDER1", notebook)
+            @test !occursin("PLACEHOLDER2", notebook)
+            @test !occursin("PLACEHOLDER3", notebook)
+            @test !occursin("PLACEHOLDER4", notebook)
+            @test occursin("1REDLOHECALP", notebook)
+            @test occursin("2REDLOHECALP", notebook)
+            @test occursin("3REDLOHECALP", notebook)
+            @test occursin("4REDLOHECALP", notebook)
 
             # documenter = false
             Literate.notebook(inputfile, outdir, documenter = false, execute = false)
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
-            @test contains(notebook, "# [Example](@id example-id")
-            @test contains(notebook, "[foo](@ref), [bar](@ref bbaarr)")
+            @test occursin("# [Example](@id example-id", notebook)
+            @test occursin("[foo](@ref), [bar](@ref bbaarr)", notebook)
 
             # name
             Literate.notebook(inputfile, outdir, name = "foobar", execute = false)
             notebook = read(joinpath(outdir, "foobar.ipynb"), String)
-            @test contains(notebook, "name: foobar")
-            @test !contains(notebook, "name: inputfile")
-            @test !contains(notebook, "name: @__NAME__")
+            @test occursin("name: foobar", notebook)
+            @test !occursin("name: inputfile", notebook)
+            @test !occursin("name: @__NAME__", notebook)
 
             # execute = true
             Literate.notebook(inputfile, outdir)
