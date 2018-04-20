@@ -89,6 +89,77 @@ function parse(content)
     return chunks
 end
 
+function replace_default(content, sym;
+                         name = error("required kwarg"),
+                         documenter = true,
+                         branch = "gh-pages",
+                         commit = "master"
+                         )
+    repls = Pair{Any,Any}[]
+
+    push!(repls, "\r\n" => "\n") # normalize line endings
+
+    if sym === :md
+        push!(repls, r"^#nb.*\n?"m => "") # remove #nb lines
+        push!(repls, r"^#jl.*\n?"m => "") # remove leading #jl lines
+        push!(repls, r".*#jl$\n?"m => "") # remove trailing #jl lines
+        push!(repls, r"^#md "m => "")     # remove leading #md
+    elseif sym === :nb
+        push!(repls, r"^#md.*\n?"m => "") # remove #md lines
+        push!(repls, r"^#jl.*\n?"m => "") # remove leading #jl lines
+        push!(repls, r".*#jl$\n?"m => "") # remove trailing #jl lines
+        push!(repls, r"^#nb "m => "")     # remove leading #nb
+        push!(repls, r"```math(.*?)```"s => s"\\begin{equation}\1\\end{equation}")
+    else # sym === :jl
+        push!(repls, r"^#md.*\n?"m => "") # remove #md lines
+        push!(repls, r"^#nb.*\n?"m => "") # remove #nb lines
+        push!(repls, r"^#jl "m => "")     # remove leading #jl
+        push!(repls, r" #jl$"m => "")     # remove trailing #jl
+    end
+
+    # name
+    push!(repls, "@__NAME__" => name)
+
+    # fix links
+    travis_repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "TRAVIS_REPO_SLUG")
+    ## use same logic as Documenter to figure out the deploy folder
+    travis_tag = get(ENV, "TRAVIS_TAG", "TRAVIS_TAG")
+    if isempty(travis_tag)
+        folder = "latest"
+    else
+        # use the versioned directory for links, even for the stable and release-
+        # folders since this will never change
+        folder = travis_tag
+    end
+
+    ## replace @__REPO_ROOT_URL__ to master/commit
+    repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)/"
+    push!(repls, "@__REPO_ROOT_URL__" => repo_root_url)
+
+    ## replace @__NBVIEWER_ROOT_URL__ to latest or version directory
+    nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(travis_repo_slug)/blob/$(branch)/$(folder)/"
+    push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
+
+    if get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") != "true"
+        @info "not running on Travis, skipping links will not be correct."
+    end
+
+    # run some Documenter specific things
+    if documenter && sym !== :md
+        ## - remove documenter style `@ref`s and `@id`s
+        push!(repls, r"\[(.*?)\]\(@ref\)" => s"\1")     # [foo](@ref) => foo
+        push!(repls, r"\[(.*?)\]\(@ref .*?\)" => s"\1") # [foo](@ref bar) => foo
+        push!(repls, r"\[(.*?)\]\(@id .*?\)" => s"\1")  # [foo](@id bar) => foo
+    end
+
+    # do the replacements
+    for repl in repls
+        content = replace(content, repl)
+    end
+
+    return content
+end
+
 filename(str) = first(splitext(last(splitdir(str))))
 
 """
@@ -104,7 +175,7 @@ Keyword arguments:
   section of the manual. Defaults to `identity`.
 """
 function script(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                name = filename(inputfile), kwargs...)
+                name = filename(inputfile), documenter = true, kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
     mkpath(outputdir)
@@ -112,27 +183,12 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
     @info "generating plain script file from $(inputfile)"
     # read content
     content = read(inputfile, String)
-    # - normalize line endings
-    content = replace(content, "\r\n" => "\n")
 
     # run custom pre-processing from user
     content = preprocess(content)
 
-    # run built in pre-processing:
-    ## - remove #md lines
-    ## - remove #nb lines
-    ## - remove leading and trailing #jl
-    for repl in Pair{Any,Any}[
-                    r"^#md.*\n?"m => "",
-                    r"^#nb.*\n?"m => "",
-                    r"^#jl "m => "",
-                    r" #jl$"m => "",
-                ]
-        content = replace(content, repl)
-    end
-
-    # fix urls to point to correct file
-    content = fixlinks(content)
+    # default replacements
+    content = replace_default(content, :jl; name = name, documenter = documenter)
 
     # create the script file
     chunks = parse(content)
@@ -195,24 +251,9 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     @info "generating markdown page from $(inputfile)"
     # read content
     content = read(inputfile, String)
-    # - normalize line endings
-    content = replace(content, "\r\n" => "\n")
 
     # run custom pre-processing from user
     content = preprocess(content)
-
-    # run built in pre-processing:
-    ## - remove #nb lines
-    ## - remove leading and trailing #jl lines
-    ## - remove leading #md
-    for repl in Pair{Any,Any}[
-                    r"^#nb.*\n?"m => "",
-                    r"^#jl.*\n?"m => "",
-                    r".*#jl$\n?"m => "",
-                    r"^#md "m => "",
-                ]
-        content = replace(content, repl)
-    end
 
     # run some Documenter specific things
     if documenter
@@ -227,8 +268,8 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
         """ * content
     end
 
-    # fix urls to point to correct file
-    content = fixlinks(content)
+    # default replacements
+    content = replace_default(content, :md; name = name, documenter = documenter)
 
     # create the markdown file
     chunks = parse(content)
@@ -294,49 +335,15 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     mkpath(outputdir)
     outputdir = realpath(abspath(outputdir))
     @info "generating notebook from $(inputfile)"
+
     # read content
     content = read(inputfile, String)
-    # normalize line endings
-    content = replace(content, "\r\n" => "\n")
 
     # run custom pre-processing from user
     content = preprocess(content)
 
-    # run built in pre-processing:
-    ## - remove #md lines
-    ## - remove leading and trailing #jl lines
-    ## - remove leading #nb
-    ## - replace ```math ... ``` with \begin{equation} ... \end{equation}
-    for repl in Pair{Any,Any}[
-                    r"^#md.*\n?"m => "",
-                    r"^#jl.*\n?"m => "",
-                    r".*#jl$\n?"m => "",
-                    r"^#nb "m => "",
-                    r"```math(.*?)```"s => s"\\begin{equation}\1\\end{equation}",
-                ]
-        content = replace(content, repl)
-    end
-
-    # fix urls to point to correct file
-    content = fixlinks(content)
-
-    # run some Documenter specific things
-    if documenter # TODO: safe to do this always?
-        ## - remove documenter style `@ref`s and `@id`s
-        # TODO: remove @docs, @setup etc? Probably not, since these are complete blocks
-        #       and the user can just mark those lines with #md
-        for repl in Pair{Any,Any}[
-                    r"\[(.*?)\]\(@ref\)" => s"\1",
-                    r"\[(.*?)\]\(@ref .*?\)" => s"\1",
-                    r"\[(.*?)\]\(@id .*?\)" => s"\1",
-                ]
-            content = replace(content, repl)
-        end
-    end
-
-
-    # # custom post-processing from user
-    # content = postprocess(content)
+    # default replacements
+    content = replace_default(content, :nb; name = name, documenter = documenter)
 
     # create the notebook
     nb = Dict()
@@ -459,30 +466,6 @@ function execute_notebook(nb)
 
     end
     nb
-end
-
-function fixlinks(content; branch = "gh-pages", commit = "master")
-    travis_repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "TRAVIS_REPO_SLUG")
-    # use same logic as Documenter to figure out the deploy folder
-    travis_tag = get(ENV, "TRAVIS_TAG", "TRAVIS_TAG")
-    if isempty(travis_tag)
-        folder = "latest"
-    else
-        # use the versioned directory for links, even for the stable and release-
-        # folders since this will never change
-        folder = travis_tag
-    end
-    # replace @__REPO_ROOT_URL__ to master/commit
-    repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)/"
-    content = replace(content, "@__REPO_ROOT_URL__" => repo_root_url)
-    # replace @__NBVIEWER_ROOT_URL__ to latest or version directory
-    nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(travis_repo_slug)/blob/$(branch)/$(folder)/"
-    content = replace(content, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
-
-    if get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") != "true"
-        @info "not running on Travis, skipping links will not be correct."
-    end
-    return content
 end
 
 end # module
