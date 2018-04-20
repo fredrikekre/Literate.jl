@@ -413,18 +413,8 @@ end
             """
                "source": [
                 "for i in 1:10\\n",
-                "    print(i)"
-               ]
-            """,
-
-            """
-               "source": [
-                "some markdown in a code block"
-               ]
-            """,
-
-            """
-               "source": [
+                "    print(i)\\n",
+                "#' some markdown in a code block\\n",
                 "end"
                ]
             """,

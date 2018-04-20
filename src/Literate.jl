@@ -33,7 +33,7 @@ mutable struct CodeChunk <: Chunk
 end
 CodeChunk() = CodeChunk(String[], false)
 
-function parse(content)
+function parse(content; allow_continued = true)
     lines = collect(eachline(IOBuffer(content)))
 
     chunks = Chunk[]
@@ -84,6 +84,30 @@ function parse(content)
             chunks[last_code_chunk].continued = true
         end
         last_code_chunk = i
+    end
+
+    # if we don't allow continued code blocks we need to merge MDChunks into the CodeChunks
+    if !allow_continued
+        merged_chunks = Chunk[]
+        continued = false
+        for chunk in chunks
+            if continued
+                @assert !isempty(merged_chunks)
+                if isa(chunk, CodeChunk)
+                    append!(merged_chunks[end].lines, chunk.lines)
+                else # need to put back #'
+                    for line in chunk.lines
+                        push!(merged_chunks[end].lines, rstrip("#' " * line))
+                    end
+                end
+            else
+                push!(merged_chunks, chunk)
+            end
+            if isa(chunk, CodeChunk)
+                continued = chunk.continued
+            end
+        end
+        chunks = merged_chunks
     end
 
     return chunks
@@ -354,8 +378,10 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     nb["nbformat"] = JUPYTER_VERSION.major
     nb["nbformat_minor"] = JUPYTER_VERSION.minor
 
+    # parse
+    chunks = parse(content; allow_continued = false)
+
     ## create the notebook cells
-    chunks = parse(content)
     cells = []
     for chunk in chunks
         cell = Dict()
