@@ -293,7 +293,7 @@ var documenterSearchIndex = {"docs": [
     "page": "7. Example",
     "title": "Documenter.jl interaction",
     "category": "section",
-    "text": "In the source file it is possible to use Documenter.jl style references, such as @ref and @id. These will be filtered out in the notebook output. For example, here is a link, but it is only visible as a link if you are reading the markdown output. We can also use equations:int f(x) dxusing Documenters math syntax. This is automatically changed to \\begin{equation} ... \\end{equation} in the notebook output to display correctly in the notebook too."
+    "text": "In the source file it is possible to use Documenter.jl style references, such as @ref and @id. These will be filtered out in the notebook output. For example, here is a link, but it is only visible as a link if you are reading the markdown output. We can also use equations:int f(x) dxusing Documenters math syntax. This is automatically changed to \\begin{equation} ... \\end{equation} in the notebook output to display correctly in the notebook too.This page was generated using Literate.jl."
 },
 
 ]}
