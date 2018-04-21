@@ -209,6 +209,8 @@ content = """
             # PLACEHOLDER3
             # PLACEHOLDER4
 
+            # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
+
             """
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test script == expected_script
@@ -318,6 +320,8 @@ end
             ```math
             \\int f(x) dx
             ```
+
+            *This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
 
             """
             markdown = read(joinpath(outdir, "inputfile.md"), String)
@@ -464,6 +468,12 @@ end
                 "\\\\begin{equation}\\n",
                 "\\\\int f(x) dx\\n",
                 "\\\\end{equation}"
+               ]
+            """,
+
+            """
+               "source": [
+                "*This notebook was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*"
                ]
             """))
 

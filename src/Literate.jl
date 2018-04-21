@@ -121,6 +121,19 @@ function replace_default(content, sym;
                          )
     repls = Pair{Any,Any}[]
 
+    # add some shameless advertisement
+    if sym === :jl
+        content *= """
+            #-
+            # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
+            """
+    else
+        content *= """
+            #-
+            #' *This $(sym === :md ? "page" : "notebook") was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
+            """
+    end
+
     push!(repls, "\r\n" => "\n") # normalize line endings
 
     if sym === :md
