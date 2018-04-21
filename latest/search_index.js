@@ -173,7 +173,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "Literate.notebook",
     "category": "function",
-    "text": "Literate.notebook(inputfile, outputdir; kwargs...)\n\nGenerate a notebook from inputfile and write the result to outputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .ipynb. name is also used to replace @__NAME__. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\nexecute: a boolean deciding if the generated notebook should also be executed or not. Defaults to true.\ndocumenter: boolean that says if the source contains Documenter.jl specific things to filter out during notebook generation. Defaults to true. See the the manual section on Interaction with Documenter.\n\n\n\n"
+    "text": "Literate.notebook(inputfile, outputdir; kwargs...)\n\nGenerate a notebook from inputfile and write the result to outputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .ipynb. name is also used to replace @__NAME__. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\nexecute: a boolean deciding if the generated notebook should also be executed or not. Defaults to true. The current working directory is set to outputdir when executing the notebook.\ndocumenter: boolean that says if the source contains Documenter.jl specific things to filter out during notebook generation. Defaults to true. See the the manual section on Interaction with Documenter.\n\n\n\n"
 },
 
 {
@@ -181,7 +181,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "4.2. Notebook Output",
     "category": "section",
-    "text": "The (default) notebook output of the source snippet above is as follows        │ # Rational numbers\n        │\n        │ In julia rational numbers can be constructed with the `//` operator.\n        │ Lets define two rational numbers, `x` and `y`:\n\nIn[1]:  │ x = 1//3\nOut[1]: │ 1//3\n\nIn[2]:  │ y = 2//5\nOut[2]: │ 2//5\n\n        │ When adding `x` and `y` together we obtain a new rational number:\n\nIn[3]:  │ z = x + y\nOut[3]: │ 11/15We note that lines starting with #\' is put in markdown cells, and the code lines have been put in code cells. By default the notebook is also executed and output cells populated. Some of the output rendering can be controlled with keyword arguments to Literate.notebook:Literate.notebook"
+    "text": "The (default) notebook output of the source snippet above is as follows        │ # Rational numbers\n        │\n        │ In julia rational numbers can be constructed with the `//` operator.\n        │ Lets define two rational numbers, `x` and `y`:\n\nIn[1]:  │ x = 1//3\nOut[1]: │ 1//3\n\nIn[2]:  │ y = 2//5\nOut[2]: │ 2//5\n\n        │ When adding `x` and `y` together we obtain a new rational number:\n\nIn[3]:  │ z = x + y\nOut[3]: │ 11/15We note that lines starting with #\' is put in markdown cells, and the code lines have been put in code cells. By default the notebook is also executed and output cells populated. The current working directory is set to the specified output directory the notebook is executed. Some of the output rendering can be controlled with keyword arguments to Literate.notebook:Literate.notebook"
 },
 
 {
@@ -189,7 +189,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "Literate.script",
     "category": "function",
-    "text": "Literate.script(inputfile, outputdir; kwargs...)\n\nGenerate a plain script file from inputfile and write the result to outputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .jl. name is also used to replace @__NAME__. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\ndocumenter: boolean that says if the source contains Documenter.jl specific things to filter out during script generation. Defaults to true. See the the manual section on Interaction with Documenter.\n\n\n\n"
+    "text": "Literate.script(inputfile, outputdir; kwargs...)\n\nGenerate a plain script file from inputfile and write the result to outputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .jl. name is also used to replace @__NAME__. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\ndocumenter: boolean that says if the source contains Documenter.jl specific things to filter out during script generation. Defaults to true. See the the manual section on Interaction with Documenter.\nkeep_comments: boolean that, if set to true, keeps markdown lines (#\') as comments in the output script. Defaults to false.\n\n\n\n"
 },
 
 {
