@@ -240,6 +240,13 @@ content = """
             @test occursin("name: foobar", script)
             @test !occursin("name: inputfile", script)
             @test !occursin("name: @__NAME__", script)
+
+            # keep_comments
+            Literate.script(inputfile, outdir, keep_comments = true)
+            script = read(joinpath(outdir, "inputfile.jl"), String)
+            @test occursin("#' # Example", script)
+            @test occursin("#' foo, bar", script)
+            @test occursin("#' \\int f(x) dx", script)
         end
     end
 end

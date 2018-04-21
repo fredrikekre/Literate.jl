@@ -200,9 +200,12 @@ Keyword arguments:
 - `documenter`: boolean that says if the source contains Documenter.jl specific things
   to filter out during script generation. Defaults to `true`. See the the manual
   section on [Interaction with Documenter](@ref Interaction-with-Documenter).
+- `keep_comments`: boolean that, if set to `true`, keeps markdown lines (`#'`)
+  as comments in the output script. Defaults to `false`.
 """
 function script(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                name = filename(inputfile), documenter = true, kwargs...)
+                name = filename(inputfile), documenter = true,
+                keep_comments::Bool=false, kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
     mkpath(outputdir)
@@ -224,6 +227,11 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
         if isa(chunk, CodeChunk)
             for line in chunk.lines
                 write(ioscript, line, '\n')
+            end
+            write(ioscript, '\n') # add a newline between each chunk
+        elseif isa(chunk, MDChunk) && keep_comments
+            for line in chunk.lines
+                write(ioscript, "#' ", line, '\n')
             end
             write(ioscript, '\n') # add a newline between each chunk
         end
