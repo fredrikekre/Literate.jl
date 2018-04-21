@@ -350,7 +350,8 @@ Keyword arguments:
   see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
   section of the manual. Defaults to `identity`.
 - `execute`: a boolean deciding if the generated notebook should also
-  be executed or not. Defaults to `true`.
+  be executed or not. Defaults to `true`. The current working directory
+  is set to `outputdir` when executing the notebook.
 - `documenter`: boolean that says if the source contains Documenter.jl specific things
   to filter out during notebook generation. Defaults to `true`. See the the manual
   section on [Interaction with Documenter](@ref Interaction-with-Documenter).

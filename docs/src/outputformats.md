@@ -79,8 +79,10 @@ Out[3]: │ 11/15
 
 We note that lines starting with `#'` is put in markdown cells,
 and the code lines have been put in code cells. By default the notebook
-is also executed and output cells populated. Some of the output rendering
-can be controlled with keyword arguments to [`Literate.notebook`](@ref):
+is also executed and output cells populated. The current working directory
+is set to the specified output directory the notebook is executed.
+Some of the output rendering can be controlled with keyword
+arguments to [`Literate.notebook`](@ref):
 
 ```@docs
 Literate.notebook
