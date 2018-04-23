@@ -452,16 +452,13 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     if execute
         @info "executing notebook $(name * ".ipynb")"
         try
-            # run(`jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --execute $(abspath(outputfile)) --output $(filename(outputfile)).ipynb`)
             cd(outputdir) do
                 nb = execute_notebook(nb)
             end
         catch err
-            @error "error when executing notebook $(name * ".ipynb")"
+            @error "error when executing notebook based on input file: $(inputfile)"
             rethrow(err)
         end
-        # clean up (only needed for jupyter-nbconvert)
-        rm(joinpath(outputdir, ".ipynb_checkpoints"), force=true, recursive = true)
     end
 
     # write to file
@@ -477,7 +474,6 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
 end
 
 function execute_notebook(nb)
-    # sandbox module for the notebook (TODO: Do this in Main?)
     m = Module(gensym())
     io = IOBuffer()
 
@@ -486,7 +482,7 @@ function execute_notebook(nb)
         cell["cell_type"] == "code" || continue
         execution_count += 1
         cell["execution_count"] = execution_count
-        block = join(cell["source"], '\n')
+        block = join(cell["source"])
         # r is the result
         # status = (true|false)
         # _: backtrace
@@ -494,7 +490,16 @@ function execute_notebook(nb)
         r, status, _, str = Documenter.withoutput() do
             include_string(m, block)
         end
-        status || error("something went wrong when evaluating code")
+        if !status
+            error("""
+                 $(sprint(showerror, r))
+                 when executing the following code block
+
+                 ```julia
+                 $block
+                 ```
+                 """)
+        end
 
         # str should go into stream
         if !isempty(str)

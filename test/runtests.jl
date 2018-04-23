@@ -565,6 +565,16 @@ end
                 @test idx !== nothing
                 lastidx = nextind(notebook, last(idx))
             end
+
+            # test error when executing notebook
+            write(inputfile, "for i in 1:10\n    println(i)")
+            r = try
+                Literate.notebook(inputfile, outdir)
+            catch err
+                err
+            end
+            @test isa(r, ErrorException)
+            @test occursin("when executing the following code block", r.msg)
         end
     end
 end
