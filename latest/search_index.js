@@ -281,6 +281,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "generated/example.html#Output-Capturing-1",
+    "page": "7. Example",
+    "title": "Output Capturing",
+    "category": "section",
+    "text": "Code chunks are by default placed in Documenter @example blocks in the generated markdown. This means that the output will be captured in a block when Documenter is building the docs. In notebooks the output is captured in output cells, if the execute keyword argument is set to true. Output to stdout/stderr is also captured.function foo()\n    println(\"This string is printed to stdout.\")\n    return [1, 2, 3, 4]\nend\n\nfoo()"
+},
+
+{
     "location": "generated/example.html#Custom-processing-1",
     "page": "7. Example",
     "title": "Custom processing",
@@ -293,7 +301,7 @@ var documenterSearchIndex = {"docs": [
     "page": "7. Example",
     "title": "Documenter.jl interaction",
     "category": "section",
-    "text": "In the source file it is possible to use Documenter.jl style references, such as @ref and @id. These will be filtered out in the notebook output. For example, here is a link, but it is only visible as a link if you are reading the markdown output. We can also use equations:int f(x) dxusing Documenters math syntax. This is automatically changed to \\begin{equation} ... \\end{equation} in the notebook output to display correctly in the notebook too.This page was generated using Literate.jl."
+    "text": "In the source file it is possible to use Documenter.jl style references, such as @ref and @id. These will be filtered out in the notebook output. For example, here is a link, but it is only visible as a link if you are reading the markdown output. We can also use equations:int_Omega nabla v cdot nabla u mathrmdOmega = int_Omega v f mathrmdOmegausing Documenters math syntax. Documenters syntax is automatically changed to \\begin{equation} ... \\end{equation} in the notebook output to display correctly.This page was generated using Literate.jl."
 },
 
 ]}
