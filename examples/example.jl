@@ -44,6 +44,20 @@ x + y
 
 x * y
 
+#' ### Output Capturing
+#' Code chunks are by default placed in Documenter `@example` blocks in the generated
+#' markdown. This means that the output will be captured in a block when Documenter is
+#' building the docs. In notebooks the output is captured in output cells, if the
+#' `execute` keyword argument is set to true. Output to `stdout`/`stderr` is also
+#' captured.
+
+function foo()
+    println("This string is printed to stdout.")
+    return [1, 2, 3, 4]
+end
+
+foo()
+
 #' ### Custom processing
 #'
 #' It is possible to give Literate custom pre- and post-processing functions.
@@ -60,9 +74,10 @@ MYVARIABLE = MYVALUE
 #' For example, [here is a link](@ref documenter-interaction), but it is only
 #' visible as a link if you are reading the markdown output. We can also
 #' use equations:
+#'
 #' ```math
-#' \int f(x) dx
+#' \int_\Omega \nabla v \cdot \nabla u\ \mathrm{d}\Omega = \int_\Omega v f\ \mathrm{d}\Omega
 #' ```
-#' using Documenters math syntax. This is automatically changed to
-#' `\begin{equation} ... \end{equation}` in the notebook output to display
-#' correctly in the notebook too.
+#'
+#' using Documenters math syntax. Documenters syntax is automatically changed to
+#' `\begin{equation} ... \end{equation}` in the notebook output to display correctly.
