@@ -116,22 +116,25 @@ end
 function replace_default(content, sym;
                          name = error("required kwarg"),
                          documenter = true,
+                         credit = true,
                          branch = "gh-pages",
                          commit = "master"
                          )
     repls = Pair{Any,Any}[]
 
     # add some shameless advertisement
-    if sym === :jl
-        content *= """
-            #-
-            # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
-            """
-    else
-        content *= """
-            #-
-            #' *This $(sym === :md ? "page" : "notebook") was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
-            """
+    if credit
+        if sym === :jl
+            content *= """
+                #-
+                # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
+                """
+        else
+            content *= """
+                #-
+                #' *This $(sym === :md ? "page" : "notebook") was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
+                """
+        end
     end
 
     push!(repls, "\r\n" => "\n") # normalize line endings
@@ -217,7 +220,7 @@ Keyword arguments:
   as comments in the output script. Defaults to `false`.
 """
 function script(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                name = filename(inputfile), documenter = true,
+                name = filename(inputfile), documenter = true, credit = true,
                 keep_comments::Bool=false, kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
@@ -231,7 +234,7 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
     content = preprocess(content)
 
     # default replacements
-    content = replace_default(content, :jl; name = name, documenter = documenter)
+    content = replace_default(content, :jl; name = name, documenter = documenter, credit = credit)
 
     # create the script file
     chunks = parse(content)
@@ -290,7 +293,7 @@ Keyword arguments:
   if `documenter = false`.
 """
 function markdown(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                  name = filename(inputfile), documenter::Bool = true,
+                  name = filename(inputfile), documenter::Bool = true, credit = true,
                   codefence::Pair = documenter ? "```@example $(name)" => "```" : "```julia" => "```",
                   kwargs...)
     # normalize paths
@@ -318,7 +321,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     end
 
     # default replacements
-    content = replace_default(content, :md; name = name, documenter = documenter)
+    content = replace_default(content, :md; name = name, documenter = documenter, credit = credit)
 
     # create the markdown file
     chunks = parse(content)
@@ -378,7 +381,7 @@ Keyword arguments:
   section on [Interaction with Documenter](@ref Interaction-with-Documenter).
 """
 function notebook(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                  execute::Bool=true, documenter::Bool=true,
+                  execute::Bool=true, documenter::Bool=true, credit = true,
                   name = filename(inputfile), kwargs...)
     # normalize paths
     inputfile = realpath(abspath(inputfile))
@@ -393,7 +396,7 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     content = preprocess(content)
 
     # default replacements
-    content = replace_default(content, :nb; name = name, documenter = documenter)
+    content = replace_default(content, :nb; name = name, documenter = documenter, credit = credit)
 
     # create the notebook
     nb = Dict()
