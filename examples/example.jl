@@ -6,8 +6,8 @@
 #md #' html-output which Documenter have generated based on a markdown
 #md #' file generated with Literate. The corresponding notebook
 #md #' can be found here: [`example.ipynb`](@__NBVIEWER_ROOT_URL__generated/example.ipynb),
-#nb #' generated notebook output. The corresponding markdown (html) output The generated markdown can be found here: [`example.md`](./example.md), the
-#nb #' can be found here: [`example.md`](./example.md),
+#nb #' generated notebook output. The corresponding markdown (html) output
+#nb #' can be found here: [`example.html`](https://fredrikekre.github.io/Literate.jl/latest/generated/example.html),
 #' and the plain script output can be found here: [`example.jl`](./example.jl).
 
 #' It is recommended to have the [source file](@__REPO_ROOT_URL__examples/example.jl)
