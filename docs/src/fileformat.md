@@ -35,8 +35,8 @@ julia code. We note a couple of things:
   thus serve as good documentation on its own.
 
 For simple use this is all you need to know. The following additional special syntax can also be used:
-- `#md`, `#nb`, `#jl`: tags for filtering of lines, see [Filtering Lines](@ref Filtering-Lines).
-- `#-`: tag for manually controlling chunk-splits, see [Custom control over chunk splits](@ref).
+- `#md`, `#nb`, `#jl`, `#src`: tags to filter lines, see [Filtering Lines](@ref Filtering-Lines),
+- `#-`: tag to manually control chunk-splits, see [Custom control over chunk splits](@ref).
 
 There is also some default convenience replacements that will always be performed, see
 [Default Replacements](@ref).
@@ -44,13 +44,15 @@ There is also some default convenience replacements that will always be performe
 
 ## [**2.2.** Filtering Lines](@id Filtering-Lines)
 
-It is possible to filter out lines depending on the output format. For this purpose,
-there are three different "tokens" that can be placed on the start of the line:
-- `#md`: markdown output only,
-- `#nb`: notebook output only,
-- `#jl`: script output only.
+It is often useful to filter out lines in the source depending on the output format.
+For this purpose there are a number of "tokens" that can be used to mark the purpose of
+certain lines:
+- `#md `: line exclusive to markdown output,
+- `#nb `: line exclusive to notebook output,
+- `#jl `: line exclusive to script output,
+- `#src `: line exclusive to the source code and thus filtered out unconditionally.
 
-Lines starting with one of these tokens are filtered out in the
+Lines *starting* with one of these tokens are filtered out in the
 [preprocessing step](@ref Pre-processing).
 
 Suppose, for example, that we want to include a docstring within a `@docs` block
@@ -67,6 +69,16 @@ is a case where we can prepend `#md` to those lines:
 The lines in the example above would be filtered out in the preprocessing step, unless we are
 generating a markdown file. When generating a markdown file we would simple remove
 the leading `#md ` from the lines. Beware that the space after the tag is also removed.
+
+The `#src` token can also be placed at the *end* of a line. This is to make it possible
+to have code lines exclusive to the source code, and not just comment lines. For example,
+if the source file is included in the test suite we might want to add a `@test` at the end
+without this showing up in the outputs:
+
+```julia
+using Test                      #src
+@test result == expected_result #src
+```
 
 
 ## [**2.3.** Default Replacements](@id Default-Replacements)

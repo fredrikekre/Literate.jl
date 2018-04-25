@@ -25,11 +25,12 @@ y = 2//5
 #' write *text in italic font*, **text in bold font** and use
 #' [links](https://www.youtube.com/watch?v=dQw4w9WgXcQ).
 
-#' It is possible to filter lines by starting it with `#md`, `#nb` or `#jl`
-#' for markdown, notebook and script output only, respectively.
-#md #' This line is filtered out for notebook and script output.
-#nb #' This line is filtered out for markdown and script output.
-#jl #' This line is filtered out for markdown and notebook output.
+#' It is possible to filter out lines depending on the output using the
+#' `#md`, `#nb`, `#jl` and `#src` tags (see [Filtering Lines](@ref)):
+#md #' - This line starts with `#md` and is thus only visible in the markdown output.
+#nb #' - This line starts with `#nb` and is thus only visible in the notebook output.
+#jl #' - This line starts with `#jl` and is thus only visible in the notebook output.
+#src #' - This line starts with `#src` and is thus only visible in the source file.
 
 #' The source file is parsed in chunks of markdown and code. Starting a line
 #' with `#-` manually inserts a chunk break. For example, if we want to

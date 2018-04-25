@@ -147,8 +147,8 @@ content = """
     #nb x + 2
     #jl #' Only script
     #jl x + 3
-    #' Only script too  #jl
-    x + 4               #jl
+    #src #' Source code only
+    Source code only          #src
     # #' Comment
     # another comment
     #-
@@ -192,8 +192,6 @@ content = """
             x = 1
 
             x + 3
-
-            x + 4
             # #' Comment
             # another comment
 
