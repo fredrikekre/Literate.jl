@@ -398,13 +398,13 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     # default replacements
     content = replace_default(content, :nb; name = name, documenter = documenter, credit = credit)
 
+    # parse
+    chunks = parse(content; allow_continued = false)
+
     # create the notebook
     nb = Dict()
     nb["nbformat"] = JUPYTER_VERSION.major
     nb["nbformat_minor"] = JUPYTER_VERSION.minor
-
-    # parse
-    chunks = parse(content; allow_continued = false)
 
     ## create the notebook cells
     cells = []
@@ -434,14 +434,14 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     kernelspec = Dict()
     kernelspec["language"] =  "julia"
     kernelspec["name"] =  "julia-$(VERSION.major).$(VERSION.minor)"
-    kernelspec["display_name"] = "Julia $(VERSION.major).$(VERSION.minor).$(VERSION.patch)"
+    kernelspec["display_name"] = "Julia $(string(VERSION))"
     metadata["kernelspec"] = kernelspec
 
     language_info = Dict()
     language_info["file_extension"] = ".jl"
     language_info["mimetype"] = "application/julia"
     language_info["name"]=  "julia"
-    language_info["version"] = "$(VERSION.major).$(VERSION.minor).$(VERSION.patch)"
+    language_info["version"] = string(VERSION)
     metadata["language_info"] = language_info
 
     nb["metadata"] = metadata
