@@ -12,6 +12,7 @@ matrix:
 branches:
   only:
     - master
+    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
 jobs:
   include:
     - stage: deploy
