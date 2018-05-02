@@ -3,19 +3,8 @@
 When the source is parsed, and have been processed it is time to render the output.
 We will consider the following source snippet:
 
-```julia
-#' # Rational numbers
-#'
-#' In julia rational numbers can be constructed with the `//` operator.
-#' Lets define two rational numbers, `x` and `y`:
-
-x = 1//3
-#-
-y = 2//5
-
-#' When adding `x` and `y` together we obtain a new rational number:
-
-z = x + y
+```@eval
+Markdown.parse("```julia\n" * rstrip(read("outputformats.jl", String)) * "\n```")
 ```
 
 and see how this is rendered in each of the output formats.
@@ -24,29 +13,18 @@ and see how this is rendered in each of the output formats.
 
 The (default) markdown output of the source snippet above is as follows
 
-````markdown
-# Rational numbers
-
-In julia rational numbers can be constructed with the `//` operator.
-Lets define two rational numbers, `x` and `y`:
-
-```@example name
-x = 1//3
+```@eval
+file = joinpath(@__DIR__,  "src/generated/name.md")
+str = "````markdown\n" * rstrip(read(file, String)) * "\n````"
+rm(file)
+Markdown.parse(str)
 ```
-
-```@example name
-y = 2//5
-```
-
-When adding `x` and `y` together we obtain a new rational number:
-
-```@example name
-z = x + y
-```
-````
 
 We note that lines starting with `#'` is printed as regular markdown,
-and the code lines have been wrapped in `@example` blocks.
+and the code lines have been wrapped in `@example` blocks. We also note that
+an `@meta` block have been added, that sets the `EditURL` variable. This is used
+by Documenter to redirect the "Edit on GitHub" link for the page,
+see [Interaction with Documenter](@ref).
 
 Some of the output rendering can be controlled with keyword arguments to
 [`Literate.markdown`](@ref):
@@ -57,25 +35,8 @@ Literate.markdown
 
 ## [**4.2.** Notebook Output](@id Notebook-Output)
 
-The (default) notebook output of the source snippet above is as follows
-
-```
-        │ # Rational numbers
-        │
-        │ In julia rational numbers can be constructed with the `//` operator.
-        │ Lets define two rational numbers, `x` and `y`:
-
-In[1]:  │ x = 1//3
-Out[1]: │ 1//3
-
-In[2]:  │ y = 2//5
-Out[2]: │ 2//5
-
-        │ When adding `x` and `y` together we obtain a new rational number:
-
-In[3]:  │ z = x + y
-Out[3]: │ 11/15
-```
+The (default) notebook output of the source snippet can be seen here:
+[notebook.ipynb](generated/notebook.ipynb).
 
 We note that lines starting with `#'` is put in markdown cells,
 and the code lines have been put in code cells. By default the notebook
@@ -93,12 +54,11 @@ Literate.notebook
 
 The (default) script output of the source snippet above is as follows
 
-```julia
-x = 1//3
-
-y = 2//5
-
-z = x + y
+```@eval
+file = joinpath(@__DIR__,  "src/generated/outputformats.jl")
+str = "```julia\n" * rstrip(read(file, String)) * "\n```"
+rm(file)
+Markdown.parse(str)
 ```
 
 We note that lines starting with `#'` are removed and only the
