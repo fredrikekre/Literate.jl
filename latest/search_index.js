@@ -149,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "4. Output Formats",
     "category": "section",
-    "text": "When the source is parsed, and have been processed it is time to render the output. We will consider the following source snippet:#\' # Rational numbers\n#\'\n#\' In julia rational numbers can be constructed with the `//` operator.\n#\' Lets define two rational numbers, `x` and `y`:\n\nx = 1//3\n#-\ny = 2//5\n\n#\' When adding `x` and `y` together we obtain a new rational number:\n\nz = x + yand see how this is rendered in each of the output formats."
+    "text": "When the source is parsed, and have been processed it is time to render the output. We will consider the following source snippet:Markdown.parse(\"```julia\\n\" * rstrip(read(\"outputformats.jl\", String)) * \"\\n```\")and see how this is rendered in each of the output formats."
 },
 
 {
@@ -165,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "4.1. Markdown Output",
     "category": "section",
-    "text": "The (default) markdown output of the source snippet above is as follows# Rational numbers\n\nIn julia rational numbers can be constructed with the `//` operator.\nLets define two rational numbers, `x` and `y`:\n\n```@example name\nx = 1//3\n```\n\n```@example name\ny = 2//5\n```\n\nWhen adding `x` and `y` together we obtain a new rational number:\n\n```@example name\nz = x + y\n```We note that lines starting with #\' is printed as regular markdown, and the code lines have been wrapped in @example blocks.Some of the output rendering can be controlled with keyword arguments to Literate.markdown:Literate.markdown"
+    "text": "The (default) markdown output of the source snippet above is as followsfile = joinpath(@__DIR__,  \"src/generated/name.md\")\nstr = \"````markdown\\n\" * rstrip(read(file, String)) * \"\\n````\"\nrm(file)\nMarkdown.parse(str)We note that lines starting with #\' is printed as regular markdown, and the code lines have been wrapped in @example blocks. We also note that an @meta block have been added, that sets the EditURL variable. This is used by Documenter to redirect the \"Edit on GitHub\" link for the page, see Interaction with Documenter.Some of the output rendering can be controlled with keyword arguments to Literate.markdown:Literate.markdown"
 },
 
 {
@@ -181,7 +181,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "4.2. Notebook Output",
     "category": "section",
-    "text": "The (default) notebook output of the source snippet above is as follows        │ # Rational numbers\n        │\n        │ In julia rational numbers can be constructed with the `//` operator.\n        │ Lets define two rational numbers, `x` and `y`:\n\nIn[1]:  │ x = 1//3\nOut[1]: │ 1//3\n\nIn[2]:  │ y = 2//5\nOut[2]: │ 2//5\n\n        │ When adding `x` and `y` together we obtain a new rational number:\n\nIn[3]:  │ z = x + y\nOut[3]: │ 11/15We note that lines starting with #\' is put in markdown cells, and the code lines have been put in code cells. By default the notebook is also executed and output cells populated. The current working directory is set to the specified output directory the notebook is executed. Some of the output rendering can be controlled with keyword arguments to Literate.notebook:Literate.notebook"
+    "text": "The (default) notebook output of the source snippet can be seen here: notebook.ipynb.We note that lines starting with #\' is put in markdown cells, and the code lines have been put in code cells. By default the notebook is also executed and output cells populated. The current working directory is set to the specified output directory the notebook is executed. Some of the output rendering can be controlled with keyword arguments to Literate.notebook:Literate.notebook"
 },
 
 {
@@ -197,7 +197,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "4.3. Script Output",
     "category": "section",
-    "text": "The (default) script output of the source snippet above is as followsx = 1//3\n\ny = 2//5\n\nz = x + yWe note that lines starting with #\' are removed and only the code lines have been kept. Some of the output rendering can be controlled with keyword arguments to Literate.script:Literate.script"
+    "text": "The (default) script output of the source snippet above is as followsfile = joinpath(@__DIR__,  \"src/generated/outputformats.jl\")\nstr = \"```julia\\n\" * rstrip(read(file, String)) * \"\\n```\"\nrm(file)\nMarkdown.parse(str)We note that lines starting with #\' are removed and only the code lines have been kept. Some of the output rendering can be controlled with keyword arguments to Literate.script:Literate.script"
 },
 
 {
