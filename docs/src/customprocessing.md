@@ -27,8 +27,8 @@ We could of course update our source file before generating the docs, but we cou
 instead use a `preprocess` function that splices the date into the source for us.
 Consider the following source file:
 ```julia
-#' # Example
-#' This example was generated DATEOFTODAY
+# # Example
+# This example was generated DATEOFTODAY
 
 x = 1 // 3
 ```

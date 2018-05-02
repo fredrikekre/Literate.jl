@@ -11,7 +11,7 @@ import .Documenter
 
 # # Some simple rules:
 #
-# * All lines starting with `#'` are considered markdown, everything else is considered code
+# * All lines starting with `# ` are considered markdown, everything else is considered code
 # * The file is parsed in "chunks" of code and markdown. A new chunk is created when the
 #   lines switch context from markdown to code and vice versa.
 # * Lines starting with `#-` can be used to start a new chunk.
@@ -33,28 +33,32 @@ mutable struct CodeChunk <: Chunk
 end
 CodeChunk() = CodeChunk(String[], false)
 
+ismdline(line) = (line == "#" || startswith(line, "# ")) && !startswith(line, "##")
+
 function parse(content; allow_continued = true)
     lines = collect(eachline(IOBuffer(content)))
 
     chunks = Chunk[]
-    push!(chunks, startswith(lines[1], "#'") ? MDChunk() : CodeChunk())
+    push!(chunks, ismdline(rstrip(lines[1])) ? MDChunk() : CodeChunk())
 
     for line in lines
         line = rstrip(line)
         if startswith(line, "#-") # new chunk
             # assume same as last chunk, will be cleaned up otherwise
             push!(chunks, typeof(chunks[end])())
-        elseif startswith(line, "#'") # markdown
+        elseif ismdline(line) # markdown
             if !(chunks[end] isa MDChunk)
                 push!(chunks, MDChunk())
             end
-            # remove "#' " and "#'\n"
-            line = replace(replace(line, r"^#' " => ""), r"^#'$" => "")
+            # remove "# " and "#\n"
+            line = replace(replace(line, r"^# " => ""), r"^#$" => "")
             push!(chunks[end].lines, line)
         else # code
             if !(chunks[end] isa CodeChunk)
                 push!(chunks, CodeChunk())
             end
+            # remove "## " and "##\n"
+            line = replace(replace(line, r"^## " => "# "), r"^##$" => "#")
             push!(chunks[end].lines, line)
         end
     end
@@ -95,9 +99,9 @@ function parse(content; allow_continued = true)
                 @assert !isempty(merged_chunks)
                 if isa(chunk, CodeChunk)
                     append!(merged_chunks[end].lines, chunk.lines)
-                else # need to put back #'
+                else # need to put back "#"
                     for line in chunk.lines
-                        push!(merged_chunks[end].lines, rstrip("#' " * line))
+                        push!(merged_chunks[end].lines, rstrip("# " * line))
                     end
                 end
             else
@@ -127,12 +131,12 @@ function replace_default(content, sym;
         if sym === :jl
             content *= """
                 #-
-                # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
+                ## This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
                 """
         else
             content *= """
                 #-
-                #' *This $(sym === :md ? "page" : "notebook") was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
+                # *This $(sym === :md ? "page" : "notebook") was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
                 """
         end
     end
@@ -217,7 +221,7 @@ Keyword arguments:
 - `documenter`: boolean that says if the source contains Documenter.jl specific things
   to filter out during script generation. Defaults to `true`. See the the manual
   section on [Interaction with Documenter](@ref Interaction-with-Documenter).
-- `keep_comments`: boolean that, if set to `true`, keeps markdown lines (`#'`)
+- `keep_comments`: boolean that, if set to `true`, keeps markdown lines
   as comments in the output script. Defaults to `false`.
 """
 function script(inputfile, outputdir; preprocess = identity, postprocess = identity,
@@ -248,7 +252,7 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
             write(ioscript, '\n') # add a newline between each chunk
         elseif isa(chunk, MDChunk) && keep_comments
             for line in chunk.lines
-                write(ioscript, "#' ", line, '\n')
+                write(ioscript, rstrip("# " * line * '\n'))
             end
             write(ioscript, '\n') # add a newline between each chunk
         end
@@ -314,9 +318,9 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
         repo = get(ENV, "TRAVIS_REPO_SLUG", "")
         pkg = first(split(last(split(repo, '/')), '.'))
         content = """
-        #' ```@meta
-        #' EditURL = "@__REPO_ROOT_URL__$(replace(relpath(inputfile, Pkg.dir(pkg)), "\\" => "/"))"
-        #' ```
+        # ```@meta
+        # EditURL = "@__REPO_ROOT_URL__$(replace(relpath(inputfile, Pkg.dir(pkg)), "\\" => "/"))"
+        # ```
 
         """ * content
     end

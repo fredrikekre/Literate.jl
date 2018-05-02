@@ -30,38 +30,38 @@ and mark them as either markdown or code according to the rules described in the
 [Syntax](@ref Syntax) section. Lets consider the example from the previous section
 with each line categorized:
 ```
-#' # Rational numbers                                                     <- markdown
-#'                                                                        <- markdown
-#' In julia rational numbers can be constructed with the `//` operator.   <- markdown
-#' Lets define two rational numbers, `x` and `y`:                         <- markdown
-                                                                          <- code
-x = 1 // 3                                                                <- code
-y = 2 // 5                                                                <- code
-                                                                          <- code
-#' When adding `x` and `y` together we obtain a new rational number:      <- markdown
-                                                                          <- code
-z = x + y                                                                 <- code
+# # Rational numbers                                                     <- markdown
+#                                                                        <- markdown
+# In julia rational numbers can be constructed with the `//` operator.   <- markdown
+# Lets define two rational numbers, `x` and `y`:                         <- markdown
+                                                                         <- code
+x = 1 // 3                                                               <- code
+y = 2 // 5                                                               <- code
+                                                                         <- code
+# When adding `x` and `y` together we obtain a new rational number:      <- markdown
+                                                                         <- code
+z = x + y                                                                <- code
 ```
 
 In the next step the lines are grouped into "chunks" of markdown and code.
 This is done by simply collecting adjacent lines of the same "type" into
 chunks:
 ```
-#' # Rational numbers                                                     ┐
-#'                                                                        │
-#' In julia rational numbers can be constructed with the `//` operator.   │ markdown
-#' Lets define two rational numbers, `x` and `y`:                         ┘
-                                                                          ┐
-x = 1 // 3                                                                │
-y = 2 // 5                                                                │ code
-                                                                          ┘
-#' When adding `x` and `y` together we obtain a new rational number:      ] markdown
-                                                                          ┐
-z = x + y                                                                 ┘ code
+# # Rational numbers                                                     ┐
+#                                                                        │
+# In julia rational numbers can be constructed with the `//` operator.   │ markdown
+# Lets define two rational numbers, `x` and `y`:                         ┘
+                                                                         ┐
+x = 1 // 3                                                               │
+y = 2 // 5                                                               │ code
+                                                                         ┘
+# When adding `x` and `y` together we obtain a new rational number:      ] markdown
+                                                                         ┐
+z = x + y                                                                ┘ code
 ```
 
 In the last parsing step all empty leading and trailing lines for each chunk
-are removed, but empty lines *within the same* block are kept. The leading `#' `
+are removed, but empty lines *within the same* block are kept. The leading `# `
 tokens are also removed from the markdown chunks. Finally we would
 end up with the following 4 chunks:
 
@@ -112,7 +112,7 @@ The example above would result in two consecutive code-chunks.
 After the parsing it is time to generate the output. What is done in this step is
 very different depending on the output target, and it is describe in more detail in
 the Output format sections: [Markdown Output](@ref), [Notebook Output](@ref) and
-[Script Output](@ref). In short, the following is happening:
+[Script Output](@ref). Using the default settings, the following is happening:
 
 * Markdown output: markdown chunks are printed as-is, code chunks are put inside
   a code fence (defaults to `@example`-blocks),

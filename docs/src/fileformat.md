@@ -8,25 +8,27 @@ stay up do date with other changes in your package.
 ## [**2.1.** Syntax](@id Syntax)
 
 The basic syntax is simple:
-- lines starting with `#'` is treated as markdown,
+- lines starting with `# ` are treated as markdown,
 - all other lines are treated as julia code.
 
-The reason for using `#'` instead of `#` is that we want to be able to use `#` as comments,
-just as in a regular script. Lets look at a simple example:
+!!! note
+    If you want regular julia comments in the source file use `## ` instead of `# `.
+
+Lets look at a simple example:
 ```julia
-#' # Rational numbers
-#'
-#' In julia rational numbers can be constructed with the `//` operator.
-#' Lets define two rational numbers, `x` and `y`:
+# # Rational numbers
+#
+# In julia rational numbers can be constructed with the `//` operator.
+# Lets define two rational numbers, `x` and `y`:
 
 x = 1//3
 y = 2//5
 
-#' When adding `x` and `y` together we obtain a new rational number:
+# When adding `x` and `y` together we obtain a new rational number:
 
 z = x + y
 ```
-In the lines `#'` we can use regular markdown syntax, for example the `#`
+In the lines starting with `#` we can use regular markdown syntax, for example the `#`
 used for the heading and the backticks for formatting code. The other lines are regular
 julia code. We note a couple of things:
 - The script is valid julia, which means that we can `include` it and the example will run
@@ -60,11 +62,11 @@ using Documenter. Obviously we don't want to include this in the notebook,
 since `@docs` is Documenter syntax that the notebook will not understand. This
 is a case where we can prepend `#md` to those lines:
 ````julia
-#md #' ```@docs
-#md #' Literate.markdown
-#md #' Literate.notebook
-#md #' Literate.markdown
-#md #' ```
+#md # ```@docs
+#md # Literate.markdown
+#md # Literate.notebook
+#md # Literate.markdown
+#md # ```
 ````
 The lines in the example above would be filtered out in the preprocessing step, unless we are
 generating a markdown file. When generating a markdown file we would simple remove
