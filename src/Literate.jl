@@ -1,7 +1,7 @@
 __precompile__()
 module Literate
 
-import Compat: replace, popfirst!, @error, @info
+import Compat: replace, popfirst!, @error, @info, occursin
 
 import JSON
 
@@ -25,7 +25,7 @@ import .Documenter
 # Parser
 abstract type Chunk end
 struct MDChunk <: Chunk
-    lines::Vector{String}
+    lines::Vector{Pair{String,String}} # indent and content
 end
 MDChunk() = MDChunk(String[])
 mutable struct CodeChunk <: Chunk
@@ -34,7 +34,7 @@ mutable struct CodeChunk <: Chunk
 end
 CodeChunk() = CodeChunk(String[], false)
 
-ismdline(line) = (line == "#" || startswith(line, "# ")) && !startswith(line, "##")
+ismdline(line) = (occursin(r"^\h*#$", line) || occursin(r"^\h*# .*$", line)) && !occursin(r"^\h*##", line)
 
 function parse(content; allow_continued = true)
     lines = collect(eachline(IOBuffer(content)))
@@ -44,22 +44,25 @@ function parse(content; allow_continued = true)
 
     for line in lines
         line = rstrip(line)
-        if startswith(line, "#-") # new chunk
+        # print("line = `$line`: ")
+        if occursin(r"^\h*#-", line) # new chunk
             # assume same as last chunk, will be cleaned up otherwise
             push!(chunks, typeof(chunks[end])())
         elseif ismdline(line) # markdown
             if !(chunks[end] isa MDChunk)
                 push!(chunks, MDChunk())
             end
-            # remove "# " and "#\n"
-            line = replace(replace(line, r"^# " => ""), r"^#$" => "")
-            push!(chunks[end].lines, line)
+            # capture what is before and after # (need to store the indent)
+            m = match(r"^(\h*)#( (.*))?$", line)
+            indent = convert(String, m.captures[1])
+            linecontent = m.captures[3] === nothing ? "" : convert(String, m.captures[3])
+            push!(chunks[end].lines, indent => linecontent)
         else # code
             if !(chunks[end] isa CodeChunk)
                 push!(chunks, CodeChunk())
             end
             # remove "## " and "##\n"
-            line = replace(replace(line, r"^## " => "# "), r"^##$" => "#")
+            line = replace(replace(line, r"^(\h*)#(# .*)$" => s"\1\2"), r"^(\h*#)#$" => "\1")
             push!(chunks[end].lines, line)
         end
     end
@@ -70,10 +73,10 @@ function parse(content; allow_continued = true)
     filter!(x -> !all(y -> isempty(y), x.lines), chunks)
     ## remove leading/trailing empty lines
     for chunk in chunks
-        while isempty(chunk.lines[1])
+        while chunk.lines[1] == "" || chunk.lines[1] == ("" => "")
             popfirst!(chunk.lines)
         end
-        while isempty(chunk.lines[end])
+        while chunk.lines[end] == "" || chunk.lines[end] == ("" => "")
             pop!(chunk.lines)
         end
     end
@@ -102,7 +105,7 @@ function parse(content; allow_continued = true)
                     append!(merged_chunks[end].lines, chunk.lines)
                 else # need to put back "#"
                     for line in chunk.lines
-                        push!(merged_chunks[end].lines, rstrip("# " * line))
+                        push!(merged_chunks[end].lines, rstrip(line.first * "# " * line.second))
                     end
                 end
             else
@@ -253,7 +256,7 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
             write(ioscript, '\n') # add a newline between each chunk
         elseif isa(chunk, MDChunk) && keep_comments
             for line in chunk.lines
-                write(ioscript, rstrip("# " * line * '\n'))
+                write(ioscript, rstrip(line.first * "# " * line.second * '\n'))
             end
             write(ioscript, '\n') # add a newline between each chunk
         end
@@ -336,7 +339,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     for chunk in chunks
         if isa(chunk, MDChunk)
             for line in chunk.lines
-                write(iomd, line, '\n')
+                write(iomd, line.second, '\n') # skip indent here
             end
         else # isa(chunk, CodeChunk)
             write(iomd, codefence.first)
@@ -419,8 +422,9 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
         if isa(chunk, MDChunk)
             cell["cell_type"] = "markdown"
             cell["metadata"] = Dict()
-            @views map!(x -> x * '\n', chunk.lines[1:end-1], chunk.lines[1:end-1])
-            cell["source"] = chunk.lines
+            lines = String[x.second for x in chunk.lines] # skip indent
+            @views map!(x -> x * '\n', lines[1:end-1], lines[1:end-1])
+            cell["source"] = lines
             cell["outputs"] = []
         else # isa(chunk, CodeChunk)
             cell["cell_type"] = "code"
