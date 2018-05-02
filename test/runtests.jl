@@ -10,9 +10,11 @@ function compare_chunks(chunks1, chunks2)
     for (c1, c2) in zip(chunks1, chunks2)
         # compare types
         @test typeof(c1) == typeof(c2)
-        # test that no chunk start or end with ""
-        @test !isempty(first(c1.lines)); @test !isempty(last(c1.lines))
-        @test !isempty(first(c2.lines)); @test !isempty(last(c2.lines))
+        # test that the chunk don't start or end with empty line
+        @test first(c1.lines) != "" && first(c1.lines) != ("" => "")
+        @test first(c2.lines) != "" && first(c2.lines) != ("" => "")
+        @test last(c1.lines) != "" && last(c1.lines) != ("" => "")
+        @test last(c2.lines) != "" && last(c2.lines) != ("" => "")
         # compare content
         for (l1, l2) in zip(c1.lines, c2.lines)
             @test l1 == l2
@@ -86,39 +88,48 @@ end
     Line 58
     ## Line 59
     ##Line 60
+    #-
+        # Line 62
+        # # Line 63
+    Line 64
+        ## Line 65
+        Line 66
+    Line 67
     """
     expected_chunks = Chunk[
-        MDChunk(["Line 1"]),
+        MDChunk(["" => "Line 1"]),
         CodeChunk(["Line 2"], false),
-        MDChunk(["Line 3", "","Line 5"]),
+        MDChunk(["" => "Line 3", "" => "","" => "Line 5"]),
         CodeChunk(["Line 6", "","Line 8"], false),
-        MDChunk(["Line 9"]),
-        MDChunk(["Line 11"]),
+        MDChunk(["" => "Line 9"]),
+        MDChunk(["" => "Line 11"]),
         CodeChunk(["Line 12"], false),
         CodeChunk(["Line 14"], false),
-        MDChunk(["Line 15"]),
-        MDChunk(["Line 17"]),
+        MDChunk(["" => "Line 15"]),
+        MDChunk(["" => "Line 17"]),
         CodeChunk(["Line 18"], false),
         CodeChunk(["Line 20"], false),
-        MDChunk(["Line 21"]),
+        MDChunk(["" => "Line 21"]),
         CodeChunk(["Line 22", "    Line 23", "Line 24"], false),
         CodeChunk(["Line 26", "    Line 27"], true),
         CodeChunk(["Line 29"], false),
         CodeChunk(["Line 31", "    Line 32"], true),
-        MDChunk(["Line 33"]),
+        MDChunk(["" => "Line 33"]),
         CodeChunk(["Line 34"], false),
         CodeChunk(["Line 36"], true),
         CodeChunk(["    Line 38"], true),
         CodeChunk(["Line 40"], false),
         CodeChunk(["Line 42", "    Line 43"], true),
-        MDChunk(["Line 44"]),
+        MDChunk(["" => "Line 44"]),
         CodeChunk(["    Line 45"], true),
-        MDChunk(["Line 46"]),
+        MDChunk(["" => "Line 46"]),
         CodeChunk(["Line 47"], false),
-        MDChunk(["Line 48"]),
+        MDChunk(["" => "Line 48"]),
         CodeChunk(["#Line 49", "Line 50"], false),
-        MDChunk(["Line 53"]),
-        CodeChunk(["# Line 57", "Line 58", "# Line 59", "##Line 60"], false)
+        MDChunk(["" => "Line 53"]),
+        CodeChunk(["# Line 57", "Line 58", "# Line 59", "##Line 60"], false),
+        MDChunk(["    " => "Line 62", "    " => "# Line 63"]),
+        CodeChunk(["Line 64", "    # Line 65", "    Line 66", "Line 67"], false)
         ]
     parsed_chunks = Literate.parse(content)
     compare_chunks(parsed_chunks, expected_chunks)
@@ -178,6 +189,12 @@ content = """
     # ```math
     # \\int f(x) dx
     # ```
+    #-
+        # Indented markdown
+    for i in 1:10
+        # Indented markdown
+        ## Indented comment
+    end
     """
 
 @testset "Literate.script" begin
@@ -212,6 +229,11 @@ content = """
 
             # PLACEHOLDER3
             # PLACEHOLDER4
+
+            for i in 1:10
+
+                # Indented comment
+            end
 
             # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
 
@@ -323,6 +345,19 @@ end
             Some math:
             ```math
             \\int f(x) dx
+            ```
+
+            Indented markdown
+
+            ```@example inputfile; continued = true
+            for i in 1:10
+            ```
+
+            Indented markdown
+
+            ```@example inputfile
+                # Indented comment
+            end
             ```
 
             *This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
@@ -472,6 +507,21 @@ end
                 "\\\\begin{equation}\\n",
                 "\\\\int f(x) dx\\n",
                 "\\\\end{equation}"
+               ]
+            """,
+
+            """
+               "source": [
+                "Indented markdown"
+               ]
+            """,
+
+            """
+               "source": [
+                "for i in 1:10\\n",
+                "    # Indented markdown\\n",
+                "    # Indented comment\\n",
+                "end"
                ]
             """,
 

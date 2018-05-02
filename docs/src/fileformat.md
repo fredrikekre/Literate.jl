@@ -11,8 +11,9 @@ The basic syntax is simple:
 - lines starting with `# ` are treated as markdown,
 - all other lines are treated as julia code.
 
-!!! note
-    If you want regular julia comments in the source file use `## ` instead of `# `.
+Leading whitespace is allowed before `#`, but it will be removed when generating the
+output. Since `#`-lines is treated as markdown we can not use that for regular julia
+comments, for this you can instead use `##`, which will render as `#` in the output.
 
 Lets look at a simple example:
 ```julia
