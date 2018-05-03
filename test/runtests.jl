@@ -26,27 +26,27 @@ end
 
 @testset "Literate.parse" begin
     content = """
-    #' Line 1
+    # Line 1
     Line 2
-    #' Line 3
-    #'
-    #' Line 5
+    # Line 3
+    #
+    # Line 5
     Line 6
 
     Line 8
-    #' Line 9
+    # Line 9
     #-
-    #' Line 11
+    # Line 11
     Line 12
     #-
     Line 14
-    #' Line 15
+    # Line 15
     #-----------------
-    #' Line 17
+    # Line 17
     Line 18
     #-----------------
     Line 20
-    #' Line 21
+    # Line 21
     Line 22
         Line 23
     Line 24
@@ -58,7 +58,7 @@ end
     #-
     Line 31
         Line 32
-    #' Line 33
+    # Line 33
     Line 34
     #-
     Line 36
@@ -69,18 +69,23 @@ end
     #-
     Line 42
         Line 43
-    #' Line 44
+    # Line 44
         Line 45
-    #' Line 46
+    # Line 46
     Line 47
-    #' Line 48
+    # Line 48
     #Line 49
     Line 50
-    #'
-    #'
-    #' Line 53
-    #'
-    #'
+    #
+    #
+    # Line 53
+    #
+    #
+    #-
+    ## Line 57
+    Line 58
+    ## Line 59
+    ##Line 60
     """
     expected_chunks = Chunk[
         MDChunk(["Line 1"]),
@@ -113,6 +118,7 @@ end
         MDChunk(["Line 48"]),
         CodeChunk(["#Line 49", "Line 50"], false),
         MDChunk(["Line 53"]),
+        CodeChunk(["# Line 57", "Line 58", "# Line 59", "##Line 60"], false)
         ]
     parsed_chunks = Literate.parse(content)
     compare_chunks(parsed_chunks, expected_chunks)
@@ -125,8 +131,8 @@ end
             foreach(x-> println(io,   x), c.lines)
             foreach(x-> println(iows, x, "  "), c.lines)
         else
-            foreach(x -> println(io,   "#' ", x), c.lines)
-            foreach(x -> println(iows, "#' ", x, "  "), c.lines)
+            foreach(x -> println(io,   "# ", x), c.lines)
+            foreach(x -> println(iows, "# ", x, "  "), c.lines)
         end
         println(io,   "#-")
         println(iows, "#-")
@@ -138,40 +144,40 @@ end
 end # testset parser
 
 content = """
-    #' # [Example](@id example-id)
-    #' [foo](@ref), [bar](@ref bbaarr)
+    # # [Example](@id example-id)
+    # [foo](@ref), [bar](@ref bbaarr)
     x = 1
-    #md #' Only markdown
+    #md # Only markdown
     #md x + 1
-    #nb #' Only notebook
+    #nb # Only notebook
     #nb x + 2
-    #jl #' Only script
+    #jl # Only script
     #jl x + 3
-    #src #' Source code only
+    #src # Source code only
     Source code only          #src
-    # #' Comment
-    # another comment
+    ## # Comment
+    ## another comment
     #-
     for i in 1:10
         print(i)
-    #' some markdown in a code block
+    # some markdown in a code block
     end
-    #' name: @__NAME__
-    #' Link to repo root: @__REPO_ROOT_URL__
-    #' Link to nbviewer: @__NBVIEWER_ROOT_URL__
     # name: @__NAME__
     # Link to repo root: @__REPO_ROOT_URL__
     # Link to nbviewer: @__NBVIEWER_ROOT_URL__
+    ## name: @__NAME__
+    ## Link to repo root: @__REPO_ROOT_URL__
+    ## Link to nbviewer: @__NBVIEWER_ROOT_URL__
 
-    #' PLACEHOLDER1
-    #' PLACEHOLDER2
-    # PLACEHOLDER3
-    # PLACEHOLDER4
+    # PLACEHOLDER1
+    # PLACEHOLDER2
+    ## PLACEHOLDER3
+    ## PLACEHOLDER4
 
-    #' Some math:
-    #' ```math
-    #' \\int f(x) dx
-    #' ```
+    # Some math:
+    # ```math
+    # \\int f(x) dx
+    # ```
     """
 
 @testset "Literate.script" begin
@@ -192,7 +198,7 @@ content = """
             x = 1
 
             x + 3
-            # #' Comment
+            # # Comment
             # another comment
 
             for i in 1:10
@@ -244,9 +250,9 @@ content = """
             # keep_comments
             Literate.script(inputfile, outdir, keep_comments = true)
             script = read(joinpath(outdir, "inputfile.jl"), String)
-            @test occursin("#' # Example", script)
-            @test occursin("#' foo, bar", script)
-            @test occursin("#' \\int f(x) dx", script)
+            @test occursin("# # Example", script)
+            @test occursin("# foo, bar", script)
+            @test occursin("# \\int f(x) dx", script)
         end
     end
 end
@@ -281,7 +287,7 @@ end
 
             ```@example inputfile
             x + 1
-            # #' Comment
+            # # Comment
             # another comment
             ```
 
@@ -416,7 +422,7 @@ end
             """
                "source": [
                 "x + 2\\n",
-                "# #' Comment\\n",
+                "# # Comment\\n",
                 "# another comment"
                ]
             """,
@@ -425,7 +431,7 @@ end
                "source": [
                 "for i in 1:10\\n",
                 "    print(i)\\n",
-                "#' some markdown in a code block\\n",
+                "# some markdown in a code block\\n",
                 "end"
                ]
             """,

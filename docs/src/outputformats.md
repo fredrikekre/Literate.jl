@@ -20,7 +20,7 @@ rm(file)
 Markdown.parse(str)
 ```
 
-We note that lines starting with `#'` is printed as regular markdown,
+We note that lines starting with `# ` are printed as regular markdown,
 and the code lines have been wrapped in `@example` blocks. We also note that
 an `@meta` block have been added, that sets the `EditURL` variable. This is used
 by Documenter to redirect the "Edit on GitHub" link for the page,
@@ -38,8 +38,8 @@ Literate.markdown
 The (default) notebook output of the source snippet can be seen here:
 [notebook.ipynb](generated/notebook.ipynb).
 
-We note that lines starting with `#'` is put in markdown cells,
-and the code lines have been put in code cells. By default the notebook
+We note that lines starting with `# ` are placed in markdown cells,
+and the code lines have been placed in code cells. By default the notebook
 is also executed and output cells populated. The current working directory
 is set to the specified output directory the notebook is executed.
 Some of the output rendering can be controlled with keyword
@@ -61,7 +61,7 @@ rm(file)
 Markdown.parse(str)
 ```
 
-We note that lines starting with `#'` are removed and only the
+We note that lines starting with `# ` are removed and only the
 code lines have been kept. Some of the output rendering can be controlled
 with keyword arguments to [`Literate.script`](@ref):
 
