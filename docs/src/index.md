@@ -5,7 +5,7 @@ for [Literate Programming](https://en.wikipedia.org/wiki/Literate_programming).
 
 ### What?
 
-Literate is a package that generate markdown pages
+Literate is a package that generates markdown pages
 (for e.g. [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)), and
 [Jupyter notebooks](http://jupyter.org/), from the same source file. There is also
 an option to "clean" the source from all metadata, and produce a pure Julia script.
@@ -13,8 +13,8 @@ an option to "clean" the source from all metadata, and produce a pure Julia scri
 The main design goal is simplicity. It should be simple to use, and the syntax should
 be simple. In short, all you have to do is to write a commented julia script!
 
-The public interface consists mainly of three functions, which all takes the same script file
-as input, but generates different output:
+The public interface consists mainly of three functions, all of which take the same script file
+as input, but generate different output:
 - [`Literate.markdown`](@ref): generates a markdown file
 - [`Literate.notebook`](@ref): generates an (optionally executed) notebook
 - [`Literate.script`](@ref): generates a plain script file, removing all metadata
