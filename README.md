@@ -18,10 +18,7 @@ your different output formats are synced with each other.
 
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
-[docs-latest-url]: https://fredrikekre.github.io/Literate.jl/latest/
-
-[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://fredrikekre.github.io/Literate.jl/stable
+[docs-latest-url]: https://fredrikekre.github.io/Literate.jl/stable/
 
 [travis-img]: https://travis-ci.org/fredrikekre/Literate.jl.svg?branch=master
 [travis-url]: https://travis-ci.org/fredrikekre/Literate.jl
