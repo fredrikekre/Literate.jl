@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "1. Introduction",
     "title": "What?",
     "category": "section",
-    "text": "Literate is a package that generate markdown pages (for e.g. Documenter.jl), and Jupyter notebooks, from the same source file. There is also an option to \"clean\" the source from all metadata, and produce a pure Julia script.The main design goal is simplicity. It should be simple to use, and the syntax should be simple. In short, all you have to do is to write a commented julia script!The public interface consists mainly of three functions, which all takes the same script file as input, but generates different output:Literate.markdown: generates a markdown file\nLiterate.notebook: generates an (optionally executed) notebook\nLiterate.script: generates a plain script file, removing all metadata and special syntax."
+    "text": "Literate is a package that generates markdown pages (for e.g. Documenter.jl), and Jupyter notebooks, from the same source file. There is also an option to \"clean\" the source from all metadata, and produce a pure Julia script.The main design goal is simplicity. It should be simple to use, and the syntax should be simple. In short, all you have to do is to write a commented julia script!The public interface consists mainly of three functions, all of which take the same script file as input, but generate different output:Literate.markdown: generates a markdown file\nLiterate.notebook: generates an (optionally executed) notebook\nLiterate.script: generates a plain script file, removing all metadata and special syntax."
 },
 
 {
