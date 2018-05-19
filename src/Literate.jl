@@ -70,13 +70,13 @@ function parse(content; allow_continued = true)
     # clean up the chunks
     ## remove empty chunks
     filter!(x -> !isempty(x.lines), chunks)
-    filter!(x -> !all(y -> isempty(y), x.lines), chunks)
+    filter!(x -> !all(y -> isempty(y) || isempty(last(y)), x.lines), chunks)
     ## remove leading/trailing empty lines
     for chunk in chunks
-        while chunk.lines[1] == "" || chunk.lines[1] == ("" => "")
+        while isempty(chunk.lines[1]) || isempty(last(chunk.lines[1]))
             popfirst!(chunk.lines)
         end
-        while chunk.lines[end] == "" || chunk.lines[end] == ("" => "")
+        while isempty(chunk.lines[end]) || isempty(last(chunk.lines[end]))
             pop!(chunk.lines)
         end
     end
