@@ -95,6 +95,10 @@ end
         ## Line 65
         Line 66
     Line 67
+    #-
+    #
+    #-
+        #
     """
     expected_chunks = Chunk[
         MDChunk(["" => "Line 1"]),
