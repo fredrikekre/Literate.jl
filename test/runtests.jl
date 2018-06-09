@@ -2,7 +2,7 @@ import Literate
 import Literate: Chunk, MDChunk, CodeChunk
 import Compat
 import Compat: occursin
-using Compat.Test
+using Test
 
 # compare content of two parsed chunk vectors
 function compare_chunks(chunks1, chunks2)
