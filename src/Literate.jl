@@ -319,11 +319,25 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     # run some Documenter specific things
     if documenter
         # change the Edit on GitHub link
-        repo = get(ENV, "TRAVIS_REPO_SLUG", "")
-        pkg = first(split(last(split(repo, '/')), '.'))
+        repo = get(ENV, "TRAVIS_REPO_SLUG", nothing)
+        if repo === nothing
+            println("repo === nothing")
+            path = ""
+        else
+            pkg = String(first(split(last(split(repo, '/')), '.')))
+            pkgsrc = Base.find_package(pkg)
+            if pkgsrc === nothing
+                println("pkgsrc === nothing")
+                path = ""
+            else
+                repo_root = first(split(pkgsrc, "src/" * pkg * ".jl"))
+                path = relpath(inputfile, repo_root)
+                path = replace(path, "\\" => "/")
+            end
+        end
         content = """
         # ```@meta
-        # EditURL = "@__REPO_ROOT_URL__$(replace(relpath(inputfile, Pkg.dir(pkg)), "\\" => "/"))"
+        # EditURL = "@__REPO_ROOT_URL__$(path)"
         # ```
 
         """ * content
