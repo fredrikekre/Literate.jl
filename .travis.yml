@@ -4,13 +4,11 @@ os:
   - linux
   - osx
 julia:
-  - 0.6
   - 0.7
   - nightly
-matrix:
-  allow_failures:
-    - julia: nightly
-    - julia: 0.7
+# matrix:
+#   allow_failures:
+#     - julia: nightly
 branches:
   only:
     - master
@@ -18,7 +16,7 @@ branches:
 jobs:
   include:
     - stage: deploy
-      julia: 0.6
+      julia: 0.7
       os: linux
       script:
         - julia -e 'Pkg.clone(pwd()); Pkg.build("Literate")'
