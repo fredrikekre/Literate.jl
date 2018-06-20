@@ -1,7 +1,7 @@
 __precompile__()
 module Literate
 
-import JSON
+import JSON, REPL
 
 include("IJulia.jl")
 import .IJulia
@@ -538,7 +538,7 @@ function execute_notebook(nb)
         end
 
         # check if ; is used to suppress output
-        r = Base.REPL.ends_with_semicolon(block) ? nothing : r
+        r = REPL.ends_with_semicolon(block) ? nothing : r
 
         # r should go into execute_result
         if r !== nothing
