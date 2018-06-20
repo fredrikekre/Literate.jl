@@ -59,6 +59,16 @@ end
 
 foo()
 
+# Both Documenter's `@example` block and notebooks can display images. Here is an example
+# where we generate a simple plot using the
+# [Plots.jl](https://github.com/JuliaPlots/Plots.jl) package
+
+using Plots
+x = linspace(0, 6π, 1000)
+y1 = sin.(x)
+y2 = cos.(x)
+plot(x, [y1, y2])
+
 # ### Custom processing
 #
 # It is possible to give Literate custom pre- and post-processing functions.

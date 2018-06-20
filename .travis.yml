@@ -10,6 +10,7 @@ julia:
 matrix:
   allow_failures:
     - julia: nightly
+    - julia: 0.7
 branches:
   only:
     - master
@@ -20,7 +21,9 @@ jobs:
       julia: 0.6
       os: linux
       script:
-        - julia -e 'Pkg.clone(pwd()); Pkg.build("Literate"); Pkg.add("Documenter"); cd(Pkg.dir("Literate")); include("docs/make.jl")'
+        - julia -e 'Pkg.clone(pwd()); Pkg.build("Literate")'
+        - julia -e 'Pkg.add("Documenter"); Pkg.add("Plots"); Pkg.build("Plots")'
+        - julia -e 'cd(Pkg.dir("Literate")); include("docs/make.jl")'
 notifications:
   email: false
 git:

@@ -1,6 +1,10 @@
 using Documenter
 using Literate
 
+# import these to make sure they precompile here instead of when generating output
+import Plots
+import GR
+
 # generate examples
 EXAMPLE = joinpath(@__DIR__, "..", "examples", "example.jl")
 OUTPUT = joinpath(@__DIR__, "src/generated")
