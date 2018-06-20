@@ -1,22 +1,7 @@
 # this file contains some utilities copied from the Documenter.jl package
 # (https://github.com/JuliaDocs/Documenter.jl), see LICENSE.md for license
 module Documenter
-
-using Compat: stdout, stderr, Cvoid
-
-@static if VERSION < v"0.7.0-DEV.3951"
-    link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true) =
-        Base.link_pipe(pipe, julia_only_read = reader_supports_async, julia_only_write = writer_supports_async)
-else
-    import Base: link_pipe!
-end
-@static if isdefined(Base, :with_logger)
-    using Logging
-else # make things a no-op since warnings/info already print to stdout
-    struct ConsoleLogger end
-    ConsoleLogger(io) = ConsoleLogger()
-    with_logger(f, logger) = f()
-end
+using Logging
 
 function withoutput(f)
     # Save the default output streams.
@@ -25,7 +10,7 @@ function withoutput(f)
 
     # Redirect both the `stdout` and `stderr` streams to a single `Pipe` object.
     pipe = Pipe()
-    link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true)
+    Base.link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true)
     redirect_stdout(pipe.in)
     redirect_stderr(pipe.in)
     # Also redirect logging stream to the same pipe

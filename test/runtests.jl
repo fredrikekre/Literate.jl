@@ -1,7 +1,5 @@
 import Literate
 import Literate: Chunk, MDChunk, CodeChunk
-import Compat
-import Compat: occursin
 using Test
 
 # compare content of two parsed chunk vectors
@@ -539,7 +537,7 @@ end
 
             lastidx = 1
             for cell in expected_cells
-                idx = Compat.findnext(cell, notebook, lastidx)
+                idx = findnext(cell, notebook, lastidx)
                 @test idx !== nothing
                 lastidx = nextind(notebook, last(idx))
             end
@@ -619,7 +617,7 @@ end
 
             lastidx = 1
             for out in expected_outputs
-                idx = Compat.findnext(out, notebook, lastidx)
+                idx = findnext(out, notebook, lastidx)
                 @test idx !== nothing
                 lastidx = nextind(notebook, last(idx))
             end

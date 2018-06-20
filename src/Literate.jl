@@ -1,8 +1,6 @@
 __precompile__()
 module Literate
 
-import Compat: replace, popfirst!, @error, @info, occursin
-
 import JSON
 
 include("IJulia.jl")
