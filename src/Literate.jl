@@ -320,6 +320,11 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     if documenter
         # change the Edit on GitHub link
         repo = get(ENV, "TRAVIS_REPO_SLUG", nothing)
+        build_dir = get(ENV, "TRAVIS_BUILD_DIR", nothing)
+        @show build_dir
+        if build_dir !== nothing
+            @show relpath(inputfile, build_dir)
+        end
         if repo === nothing
             println("repo === nothing")
             path = ""
