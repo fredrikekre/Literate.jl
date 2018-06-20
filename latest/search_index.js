@@ -285,7 +285,7 @@ var documenterSearchIndex = {"docs": [
     "page": "7. Example",
     "title": "Output Capturing",
     "category": "section",
-    "text": "Code chunks are by default placed in Documenter @example blocks in the generated markdown. This means that the output will be captured in a block when Documenter is building the docs. In notebooks the output is captured in output cells, if the execute keyword argument is set to true. Output to stdout/stderr is also captured.function foo()\n    println(\"This string is printed to stdout.\")\n    return [1, 2, 3, 4]\nend\n\nfoo()"
+    "text": "Code chunks are by default placed in Documenter @example blocks in the generated markdown. This means that the output will be captured in a block when Documenter is building the docs. In notebooks the output is captured in output cells, if the execute keyword argument is set to true. Output to stdout/stderr is also captured.function foo()\n    println(\"This string is printed to stdout.\")\n    return [1, 2, 3, 4]\nend\n\nfoo()Both Documenter\'s @example block and notebooks can display images. Here is an example where we generate a simple plot using the Plots.jl packageusing Plots\nx = linspace(0, 6π, 1000)\ny1 = sin.(x)\ny2 = cos.(x)\nplot(x, [y1, y2])"
 },
 
 {
