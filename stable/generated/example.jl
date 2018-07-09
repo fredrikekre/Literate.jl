@@ -12,6 +12,12 @@ end
 
 foo()
 
+using Plots
+x = linspace(0, 6π, 1000)
+y1 = sin.(x)
+y2 = cos.(x)
+plot(x, [y1, y2])
+
 z = 1.0 + 2.0im
 
 # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
