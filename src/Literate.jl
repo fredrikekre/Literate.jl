@@ -319,18 +319,12 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
         # change the Edit on GitHub link
         repo = get(ENV, "TRAVIS_REPO_SLUG", nothing)
         build_dir = get(ENV, "TRAVIS_BUILD_DIR", nothing)
-        @show build_dir
-        if build_dir !== nothing
-            @show relpath(inputfile, build_dir)
-        end
         if repo === nothing
-            println("repo === nothing")
             path = ""
         else
             pkg = String(first(split(last(split(repo, '/')), '.')))
             pkgsrc = Base.find_package(pkg)
             if pkgsrc === nothing
-                println("pkgsrc === nothing")
                 path = ""
             else
                 repo_root = first(split(pkgsrc, "src/" * pkg * ".jl"))
@@ -533,7 +527,7 @@ function execute_notebook(nb)
             stream = Dict{String,Any}()
             stream["output_type"] = "stream"
             stream["name"] = "stdout"
-            stream["text"] = collect(Any, eachline(IOBuffer(String(str)), chomp = false)) # 0.7 chomp = false => keep = true
+            stream["text"] = collect(Any, eachline(IOBuffer(String(str)), keep = true))
             push!(cell["outputs"], stream)
         end
 
@@ -550,7 +544,7 @@ function execute_notebook(nb)
             # we need to split some mime types into vectors of lines instead of a single string
             for mime in ("image/svg+xml", "text/html")
                 if haskey(dd, mime)
-                    dd[mime] = collect(Any, eachline(IOBuffer(dd[mime]), chomp = false))
+                    dd[mime] = collect(Any, eachline(IOBuffer(dd[mime]), keep = true))
                 end
             end
             execute_result["data"] = dd

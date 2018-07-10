@@ -1,7 +1,6 @@
 # this file contains some utilities copied from the Documenter.jl package
 # (https://github.com/JuliaDocs/Documenter.jl), see LICENSE.md for license
 module Documenter
-using Logging
 
 function withoutput(f)
     # Save the default output streams.
@@ -14,14 +13,14 @@ function withoutput(f)
     redirect_stdout(pipe.in)
     redirect_stderr(pipe.in)
     # Also redirect logging stream to the same pipe
-    logger = ConsoleLogger(pipe.in)
+    logger = Base.CoreLogging.SimpleLogger(pipe.in)
 
     # Bytes written to the `pipe` are captured in `output` and converted to a `String`.
     output = UInt8[]
 
     # Run the function `f`, capturing all output that it might have generated.
     # Success signals whether the function `f` did or did not throw an exception.
-    result, success, backtrace = with_logger(logger) do
+    result, success, backtrace = Base.CoreLogging.with_logger(logger) do
         try
             f(), true, Vector{Ptr{Cvoid}}()
         catch err

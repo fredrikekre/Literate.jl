@@ -4,6 +4,7 @@ When the source is parsed, and have been processed it is time to render the outp
 We will consider the following source snippet:
 
 ```@eval
+import Markdown
 Markdown.parse("```julia\n" * rstrip(read("outputformats.jl", String)) * "\n```")
 ```
 
@@ -14,7 +15,8 @@ and see how this is rendered in each of the output formats.
 The (default) markdown output of the source snippet above is as follows
 
 ```@eval
-file = joinpath(@__DIR__,  "src/generated/name.md")
+import Markdown
+file = joinpath(@__DIR__, "../src/generated/name.md")
 str = "````markdown\n" * rstrip(read(file, String)) * "\n````"
 rm(file)
 Markdown.parse(str)
@@ -55,7 +57,8 @@ Literate.notebook
 The (default) script output of the source snippet above is as follows
 
 ```@eval
-file = joinpath(@__DIR__,  "src/generated/outputformats.jl")
+import Markdown
+file = joinpath(@__DIR__,  "../src/generated/outputformats.jl")
 str = "```julia\n" * rstrip(read(file, String)) * "\n```"
 rm(file)
 Markdown.parse(str)

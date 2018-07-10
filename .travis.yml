@@ -16,16 +16,13 @@ branches:
 jobs:
   include:
     - stage: deploy
-      julia: 0.7
+      julia: nightly
       os: linux
       script:
-        - julia -e 'Pkg.clone(pwd()); Pkg.build("Literate")'
-        - julia -e 'Pkg.add("Documenter"); Pkg.add("Plots"); Pkg.build("Plots")'
-        - julia -e 'cd(Pkg.dir("Literate")); include("docs/make.jl")'
+        - julia docs/make.jl
 notifications:
   email: false
 git:
   depth: 99999999
 after_success:
-  # push coverage results to Codecov
-  - julia -e 'cd(Pkg.dir("Literate")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia test/coverage.jl

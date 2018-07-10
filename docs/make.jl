@@ -1,9 +1,11 @@
+using Pkg
+pkg"add Plots#master"
+pkg"add GR#master"
+pkg"add Documenter"
+pkg"precompile"
+
 using Documenter
 using Literate
-
-# import these to make sure they precompile here instead of when generating output
-import Plots
-import GR
 
 # generate examples
 EXAMPLE = joinpath(@__DIR__, "..", "examples", "example.jl")
@@ -53,7 +55,7 @@ deploydocs(
     repo = "github.com/fredrikekre/Literate.jl.git",
     target = "build",
     osname = "linux",
-    julia = "0.6",
+    julia = "nightly",
     deps = nothing,
     make = nothing
 )
