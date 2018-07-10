@@ -1,8 +1,7 @@
 # this file contains some utilities copied from the IJulia.jl package
 # (https://github.com/JuliaLang/IJulia.jl), see LICENSE.md for license
 module IJulia
-using Compat.Base64
-import Compat: showable
+using Base64
 
 const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")

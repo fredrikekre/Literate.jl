@@ -1,9 +1,7 @@
 __precompile__()
 module Literate
 
-import Compat: replace, popfirst!, @error, @info, occursin
-
-import JSON
+import JSON, REPL
 
 include("IJulia.jl")
 import .IJulia
@@ -319,11 +317,23 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     # run some Documenter specific things
     if documenter
         # change the Edit on GitHub link
-        repo = get(ENV, "TRAVIS_REPO_SLUG", "")
-        pkg = first(split(last(split(repo, '/')), '.'))
+        repo = get(ENV, "TRAVIS_REPO_SLUG", nothing)
+        if repo === nothing
+            path = ""
+        else
+            pkg = String(first(split(last(split(repo, '/')), '.')))
+            pkgsrc = Base.find_package(pkg)
+            if pkgsrc === nothing
+                path = ""
+            else
+                repo_root = first(split(pkgsrc, joinpath("src", pkg * ".jl")))
+                path = relpath(inputfile, repo_root)
+                path = replace(path, "\\" => "/")
+            end
+        end
         content = """
         # ```@meta
-        # EditURL = "@__REPO_ROOT_URL__$(replace(relpath(inputfile, Pkg.dir(pkg)), "\\" => "/"))"
+        # EditURL = "@__REPO_ROOT_URL__$(path)"
         # ```
 
         """ * content
@@ -516,12 +526,12 @@ function execute_notebook(nb)
             stream = Dict{String,Any}()
             stream["output_type"] = "stream"
             stream["name"] = "stdout"
-            stream["text"] = collect(Any, eachline(IOBuffer(String(str)), chomp = false)) # 0.7 chomp = false => keep = true
+            stream["text"] = collect(Any, eachline(IOBuffer(String(str)), keep = true))
             push!(cell["outputs"], stream)
         end
 
         # check if ; is used to suppress output
-        r = Base.REPL.ends_with_semicolon(block) ? nothing : r
+        r = REPL.ends_with_semicolon(block) ? nothing : r
 
         # r should go into execute_result
         if r !== nothing
@@ -533,7 +543,7 @@ function execute_notebook(nb)
             # we need to split some mime types into vectors of lines instead of a single string
             for mime in ("image/svg+xml", "text/html")
                 if haskey(dd, mime)
-                    dd[mime] = collect(Any, eachline(IOBuffer(dd[mime]), chomp = false))
+                    dd[mime] = collect(Any, eachline(IOBuffer(dd[mime]), keep = true))
                 end
             end
             execute_result["data"] = dd
