@@ -1,7 +1,5 @@
 using Pkg
-pkg"add Plots#master"
-pkg"add GR#master"
-pkg"add Documenter"
+pkg"add Documenter Plots#master GR#master"
 pkg"precompile"
 
 using Documenter
