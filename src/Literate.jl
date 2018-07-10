@@ -319,19 +319,27 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
         # change the Edit on GitHub link
         repo = get(ENV, "TRAVIS_REPO_SLUG", nothing)
         build_dir = get(ENV, "TRAVIS_BUILD_DIR", nothing)
+        @show repo
+        @show build_dir
         if repo === nothing
             path = ""
         else
             pkg = String(first(split(last(split(repo, '/')), '.')))
+            @show pkg
             pkgsrc = Base.find_package(pkg)
+            @show pkgsrc
             if pkgsrc === nothing
                 path = ""
             else
                 repo_root = first(split(pkgsrc, "src/" * pkg * ".jl"))
+                @show repo_root
                 path = relpath(inputfile, repo_root)
+                @show path
                 path = replace(path, "\\" => "/")
+                @show path
             end
         end
+        @show path
         content = """
         # ```@meta
         # EditURL = "@__REPO_ROOT_URL__$(path)"
