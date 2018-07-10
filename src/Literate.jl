@@ -331,7 +331,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
             if pkgsrc === nothing
                 path = ""
             else
-                repo_root = first(split(pkgsrc, "src/" * pkg * ".jl"))
+                repo_root = first(split(pkgsrc, joinpath("src", pkg * ".jl")))
                 @show repo_root
                 path = relpath(inputfile, repo_root)
                 @show path
