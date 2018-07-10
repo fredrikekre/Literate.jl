@@ -149,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "4. Output Formats",
     "category": "section",
-    "text": "When the source is parsed, and have been processed it is time to render the output. We will consider the following source snippet:Markdown.parse(\"```julia\\n\" * rstrip(read(\"outputformats.jl\", String)) * \"\\n```\")and see how this is rendered in each of the output formats."
+    "text": "When the source is parsed, and have been processed it is time to render the output. We will consider the following source snippet:import Markdown\nMarkdown.parse(\"```julia\\n\" * rstrip(read(\"outputformats.jl\", String)) * \"\\n```\")and see how this is rendered in each of the output formats."
 },
 
 {
@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "Literate.markdown",
     "category": "function",
-    "text": "Literate.markdown(inputfile, outputdir; kwargs...)\n\nGenerate a markdown file from inputfile and write the result to the directoryoutputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .md. name is also used to name all the @example blocks, and to replace @__NAME__. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\ndocumenter: boolean that tells if the output is intended to use with Documenter.jl. Defaults to true. See the the manual section on Interaction with Documenter.\ncodefence: A Pair of opening and closing code fence. Defaults to\n\"```@example $(name)\" => \"```\"\nif documenter = true and\n\"```julia\" => \"```\"\nif documenter = false.\n\n\n\n"
+    "text": "Literate.markdown(inputfile, outputdir; kwargs...)\n\nGenerate a markdown file from inputfile and write the result to the directoryoutputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .md. name is also used to name all the @example blocks, and to replace @__NAME__. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\ndocumenter: boolean that tells if the output is intended to use with Documenter.jl. Defaults to true. See the the manual section on Interaction with Documenter.\ncodefence: A Pair of opening and closing code fence. Defaults to\n\"```@example $(name)\" => \"```\"\nif documenter = true and\n\"```julia\" => \"```\"\nif documenter = false.\n\n\n\n\n\n"
 },
 
 {
@@ -165,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "4.1. Markdown Output",
     "category": "section",
-    "text": "The (default) markdown output of the source snippet above is as followsfile = joinpath(@__DIR__,  \"src/generated/name.md\")\nstr = \"````markdown\\n\" * rstrip(read(file, String)) * \"\\n````\"\nrm(file)\nMarkdown.parse(str)We note that lines starting with # are printed as regular markdown, and the code lines have been wrapped in @example blocks. We also note that an @meta block have been added, that sets the EditURL variable. This is used by Documenter to redirect the \"Edit on GitHub\" link for the page, see Interaction with Documenter.Some of the output rendering can be controlled with keyword arguments to Literate.markdown:Literate.markdown"
+    "text": "The (default) markdown output of the source snippet above is as followsimport Markdown\nfile = joinpath(@__DIR__, \"../src/generated/name.md\")\nstr = \"````markdown\\n\" * rstrip(read(file, String)) * \"\\n````\"\nrm(file)\nMarkdown.parse(str)We note that lines starting with # are printed as regular markdown, and the code lines have been wrapped in @example blocks. We also note that an @meta block have been added, that sets the EditURL variable. This is used by Documenter to redirect the \"Edit on GitHub\" link for the page, see Interaction with Documenter.Some of the output rendering can be controlled with keyword arguments to Literate.markdown:Literate.markdown"
 },
 
 {
@@ -173,7 +173,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "Literate.notebook",
     "category": "function",
-    "text": "Literate.notebook(inputfile, outputdir; kwargs...)\n\nGenerate a notebook from inputfile and write the result to outputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .ipynb. name is also used to replace @__NAME__. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\nexecute: a boolean deciding if the generated notebook should also be executed or not. Defaults to true. The current working directory is set to outputdir when executing the notebook.\ndocumenter: boolean that says if the source contains Documenter.jl specific things to filter out during notebook generation. Defaults to true. See the the manual section on Interaction with Documenter.\n\n\n\n"
+    "text": "Literate.notebook(inputfile, outputdir; kwargs...)\n\nGenerate a notebook from inputfile and write the result to outputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .ipynb. name is also used to replace @__NAME__. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\nexecute: a boolean deciding if the generated notebook should also be executed or not. Defaults to true. The current working directory is set to outputdir when executing the notebook.\ndocumenter: boolean that says if the source contains Documenter.jl specific things to filter out during notebook generation. Defaults to true. See the the manual section on Interaction with Documenter.\n\n\n\n\n\n"
 },
 
 {
@@ -189,7 +189,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "Literate.script",
     "category": "function",
-    "text": "Literate.script(inputfile, outputdir; kwargs...)\n\nGenerate a plain script file from inputfile and write the result to outputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .jl. name is also used to replace @__NAME__. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\ndocumenter: boolean that says if the source contains Documenter.jl specific things to filter out during script generation. Defaults to true. See the the manual section on Interaction with Documenter.\nkeep_comments: boolean that, if set to true, keeps markdown lines as comments in the output script. Defaults to false.\n\n\n\n"
+    "text": "Literate.script(inputfile, outputdir; kwargs...)\n\nGenerate a plain script file from inputfile and write the result to outputdir.\n\nKeyword arguments:\n\nname: name of the output file, excluding .jl. name is also used to replace @__NAME__. Defaults to the filename of inputfile.\npreprocess, postprocess: custom pre- and post-processing functions, see the Custom pre- and post-processing section of the manual. Defaults to identity.\ndocumenter: boolean that says if the source contains Documenter.jl specific things to filter out during script generation. Defaults to true. See the the manual section on Interaction with Documenter.\nkeep_comments: boolean that, if set to true, keeps markdown lines as comments in the output script. Defaults to false.\n\n\n\n\n\n"
 },
 
 {
@@ -197,7 +197,7 @@ var documenterSearchIndex = {"docs": [
     "page": "4. Output Formats",
     "title": "4.3. Script Output",
     "category": "section",
-    "text": "The (default) script output of the source snippet above is as followsfile = joinpath(@__DIR__,  \"src/generated/outputformats.jl\")\nstr = \"```julia\\n\" * rstrip(read(file, String)) * \"\\n```\"\nrm(file)\nMarkdown.parse(str)We note that lines starting with # are removed and only the code lines have been kept. Some of the output rendering can be controlled with keyword arguments to Literate.script:Literate.script"
+    "text": "The (default) script output of the source snippet above is as followsimport Markdown\nfile = joinpath(@__DIR__,  \"../src/generated/outputformats.jl\")\nstr = \"```julia\\n\" * rstrip(read(file, String)) * \"\\n```\"\nrm(file)\nMarkdown.parse(str)We note that lines starting with # are removed and only the code lines have been kept. Some of the output rendering can be controlled with keyword arguments to Literate.script:Literate.script"
 },
 
 {
@@ -285,7 +285,7 @@ var documenterSearchIndex = {"docs": [
     "page": "7. Example",
     "title": "Output Capturing",
     "category": "section",
-    "text": "Code chunks are by default placed in Documenter @example blocks in the generated markdown. This means that the output will be captured in a block when Documenter is building the docs. In notebooks the output is captured in output cells, if the execute keyword argument is set to true. Output to stdout/stderr is also captured.function foo()\n    println(\"This string is printed to stdout.\")\n    return [1, 2, 3, 4]\nend\n\nfoo()Both Documenter\'s @example block and notebooks can display images. Here is an example where we generate a simple plot using the Plots.jl packageusing Plots\nx = linspace(0, 6π, 1000)\ny1 = sin.(x)\ny2 = cos.(x)\nplot(x, [y1, y2])"
+    "text": "Code chunks are by default placed in Documenter @example blocks in the generated markdown. This means that the output will be captured in a block when Documenter is building the docs. In notebooks the output is captured in output cells, if the execute keyword argument is set to true. Output to stdout/stderr is also captured.function foo()\n    println(\"This string is printed to stdout.\")\n    return [1, 2, 3, 4]\nend\n\nfoo()Both Documenter\'s @example block and notebooks can display images. Here is an example where we generate a simple plot using the Plots.jl packageusing Plots\nx = range(0, stop=6π, length=1000)\ny1 = sin.(x)\ny2 = cos.(x)\nplot(x, [y1, y2])"
 },
 
 {

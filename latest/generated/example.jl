@@ -13,7 +13,7 @@ end
 foo()
 
 using Plots
-x = linspace(0, 6π, 1000)
+x = range(0, stop=6π, length=1000)
 y1 = sin.(x)
 y2 = cos.(x)
 plot(x, [y1, y2])
