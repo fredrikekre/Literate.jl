@@ -1,4 +1,3 @@
-__precompile__()
 module Literate
 
 import JSON, REPL
