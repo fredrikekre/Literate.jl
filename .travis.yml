@@ -17,7 +17,7 @@ branches:
 jobs:
   include:
     - stage: deploy
-      julia: nightly
+      julia: 1.0
       os: linux
       script:
         - julia docs/make.jl
