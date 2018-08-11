@@ -1,6 +1,9 @@
 using Pkg
-pkg"add Documenter Plots#master GR#master"
-pkg"precompile"
+
+pkg"""
+add Documenter Plots#master
+precompile
+"""
 
 using Documenter
 using Literate
@@ -53,7 +56,7 @@ deploydocs(
     repo = "github.com/fredrikekre/Literate.jl.git",
     target = "build",
     osname = "linux",
-    julia = "nightly",
+    julia = "1.0",
     deps = nothing,
     make = nothing
 )
