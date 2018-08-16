@@ -229,10 +229,12 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
                 name = filename(inputfile), documenter = true, credit = true,
                 keep_comments::Bool=false, kwargs...)
     # normalize paths
+    isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
     inputfile = realpath(abspath(inputfile))
     mkpath(outputdir)
     outputdir = realpath(abspath(outputdir))
-    @info "generating plain script file from $(inputfile)"
+
+    @info "generating plain script file from `$(Base.contractuser(inputfile))`"
     # read content
     content = read(inputfile, String)
 
@@ -266,7 +268,7 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
     isdir(outputdir) || error("not a directory: $(outputdir)")
     outputfile = joinpath(outputdir, name * ".jl")
 
-    @info "writing result to $(outputfile)"
+    @info "writing result to `$(Base.contractuser(outputfile))`"
     write(outputfile, content)
 
     return outputfile
@@ -303,10 +305,12 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
                   codefence::Pair = documenter ? "```@example $(name)" => "```" : "```julia" => "```",
                   kwargs...)
     # normalize paths
+    isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
     inputfile = realpath(abspath(inputfile))
     mkpath(outputdir)
     outputdir = realpath(abspath(outputdir))
-    @info "generating markdown page from $(inputfile)"
+
+    @info "generating markdown page from `$(Base.contractuser(inputfile))`"
     # read content
     content = read(inputfile, String)
 
@@ -372,7 +376,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     isdir(outputdir) || error("not a directory: $(outputdir)")
     outputfile = joinpath(outputdir, name * ".md")
 
-    @info "writing result to $(outputfile)"
+    @info "writing result to `$(Base.contractuser(outputfile))`"
     write(outputfile, content)
 
     return outputfile
@@ -402,11 +406,12 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
                   execute::Bool=true, documenter::Bool=true, credit = true,
                   name = filename(inputfile), kwargs...)
     # normalize paths
+    isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
     inputfile = realpath(abspath(inputfile))
     mkpath(outputdir)
     outputdir = realpath(abspath(outputdir))
-    @info "generating notebook from $(inputfile)"
 
+    @info "generating notebook from `$(Base.contractuser(inputfile))`"
     # read content
     content = read(inputfile, String)
 
@@ -469,13 +474,13 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     nb = postprocess(nb)
 
     if execute
-        @info "executing notebook $(name * ".ipynb")"
+        @info "executing notebook `$(name * ".ipynb")`"
         try
             cd(outputdir) do
                 nb = execute_notebook(nb)
             end
         catch err
-            @error "error when executing notebook based on input file: $(inputfile)"
+            @error "error when executing notebook based on input file: `$(Base.contractuser(inputfile))`"
             rethrow(err)
         end
     end
@@ -484,7 +489,7 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     isdir(outputdir) || error("not a directory: $(outputdir)")
     outputfile = joinpath(outputdir, name * ".ipynb")
 
-    @info "writing result to $(outputfile)"
+    @info "writing result to `$(Base.contractuser(outputfile))`"
     ionb = IOBuffer()
     JSON.print(ionb, nb, 1)
     write(outputfile, seekstart(ionb))
