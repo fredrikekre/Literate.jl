@@ -1,7 +1,7 @@
 using Pkg
 
 pkg"""
-add Documenter Plots#master
+add Documenter#fe/selector Plots#master
 precompile
 """
 
@@ -58,5 +58,6 @@ deploydocs(
     osname = "linux",
     julia = "1.0",
     deps = nothing,
-    make = nothing
+    make = nothing,
+    selector = ["v#.#", "devel" => "dev"]
 )
