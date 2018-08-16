@@ -277,6 +277,9 @@ content = """
             @test occursin("# # Example", script)
             @test occursin("# foo, bar", script)
             @test occursin("# \\int f(x) dx", script)
+
+            # verify that inputfile exists
+            @test_throws ArgumentError Literate.script("nonexistent.jl", outdir)
         end
     end
 end
@@ -414,6 +417,9 @@ end
             @test occursin("name: foobar", markdown)
             @test !occursin("name: inputfile", markdown)
             @test !occursin("name: @__NAME__", markdown)
+
+            # verify that inputfile exists
+            @test_throws ArgumentError Literate.markdown("nonexistent.jl", outdir)
         end
     end
 end
@@ -631,6 +637,9 @@ end
             end
             @test isa(r, ErrorException)
             @test occursin("when executing the following code block", r.msg)
+
+            # verify that inputfile exists
+            @test_throws ArgumentError Literate.notebook("nonexistent.jl", outdir)
         end
     end
 end
