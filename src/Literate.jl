@@ -232,6 +232,7 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
                 name = filename(inputfile), documenter = true, credit = true,
                 keep_comments::Bool=false, kwargs...)
     # normalize paths
+    inputfile = normpath(inputfile)
     isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
     inputfile = realpath(abspath(inputfile))
     mkpath(outputdir)
@@ -311,6 +312,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
                   codefence::Pair = documenter ? "```@example $(name)" => "```" : "```julia" => "```",
                   kwargs...)
     # normalize paths
+    inputfile = normpath(inputfile)
     isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
     inputfile = realpath(abspath(inputfile))
     mkpath(outputdir)
@@ -415,6 +417,7 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
                   execute::Bool=true, documenter::Bool=true, credit = true,
                   name = filename(inputfile), kwargs...)
     # normalize paths
+    inputfile = normpath(inputfile)
     isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
     inputfile = realpath(abspath(inputfile))
     mkpath(outputdir)
