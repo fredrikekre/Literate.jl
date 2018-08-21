@@ -1,3 +1,7 @@
+```@meta
+EditURL = "https://github.com/TRAVIS_REPO_SLUG/blob/master/"
+```
+
 # Literate
 
 | **Documentation**                       | **Build Status**                                                                                |
@@ -15,7 +19,12 @@ an option to "clean" the source from all metadata, and produce a pure Julia scri
 Using a single source file for multiple purposes reduces maintenance, and makes sure
 your different output formats are synced with each other.
 
+This readme is generated directly from this [source file](https://github.com/fredrikekre/Literate.jl) with these two commands:
 
+```@example README
+using Literate
+Literate.markdown("README.jl", ".")
+```
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
 [docs-latest-url]: https://fredrikekre.github.io/Literate.jl/stable/
@@ -28,3 +37,6 @@ your different output formats are synced with each other.
 
 [codecov-img]: https://codecov.io/gh/fredrikekre/Literate.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/fredrikekre/Literate.jl
+#-
+*This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
+
