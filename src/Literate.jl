@@ -224,6 +224,9 @@ Keyword arguments:
   section on [Interaction with Documenter](@ref Interaction-with-Documenter).
 - `keep_comments`: boolean that, if set to `true`, keeps markdown lines
   as comments in the output script. Defaults to `false`.
+- `credit`: boolean that controls the addition of `This file was generated with
+  Literate.jl ...` to the bottom of the page. If you find Literate.jl useful then
+  feel free to keep this to the default, which is `true`.
 """
 function script(inputfile, outputdir; preprocess = identity, postprocess = identity,
                 name = filename(inputfile), documenter = true, credit = true,
@@ -299,6 +302,9 @@ Keyword arguments:
   "```julia" => "```"
   ````
   if `documenter = false`.
+- `credit`: boolean that controls the addition of `This file was generated with
+  Literate.jl ...` to the bottom of the page. If you find Literate.jl useful then
+  feel free to keep this to the default, which is `true`.
 """
 function markdown(inputfile, outputdir; preprocess = identity, postprocess = identity,
                   name = filename(inputfile), documenter::Bool = true, credit = true,
@@ -401,6 +407,9 @@ Keyword arguments:
 - `documenter`: boolean that says if the source contains Documenter.jl specific things
   to filter out during notebook generation. Defaults to `true`. See the the manual
   section on [Interaction with Documenter](@ref Interaction-with-Documenter).
+- `credit`: boolean that controls the addition of `This file was generated with
+  Literate.jl ...` to the bottom of the page. If you find Literate.jl useful then
+  feel free to keep this to the default, which is `true`.
 """
 function notebook(inputfile, outputdir; preprocess = identity, postprocess = identity,
                   execute::Bool=true, documenter::Bool=true, credit = true,
