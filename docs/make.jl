@@ -1,12 +1,11 @@
-using Pkg
-
-pkg"""
-add Documenter Plots#master
-precompile
-"""
+if Base.HOME_PROJECT[] !== nothing
+    # JuliaLang/julia/pull/28625
+    Base.HOME_PROJECT[] = abspath(Base.HOME_PROJECT[])
+end
 
 using Documenter
 using Literate
+using Plots # to not capture precompilation output
 
 # generate examples
 EXAMPLE = joinpath(@__DIR__, "..", "examples", "example.jl")
