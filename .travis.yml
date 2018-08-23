@@ -20,9 +20,9 @@ jobs:
       os: linux
       script:
         - julia docs/make.jl
+        - julia --project=test/coverage -e 'using Pkg; Pkg.instantiate()'
+        - julia --project=test/coverage test/coverage/coverage.jl
 notifications:
   email: false
 git:
   depth: 99999999
-after_success:
-  - julia test/coverage.jl
