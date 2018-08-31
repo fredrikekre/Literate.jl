@@ -511,6 +511,12 @@ end
 
 function execute_notebook(nb)
     m = Module(gensym())
+    # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
+    Core.eval(m, :(eval(x) = Core.eval($m, x)))
+    # modules created with Module() does not have include defined
+    # abspath is needed since this will call `include_relative`
+    Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
+
     io = IOBuffer()
 
     execution_count = 0
