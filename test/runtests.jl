@@ -628,6 +628,13 @@ end
                 lastidx = nextind(notebook, last(idx))
             end
 
+            # issue #31
+            write(inputfile, "include(\"issue31.jl\")")
+            write(joinpath(outdir, "issue31.jl"), "10 + 21")
+            Literate.notebook(inputfile, outdir)
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+            @test occursin("\"data\": {\n      \"text/plain\": \"31\"\n     }", notebook)
+
             # test error when executing notebook
             write(inputfile, "for i in 1:10\n    println(i)")
             r = try
