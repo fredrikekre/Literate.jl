@@ -24,8 +24,8 @@ using Literate
 Literate.markdown("examples/README.jl", "."; documenter=false)
 ```
 
-[docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
-[docs-latest-url]: https://fredrikekre.github.io/Literate.jl/stable/
+[docs-latest-img]: https://img.shields.io/badge/docs-latest%20release-blue.svg
+[docs-latest-url]: https://fredrikekre.github.io/Literate.jl/latest/
 
 [travis-img]: https://travis-ci.org/fredrikekre/Literate.jl.svg?branch=master
 [travis-url]: https://travis-ci.org/fredrikekre/Literate.jl
