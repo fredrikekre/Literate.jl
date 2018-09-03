@@ -2,7 +2,7 @@
 #
 # | **Documentation**                       | **Build Status**                                                                                |
 # |:--------------------------------------- |:----------------------------------------------------------------------------------------------- |
-# | [![][docs-latest-img]][docs-latest-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
+# | [![][docs-stable-img]][docs-stable-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
 #
 # Literate is a package for [Literate Programming](https://en.wikipedia.org/wiki/Literate_programming).
 # The main purpose is to facilitate writing Julia examples/tutorials that can be included in
@@ -22,8 +22,8 @@
 using Literate
 Literate.markdown("examples/README.jl", "."; documenter=false)
 
-# [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
-# [docs-latest-url]: https://fredrikekre.github.io/Literate.jl/stable/
+# [docs-stable-img]: https://img.shields.io/badge/docs-stable%20release-blue.svg
+# [docs-stable-url]: https://fredrikekre.github.io/Literate.jl/stable/
 #
 # [travis-img]: https://travis-ci.org/fredrikekre/Literate.jl.svg?branch=master
 # [travis-url]: https://travis-ci.org/fredrikekre/Literate.jl
