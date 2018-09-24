@@ -22,6 +22,7 @@ is given the content `String` just before writing it to the output file, but for
 notebook output `postprocess` is given the dictionary representing the notebook,
 since, in general, this is more useful.
 
+## Example: Adding current date
 As an example, lets say we want to splice the date of generation into the output.
 We could of course update our source file before generating the docs, but we could
 instead use a `preprocess` function that splices the date into the source for us.
@@ -45,3 +46,55 @@ now simply give this function to the generator, for example:
 ```julia
 Literate.markdown("input.jl", "outputdir"; preprocess = update_date)
 ```
+
+## Example: Replacing `include` calls with included code
+Let's say that we have some individual example files `file1, file2, ...` etc.
+that are _runnable_ and also following the style of Literate. These files could be for example used in the test suite of your package.
+
+We want to group them all into a single page in our documentation, but we
+do not want to copy paste the content of `file1, ...` for robustness: the files are included in the test suite and some changes may occur to them. We want these changes to also be reflected in the documentation.
+
+A very easy way to do this is using `preprocess` to interchange `include` statements with file content. First, create a runnable `.jl` following the format of Literate (the following example comes from the documentation of the Julia package [`TimeseriesPrediction`](https://github.com/JuliaDynamics/TimeseriesPrediction.jl), which uses this approach to create some pages)
+```julia
+# # Spatio-Temporal Prediction Examples
+# In this page we are simply running files from the
+# `examples` folder of the `TimeseriesPrediction` package.
+
+# ## Temporal Prediction: Kuramoto-Sivashinsky
+# *(this requires `FFTW` to be installed)*
+
+include("1Dfield_temporalprediction.jl")
+
+# ## Cross Prediction: Barkley Model
+
+include("2Dfield_crossprediction.jl")
+
+# ## Temporal Prediction: Periodic Nonlinear Barkley Model
+
+include("2Dfield_temporalprediction.jl")
+```
+Then, you want to properly define a pre-processing function:
+```julia
+function replace_includes(str)
+
+    included = ["1Dfield_temporalprediction.jl",
+    "2Dfield_crossprediction.jl", "2Dfield_temporalprediction.jl"]
+
+    path = dirname(dirname(pathof(TimeseriesPrediction)))*"/examples/"
+
+    for ex in included
+        content = read(path*ex, String)
+        str = replace(str, "include(\"$(ex)\")" => content)
+    end
+    return str
+end
+```
+(of course replace `included` with your respective files)
+
+Finally, you simply pass this function to e.g. [`Literate.markdown`](@ref) as
+```julia
+Literate.markdown("src/tsprediction/stexamples.jl", "src/tsprediction/";
+                  name = "stexamples", preprocess = replace_includes)
+```
+and you will see that in the final output file (here `stexamples.md`) the `include`
+statements are replaced with the actual code to be included!
