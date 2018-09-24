@@ -73,6 +73,7 @@ include("2Dfield_crossprediction.jl")
 
 include("2Dfield_temporalprediction.jl")
 ```
+Let's say we have saved this file as `stexamples.jl`.
 Then, you want to properly define a pre-processing function:
 ```julia
 function replace_includes(str)
@@ -80,6 +81,8 @@ function replace_includes(str)
     included = ["1Dfield_temporalprediction.jl",
     "2Dfield_crossprediction.jl", "2Dfield_temporalprediction.jl"]
 
+    # Here path loads the files from their proper directory,
+    # which may not be the directory of the `stexamples.jl` file!
     path = dirname(dirname(pathof(TimeseriesPrediction)))*"/examples/"
 
     for ex in included
