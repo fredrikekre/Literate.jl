@@ -39,7 +39,6 @@ end
 
 makedocs(
     modules = [Literate],
-    format = :html,
     sitename = "Literate.jl",
     pages = Any[
         "index.md",
@@ -53,7 +52,4 @@ makedocs(
 
 deploydocs(
     repo = "github.com/fredrikekre/Literate.jl.git",
-    target = "build",
-    deps = nothing,
-    make = nothing,
 )
