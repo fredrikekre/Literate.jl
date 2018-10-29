@@ -1,7 +1,7 @@
 var documenterSearchIndex = {"docs": [
 
 {
-    "location": "index.html#",
+    "location": "#",
     "page": "1. Introduction",
     "title": "1. Introduction",
     "category": "page",
@@ -9,7 +9,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#**1.**-Introduction-1",
+    "location": "#**1.**-Introduction-1",
     "page": "1. Introduction",
     "title": "1. Introduction",
     "category": "section",
@@ -17,7 +17,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#What?-1",
+    "location": "#What?-1",
     "page": "1. Introduction",
     "title": "What?",
     "category": "section",
@@ -25,7 +25,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Why?-1",
+    "location": "#Why?-1",
     "page": "1. Introduction",
     "title": "Why?",
     "category": "section",
@@ -33,7 +33,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "fileformat.html#",
+    "location": "fileformat/#",
     "page": "2. File Format",
     "title": "2. File Format",
     "category": "page",
@@ -41,7 +41,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "fileformat.html#**2.**-File-Format-1",
+    "location": "fileformat/#**2.**-File-Format-1",
     "page": "2. File Format",
     "title": "2. File Format",
     "category": "section",
@@ -49,7 +49,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "fileformat.html#Syntax-1",
+    "location": "fileformat/#Syntax-1",
     "page": "2. File Format",
     "title": "2.1. Syntax",
     "category": "section",
@@ -57,7 +57,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "fileformat.html#Filtering-Lines-1",
+    "location": "fileformat/#Filtering-Lines-1",
     "page": "2. File Format",
     "title": "2.2. Filtering Lines",
     "category": "section",
@@ -65,7 +65,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "fileformat.html#Default-Replacements-1",
+    "location": "fileformat/#Default-Replacements-1",
     "page": "2. File Format",
     "title": "2.3. Default Replacements",
     "category": "section",
@@ -73,7 +73,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "pipeline.html#",
+    "location": "pipeline/#",
     "page": "3. Processing pipeline",
     "title": "3. Processing pipeline",
     "category": "page",
@@ -81,7 +81,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "pipeline.html#**3.**-Processing-pipeline-1",
+    "location": "pipeline/#**3.**-Processing-pipeline-1",
     "page": "3. Processing pipeline",
     "title": "3. Processing pipeline",
     "category": "section",
@@ -89,7 +89,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "pipeline.html#Pre-processing-1",
+    "location": "pipeline/#Pre-processing-1",
     "page": "3. Processing pipeline",
     "title": "3.1. Pre-processing",
     "category": "section",
@@ -97,7 +97,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "pipeline.html#Parsing-1",
+    "location": "pipeline/#Parsing-1",
     "page": "3. Processing pipeline",
     "title": "3.2. Parsing",
     "category": "section",
@@ -105,7 +105,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "pipeline.html#Custom-control-over-chunk-splits-1",
+    "location": "pipeline/#Custom-control-over-chunk-splits-1",
     "page": "3. Processing pipeline",
     "title": "Custom control over chunk splits",
     "category": "section",
@@ -113,7 +113,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "pipeline.html#Document-generation-1",
+    "location": "pipeline/#Document-generation-1",
     "page": "3. Processing pipeline",
     "title": "3.3. Document generation",
     "category": "section",
@@ -121,7 +121,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "pipeline.html#Post-processing-1",
+    "location": "pipeline/#Post-processing-1",
     "page": "3. Processing pipeline",
     "title": "3.4. Post-processing",
     "category": "section",
@@ -129,7 +129,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "pipeline.html#Writing-to-file-1",
+    "location": "pipeline/#Writing-to-file-1",
     "page": "3. Processing pipeline",
     "title": "3.5. Writing to file",
     "category": "section",
@@ -137,7 +137,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "outputformats.html#",
+    "location": "outputformats/#",
     "page": "4. Output Formats",
     "title": "4. Output Formats",
     "category": "page",
@@ -145,7 +145,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "outputformats.html#Output-Formats-1",
+    "location": "outputformats/#Output-Formats-1",
     "page": "4. Output Formats",
     "title": "4. Output Formats",
     "category": "section",
@@ -153,7 +153,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "outputformats.html#Literate.markdown",
+    "location": "outputformats/#Literate.markdown",
     "page": "4. Output Formats",
     "title": "Literate.markdown",
     "category": "function",
@@ -161,7 +161,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "outputformats.html#Markdown-Output-1",
+    "location": "outputformats/#Markdown-Output-1",
     "page": "4. Output Formats",
     "title": "4.1. Markdown Output",
     "category": "section",
@@ -169,7 +169,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "outputformats.html#Literate.notebook",
+    "location": "outputformats/#Literate.notebook",
     "page": "4. Output Formats",
     "title": "Literate.notebook",
     "category": "function",
@@ -177,7 +177,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "outputformats.html#Notebook-Output-1",
+    "location": "outputformats/#Notebook-Output-1",
     "page": "4. Output Formats",
     "title": "4.2. Notebook Output",
     "category": "section",
@@ -185,7 +185,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "outputformats.html#Literate.script",
+    "location": "outputformats/#Literate.script",
     "page": "4. Output Formats",
     "title": "Literate.script",
     "category": "function",
@@ -193,7 +193,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "outputformats.html#Script-Output-1",
+    "location": "outputformats/#Script-Output-1",
     "page": "4. Output Formats",
     "title": "4.3. Script Output",
     "category": "section",
@@ -201,7 +201,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "customprocessing.html#",
+    "location": "customprocessing/#",
     "page": "5. Custom pre- and post-processing",
     "title": "5. Custom pre- and post-processing",
     "category": "page",
@@ -209,7 +209,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "customprocessing.html#Custom-pre-and-post-processing-1",
+    "location": "customprocessing/#Custom-pre-and-post-processing-1",
     "page": "5. Custom pre- and post-processing",
     "title": "5. Custom pre- and post-processing",
     "category": "section",
@@ -217,7 +217,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "customprocessing.html#Example:-Adding-current-date-1",
+    "location": "customprocessing/#Example:-Adding-current-date-1",
     "page": "5. Custom pre- and post-processing",
     "title": "Example: Adding current date",
     "category": "section",
@@ -225,7 +225,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "customprocessing.html#Example:-Replacing-include-calls-with-included-code-1",
+    "location": "customprocessing/#Example:-Replacing-include-calls-with-included-code-1",
     "page": "5. Custom pre- and post-processing",
     "title": "Example: Replacing include calls with included code",
     "category": "section",
@@ -233,7 +233,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "documenter.html#",
+    "location": "documenter/#",
     "page": "6. Interaction with Documenter.jl",
     "title": "6. Interaction with Documenter.jl",
     "category": "page",
@@ -241,7 +241,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "documenter.html#Interaction-with-Documenter-1",
+    "location": "documenter/#Interaction-with-Documenter-1",
     "page": "6. Interaction with Documenter.jl",
     "title": "6. Interaction with Documenter.jl",
     "category": "section",
@@ -249,7 +249,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "documenter.html#[Literate.markdown](@ref):-1",
+    "location": "documenter/#[Literate.markdown](@ref):-1",
     "page": "6. Interaction with Documenter.jl",
     "title": "Literate.markdown:",
     "category": "section",
@@ -257,7 +257,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "documenter.html#[Literate.notebook](@ref):-1",
+    "location": "documenter/#[Literate.notebook](@ref):-1",
     "page": "6. Interaction with Documenter.jl",
     "title": "Literate.notebook:",
     "category": "section",
@@ -265,7 +265,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "documenter.html#[Literate.script](@ref):-1",
+    "location": "documenter/#[Literate.script](@ref):-1",
     "page": "6. Interaction with Documenter.jl",
     "title": "Literate.script:",
     "category": "section",
@@ -273,7 +273,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "generated/example.html#",
+    "location": "generated/example/#",
     "page": "7. Example",
     "title": "7. Example",
     "category": "page",
@@ -281,7 +281,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "generated/example.html#**7.**-Example-1",
+    "location": "generated/example/#**7.**-Example-1",
     "page": "7. Example",
     "title": "7. Example",
     "category": "section",
@@ -289,7 +289,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "generated/example.html#Basic-syntax-1",
+    "location": "generated/example/#Basic-syntax-1",
     "page": "7. Example",
     "title": "Basic syntax",
     "category": "section",
@@ -297,7 +297,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "generated/example.html#Output-Capturing-1",
+    "location": "generated/example/#Output-Capturing-1",
     "page": "7. Example",
     "title": "Output Capturing",
     "category": "section",
@@ -305,7 +305,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "generated/example.html#Custom-processing-1",
+    "location": "generated/example/#Custom-processing-1",
     "page": "7. Example",
     "title": "Custom processing",
     "category": "section",
@@ -313,7 +313,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "generated/example.html#documenter-interaction-1",
+    "location": "generated/example/#documenter-interaction-1",
     "page": "7. Example",
     "title": "Documenter.jl interaction",
     "category": "section",
