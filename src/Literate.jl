@@ -398,6 +398,19 @@ end
 
 const JUPYTER_VERSION = v"4.3.0"
 
+parse_nbmeta(line::Pair) = parse_nbmeta(line.second)
+function parse_nbmeta(line)
+    # Format: %% optional ignored text [type] {optional metadata JSON}
+    # Cf. https://jupytext.readthedocs.io/en/latest/formats.html#the-percent-format
+    m = match(r"^%% ([^[{]+)?\s*(?:\[(\w+)\])?\s*(\{.*)?$", line)
+    typ = m.captures[2]
+    name = m.captures[1] === nothing ? Dict{String, String}() : Dict("name" => m.captures[1])
+    meta = m.captures[3] === nothing ? Dict{String, Any}() : JSON.parse(m.captures[3])
+    return typ, merge(name, meta)
+end
+line_is_nbmeta(line::Pair) = line_is_nbmeta(line.second)
+line_is_nbmeta(line) = startswith(line, "%% ")
+
 """
     Literate.notebook(inputfile, outputdir; kwargs...)
 
@@ -451,20 +464,24 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     cells = []
     for chunk in chunks
         cell = Dict()
-        if isa(chunk, MDChunk)
-            cell["cell_type"] = "markdown"
-            cell["metadata"] = Dict()
-            lines = String[x.second for x in chunk.lines] # skip indent
-            @views map!(x -> x * '\n', lines[1:end-1], lines[1:end-1])
-            cell["source"] = lines
-            cell["outputs"] = []
-        else # isa(chunk, CodeChunk)
-            cell["cell_type"] = "code"
-            cell["metadata"] = Dict()
-            @views map!(x -> x * '\n', chunk.lines[1:end-1], chunk.lines[1:end-1])
-            cell["source"] = chunk.lines
+        chunktype = isa(chunk, MDChunk) ? "markdown" : "code"
+        if !isempty(chunk.lines) && line_is_nbmeta(chunk.lines[1])
+            metatype, metadata = parse_nbmeta(chunk.lines[1])
+            metatype !== nothing && metatype != chunktype && error("specifying a different cell type is not supported")
+            popfirst!(chunk.lines)
+        else
+            metadata = Dict{String, Any}()
+        end
+        lines = isa(chunk, MDChunk) ?
+                    String[x.second for x in chunk.lines] : # skip indent
+                    chunk.lines
+        @views map!(x -> x * '\n', lines[1:end-1], lines[1:end-1])
+        cell["cell_type"] = chunktype
+        cell["metadata"] = metadata
+        cell["source"] = lines
+        cell["outputs"] = []
+        if chunktype == "code"
             cell["execution_count"] = nothing
-            cell["outputs"] = []
         end
         push!(cells, cell)
     end

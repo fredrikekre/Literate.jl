@@ -51,6 +51,22 @@ arguments to [`Literate.notebook`](@ref):
 Literate.notebook
 ```
 
+### Notebook metadata
+
+Jupyter notebook cells (both code cells and markdown cells) can contain metadata. This is enabled
+in Literate by the `%%` token, similar to
+[Jupytext](https://jupytext.readthedocs.io/en/latest/formats.html#the-percent-format).
+The format is as follows
+
+```
+%% optional ignored text [type] {optional metadata JSON}
+```
+
+Cell metadata can, for example, be used for
+[nbgrader](https://nbgrader.readthedocs.io/en/stable/contributor_guide/metadata.html)
+and the [reveal.js](https://github.com/hakimel/reveal.js) notebook extension
+[RISE](https://github.com/damianavila/RISE).
+
 
 ## [**4.3.** Script Output](@id Script-Output)
 
