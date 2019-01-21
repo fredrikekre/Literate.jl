@@ -1,6 +1,7 @@
 # this file contains some utilities copied from the IJulia.jl package
 # (https://github.com/JuliaLang/IJulia.jl), see LICENSE.md for license
 module IJulia
+import JSON
 using Base64
 
 const text_plain = MIME("text/plain")
