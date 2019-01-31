@@ -561,7 +561,7 @@ function execute_notebook(nb)
             execute_result["output_type"] = "execute_result"
             execute_result["metadata"] = Dict()
             execute_result["execution_count"] = execution_count
-            dd = IJulia.display_dict(r)
+            dd = Base.invokelatest(IJulia.display_dict, r)
             # we need to split some mime types into vectors of lines instead of a single string
             for mime in ("image/svg+xml", "text/html")
                 if haskey(dd, mime)
