@@ -647,6 +647,20 @@ end
 
             # verify that inputfile exists
             @test_throws ArgumentError Literate.notebook("nonexistent.jl", outdir)
+
+            # world time problem with `IJulia.display_dict`
+            write(inputfile, """
+            struct VegaLiteRenderable end
+            Base.show(io::IO, ::MIME"application/vnd.vegalite.v2+json", ::VegaLiteRenderable) =
+                write(io, \"\"\"
+            {"encoding":{"x":{"field":"x","type":"quantitative"},"y":{"field":"y","type":"quantitative"}},"data":{"values":[{"x":1,"y":1},{"x":2,"y":3},{"x":3,"y":2}]},"mark":"point"}
+            \"\"\")
+            Base.Multimedia.istextmime(::MIME{Symbol("application/vnd.vegalite.v2+json")}) = true
+            VegaLiteRenderable()
+            """)
+            Literate.notebook(inputfile, outdir)
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+            @test occursin("\"application/vnd.vegalite.v2+json\":", notebook)
         end
     end
 end
