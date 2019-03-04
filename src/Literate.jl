@@ -171,7 +171,7 @@ function replace_default(content, sym;
     ## use same logic as Documenter to figure out the deploy folder
     travis_tag = get(ENV, "TRAVIS_TAG", "TRAVIS_TAG")
     if isempty(travis_tag)
-        folder = "latest"
+        folder = "dev"
     else
         # use the versioned directory for links, even for the stable and release-
         # folders since this will never change

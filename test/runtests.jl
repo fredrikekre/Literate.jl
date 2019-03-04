@@ -250,7 +250,7 @@ content = """
                 Literate.script(inputfile, outdir)
             end
             script = read(joinpath(outdir, "inputfile.jl"), String)
-            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/latest/", script)
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", script)
 
             # pre- and post-processing
             Literate.script(inputfile, outdir,
@@ -378,7 +378,7 @@ end
                 Literate.markdown(inputfile, outdir)
             end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/latest/", markdown)
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", markdown)
 
             # pre- and post-processing
             Literate.markdown(inputfile, outdir,
@@ -562,7 +562,7 @@ end
                 Literate.notebook(inputfile, outdir, execute = false)
             end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
-            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/latest/", notebook)
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", notebook)
 
             # pre- and post-processing
             function post(nb)
