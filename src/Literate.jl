@@ -182,9 +182,13 @@ function replace_default(content, sym;
     repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)/"
     push!(repls, "@__REPO_ROOT_URL__" => repo_root_url)
 
-    ## replace @__NBVIEWER_ROOT_URL__ to latest or version directory
+    ## replace @__NBVIEWER_ROOT_URL__ to dev or version directory
     nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(travis_repo_slug)/blob/$(branch)/$(folder)/"
     push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
+
+    ## replace $__BINDER_ROOT_URL__ to dev or version directory
+    binder_root_url = "https://mybinder.org/v2/gh/$(travis_repo_slug)/$(branch)?filepath=$(folder)/"
+    push!(repls, "@__BINDER_ROOT_URL__" => binder_root_url)
 
     if get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") != "true"
         @info "not running on Travis, skipping links will not be correct."
