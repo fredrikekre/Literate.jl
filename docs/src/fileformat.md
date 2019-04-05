@@ -108,3 +108,15 @@ The following convenience "macros" are always expanded:
   where `folder` is the folder that `Documenter.deploydocs` deploys too.
   This can be used if you want a link that opens the generated notebook in
   [http://nbviewer.jupyter.org/](http://nbviewer.jupyter.org/).
+
+- `@__BINDER_ROOT_URL__`
+
+  expands to
+  `https://mybinder.org/v2/gh/$(ENV["TRAVIS_REPO_SLUG"])/$(branch)?filepath=$(folder)/`
+  where `branch`/`folder` is the branch and folder where `Documenter.deploydocs`
+  deploys too. This can be used if you want a link that opens the generated notebook in
+  [https://mybinder.org/](https://mybinder.org/).
+  To add a binder-badge in e.g. the HTML output you can use:
+  ```
+  [![Binder](https://mybinder.org/badge_logo.svg)](@__BINDER_ROOT_URL__path/to/notebook.inpynb)
+  ```
