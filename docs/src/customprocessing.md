@@ -95,7 +95,9 @@ Literate.markdown("examples.jl", "path/to/save/markdown";
 and you will see that in the final output file (here `markdown_file_name.md`) the `include`
 statements are replaced with the actual code to be included!
 
-This approach is used for example in the documentation of the Julia package
-[`TimeseriesPrediction`](https://github.com/JuliaDynamics/TimeseriesPrediction.jl),
-see [~here~](https://github.com/JuliaDynamics/DynamicalSystems.jl/blob/master/docs/src/tsprediction/stexamples.jl)
-and [here for the generating script](https://github.com/JuliaDynamics/DynamicalSystems.jl/blob/master/docs/make.jl#L11-L29)
+This approach is used for generating [the examples](https://juliadynamics.github.io/TimeseriesPrediction.jl/latest/stexamples/)
+in the documentation of the [TimeseriesPrediction.jl](https://github.com/JuliaDynamics/TimeseriesPrediction.jl) package.
+The [example files](https://github.com/JuliaDynamics/TimeseriesPrediction.jl/tree/master/examples),
+included together in the [stexamples.jl](https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/master/docs/src/stexamples.jl) file,
+are processed by literate via this [make.jl](https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/master/docs/make.jl) file to generate the markdown and code cells of the documentation.
+
