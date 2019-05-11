@@ -97,7 +97,15 @@ statements are replaced with the actual code to be included!
 
 This approach is used for generating [the examples](https://juliadynamics.github.io/TimeseriesPrediction.jl/latest/stexamples/)
 in the documentation of the [TimeseriesPrediction.jl](https://github.com/JuliaDynamics/TimeseriesPrediction.jl) package.
-The [example files](https://github.com/JuliaDynamics/TimeseriesPrediction.jl/tree/master/examples),
-included together in the [stexamples.jl](https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/master/docs/src/stexamples.jl) file,
-are processed by literate via this [make.jl](https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/master/docs/make.jl) file to generate the markdown and code cells of the documentation.
+The 
+[example files](https://github.com/JuliaDynamics/TimeseriesPrediction.jl/tree/dcb080376a7861716147c04e45c473f55bb9a078/examples),
+included together in the 
+[stexamples.jl](https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/docs/src/stexamples.jl) file,
+are processed by literate via this
+[make.jl](https://github.com/JuliaDynamics/TimeseriesPrediction.jl/blob/dcb080376a7861716147c04e45c473f55bb9a078/docs/make.jl) 
+file to generate the markdown and code cells of the documentation.
+
+
+
+
 
