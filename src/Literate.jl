@@ -78,17 +78,19 @@ function parse(content; allow_continued = true)
         end
     end
 
-    # find code chunks that are continued
-    last_code_chunk = 0
-    for (i, chunk) in enumerate(chunks)
-        isa(chunk, MDChunk) && continue
-        if startswith(last(chunk.lines)," ")
-            chunk.continued = true
+    if allow_continued
+        # find code chunks that are continued
+        last_code_chunk = 0
+        for (i, chunk) in enumerate(chunks)
+            isa(chunk, MDChunk) && continue
+            if startswith(last(chunk.lines)," ")
+                chunk.continued = true
+            end
+            if startswith(first(chunk.lines)," ")
+                chunks[last_code_chunk].continued = true
+            end
+            last_code_chunk = i
         end
-        if startswith(first(chunk.lines)," ")
-            chunks[last_code_chunk].continued = true
-        end
-        last_code_chunk = i
     end
 
     # if we don't allow continued code blocks we need to merge MDChunks into the CodeChunks
