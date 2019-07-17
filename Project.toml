@@ -8,7 +8,7 @@ JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [compat]
-JSON = "0.18, 0.19, 0.20"
+JSON = "0.18, 0.19, 0.20, 0.21"
 julia = "1"
 
 [extras]
