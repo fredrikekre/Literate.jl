@@ -58,6 +58,12 @@ x * y
 # `execute` keyword argument is set to true. Output to `stdout`/`stderr` is also
 # captured.
 
+#md # !!! note
+#md #     Note that Documenter currently only displays output to `stdout`/`stderr`
+#md #     if there is no other result to show. Since the vector `[1, 2, 3, 4]` is
+#md #     returned from `foo`, the printing of `"This string is printed to stdout."`
+#md #     is hidden.
+
 function foo()
     println("This string is printed to stdout.")
     return [1, 2, 3, 4]
