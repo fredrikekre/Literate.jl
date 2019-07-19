@@ -58,6 +58,10 @@ certain lines:
 Lines *starting* with one of these tokens are filtered out in the
 [preprocessing step](@ref Pre-processing).
 
+!!! tip
+    The tokens can also be negated, for example a line starting with `#!nb` would
+    be included in markdown and script output, but filtered out for notebook output.
+
 Suppose, for example, that we want to include a docstring within a `@docs` block
 using Documenter. Obviously we don't want to include this in the notebook,
 since `@docs` is Documenter syntax that the notebook will not understand. This

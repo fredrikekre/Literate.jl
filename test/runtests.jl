@@ -165,10 +165,16 @@ content = """
     x = 1
     #md # Only markdown
     #md x + 1
+    #!md # Not markdown
+    #!md x * 1
     #nb # Only notebook
     #nb x + 2
+    #!nb # Not notebook
+    #!nb x * 2
     #jl # Only script
     #jl x + 3
+    #!jl # Not script
+    #!jl x * 3
     #src # Source code only
     Source code only          #src
     ## # Comment
@@ -220,6 +226,10 @@ content = """
             end
             expected_script = """
             x = 1
+
+            x * 1
+
+            x * 2
 
             x + 3
             # # Comment
@@ -319,6 +329,18 @@ end
 
             ```@example inputfile
             x + 1
+            ```
+
+            Not notebook
+
+            ```@example inputfile
+            x * 2
+            ```
+
+            Not script
+
+            ```@example inputfile
+            x * 3
             # # Comment
             # another comment
             ```
@@ -463,16 +485,40 @@ end
 
             """
                "source": [
+                "Not markdown"
+               ],
+            """,
+
+            """
+               "source": [
+                "x * 1"
+               ],
+            """,
+
+            """
+               "source": [
                 "Only notebook"
                ]
             """,
 
             """
                "source": [
-                "x + 2\\n",
+                "x + 2"
+               ]
+            """,
+
+            """
+               "source": [
+                "Not script"
+               ],
+            """,
+
+            """
+               "source": [
+                "x * 3\\n",
                 "# # Comment\\n",
                 "# another comment"
-               ]
+               ],
             """,
 
             """

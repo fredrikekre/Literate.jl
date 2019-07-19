@@ -142,18 +142,27 @@ function replace_default(content, sym;
     push!(repls, r".*#src$\n?"m => "")
 
     if sym === :md
-        push!(repls, r"^#nb.*\n?"m => "") # remove #nb lines
-        push!(repls, r"^#jl.*\n?"m => "") # remove leading #jl lines
-        push!(repls, r"^#md "m => "")     # remove leading #md
+        push!(repls, r"^#md "m => "")      # remove leading #md
+        push!(repls, r"^#!md.*\n?"m => "") # remove leading #!md lines
+        push!(repls, r"^#nb.*\n?"m => "")  # remove #nb lines
+        push!(repls, r"^#!nb "m => "")     # remove leading #!nb
+        push!(repls, r"^#jl.*\n?"m => "")  # remove leading #jl lines
+        push!(repls, r"^#!jl "m => "")     # remove leading #!jl
     elseif sym === :nb
-        push!(repls, r"^#md.*\n?"m => "") # remove #md lines
-        push!(repls, r"^#jl.*\n?"m => "") # remove leading #jl lines
-        push!(repls, r"^#nb "m => "")     # remove leading #nb
+        push!(repls, r"^#md.*\n?"m => "")  # remove #md lines
+        push!(repls, r"^#!md "m => "")     # remove leading #!md
+        push!(repls, r"^#nb "m => "")      # remove leading #nb
+        push!(repls, r"^#!nb.*\n?"m => "") # remove #!nb lines
+        push!(repls, r"^#jl.*\n?"m => "")  # remove leading #jl lines
+        push!(repls, r"^#!jl "m => "")     # remove leading #!jl
         push!(repls, r"```math(.*?)```"s => s"\\begin{equation}\1\\end{equation}")
     else # sym === :jl
-        push!(repls, r"^#md.*\n?"m => "") # remove #md lines
-        push!(repls, r"^#nb.*\n?"m => "") # remove #nb lines
-        push!(repls, r"^#jl "m => "")     # remove leading #jl
+        push!(repls, r"^#md.*\n?"m => "")  # remove #md lines
+        push!(repls, r"^#!md "m => "")     # remove leading #!md
+        push!(repls, r"^#nb.*\n?"m => "")  # remove #nb lines
+        push!(repls, r"^#!nb "m => "")     # remove leading #!nb
+        push!(repls, r"^#jl "m => "")      # remove leading #jl
+        push!(repls, r"^#!jl.*\n?"m => "") # remove #!jl lines
     end
 
     # name
