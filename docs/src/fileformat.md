@@ -39,7 +39,7 @@ julia code. We note a couple of things:
 
 For simple use this is all you need to know. The following additional special syntax can also be used:
 - `#md`, `#nb`, `#jl`, `#src`: tags to filter lines, see [Filtering Lines](@ref Filtering-Lines),
-- `#-`: tag to manually control chunk-splits, see [Custom control over chunk splits](@ref).
+- `#-` (`#+`): tag to manually control chunk-splits, see [Custom control over chunk splits](@ref).
 
 There is also some default convenience replacements that will always be performed, see
 [Default Replacements](@ref).

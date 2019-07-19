@@ -16,6 +16,7 @@ import .Documenter
 # * Lines starting with `#md` are filtered out unless creating a markdown file
 # * Lines starting with `#nb` are filtered out unless creating a notebook
 # * Lines starting with, or ending with, `#jl` are filtered out unless creating a script file
+# * Lines starting with, or ending with, `#src` are filtered out unconditionally
 # * Whitespace within a chunk is preserved
 # * Empty chunks are removed, leading and trailing empty lines in a chunk are also removed
 
@@ -41,10 +42,15 @@ function parse(content; allow_continued = true)
 
     for line in lines
         line = rstrip(line)
-        # print("line = `$line`: ")
         if occursin(r"^\h*#-", line) # new chunk
             # assume same as last chunk, will be cleaned up otherwise
             push!(chunks, typeof(chunks[end])())
+        elseif occursin(r"^\h*#\+", line) # new code chunk, that continues the previous one
+            idx = findlast(x -> isa(x, CodeChunk), chunks)
+            if idx !== nothing
+                chunks[idx].continued = true
+            end
+            push!(chunks, CodeChunk())
         elseif ismdline(line) # markdown
             if !(chunks[end] isa MDChunk)
                 push!(chunks, MDChunk())
@@ -76,19 +82,6 @@ function parse(content; allow_continued = true)
         while isempty(chunk.lines[end]) || isempty(last(chunk.lines[end]))
             pop!(chunk.lines)
         end
-    end
-
-    # find code chunks that are continued
-    last_code_chunk = 0
-    for (i, chunk) in enumerate(chunks)
-        isa(chunk, MDChunk) && continue
-        if startswith(last(chunk.lines)," ")
-            chunk.continued = true
-        end
-        if startswith(first(chunk.lines)," ")
-            chunks[last_code_chunk].continued = true
-        end
-        last_code_chunk = i
     end
 
     # if we don't allow continued code blocks we need to merge MDChunks into the CodeChunks

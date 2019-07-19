@@ -106,6 +106,10 @@ The example above would result in two consecutive code-chunks.
     The rest of the line, after `#-`, is discarded, so it is possible to use e.g.
     `#-------------` as a chunk splitter, which may make the source code more readable.
 
+It is also possible to use `#+` as a chunk splitter. The difference between `#+` and `#-`
+is that `#+` enables Documenter's "continued"-blocks, see the
+[Documenter manual](https://juliadocs.github.io/Documenter.jl/stable/).
+
 
 ## [**3.3.** Document generation](@id Document-generation)
 
