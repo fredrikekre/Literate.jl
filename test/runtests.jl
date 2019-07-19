@@ -208,6 +208,18 @@ content = """
     #+
         ## Indented comment
     end
+
+    #nb # A notebook cell with special metadata
+    #nb %% Meta1 {"meta": "data"}
+    #nb 1+1
+    #nb #-
+    #nb # A explicit code notebook cell
+    #nb #-
+    #nb %% [code]
+    #nb 1+2
+    #nb #-
+    #nb # %% [markdown] {"meta": "data"}
+    #nb # # Explicit markdown cell with metadata
     """
 
 @testset "Literate.script" begin
@@ -585,6 +597,12 @@ end
             """,
 
             """
+               "metadata": {
+                "meta": "data"
+               }
+            """,
+
+            """
                "source": [
                 "*This notebook was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*"
                ]
@@ -691,6 +709,7 @@ end
             r = try
                 Literate.notebook(inputfile, outdir)
             catch err
+                @info "^^ the above error log message is expected ^^"
                 err
             end
             @test isa(r, ErrorException)
