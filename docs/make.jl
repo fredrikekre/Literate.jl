@@ -33,7 +33,11 @@ end
 
 
 makedocs(
-    format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    format = Documenter.HTML(
+        prettyurls = get(ENV, "CI", nothing) == "true",
+        assets = ["assets/custom.css"],
+
+    ),
     modules = [Literate],
     sitename = "Literate.jl",
     pages = Any[
