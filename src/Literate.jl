@@ -169,31 +169,50 @@ function replace_default(content, sym;
     push!(repls, "@__NAME__" => name)
 
     # fix links
-    travis_repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "TRAVIS_REPO_SLUG")
-    ## use same logic as Documenter to figure out the deploy folder
-    travis_tag = get(ENV, "TRAVIS_TAG", "TRAVIS_TAG")
-    if isempty(travis_tag)
-        folder = "dev"
+    if get(ENV, "DOCUMENTATIONGENERATOR", "") == "true"
+        ## DocumentationGenerator.jl
+        ### URL to the root of the deployment, see
+        ### https://github.com/JuliaDocs/DocumentationGenerator.jl/pull/76
+        base_url = get(ENV, "DOCUMENTATIONGENERATOR_BASE_URL", "DOCUMENTATIONGENERATOR_BASE_URL")
+        ### replace @__REPO_ROOT_URL__ to master/commit
+        # TODO
+        # repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)"
+        # push!(repls, "@__REPO_ROOT_URL__" => repo_root_url)
+        ### replace @__NBVIEWER_ROOT_URL__ to dev or version directory
+        nbviewer_root_url = "https://nbviewer.jupyter.org/urls/$(base_url)"
+        push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
+        ### replace $__BINDER_ROOT_URL__ to dev or version directory
+        ### TODO: Binder requires files to be in a git repository :(
+        if match(r"@__BINDER_ROOT_URL__", content) !== nothing
+            @warn("mybinder.org requires the notebook to be in a git repository, " *
+                  "which does not work with DocumentationGenerator.jl")
+        end
+    elseif get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true"
+        ## Travis CI
+        ### Use same logic as Documenter to figure out the deploy folder
+        travis_repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "TRAVIS_REPO_SLUG")
+        travis_tag = get(ENV, "TRAVIS_TAG", "TRAVIS_TAG")
+        ### use the versioned directory for links, even for the stable
+        ### and release folders since these will not change
+        folder = isempty(travis_tag) ? "dev" : travis_tag
+        ### replace @__REPO_ROOT_URL__ to master/commit
+        repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)/"
+        push!(repls, "@__REPO_ROOT_URL__" => repo_root_url)
+        ### replace @__NBVIEWER_ROOT_URL__ to dev or version directory
+        nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(travis_repo_slug)/blob/$(branch)/$(folder)/"
+        push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
+        ### replace $__BINDER_ROOT_URL__ to dev or version directory
+        binder_root_url = "https://mybinder.org/v2/gh/$(travis_repo_slug)/$(branch)?filepath=$(folder)/"
+        push!(repls, "@__BINDER_ROOT_URL__" => binder_root_url)
     else
-        # use the versioned directory for links, even for the stable and release-
-        # folders since this will never change
-        folder = travis_tag
-    end
-
-    ## replace @__REPO_ROOT_URL__ to master/commit
-    repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)/"
-    push!(repls, "@__REPO_ROOT_URL__" => repo_root_url)
-
-    ## replace @__NBVIEWER_ROOT_URL__ to dev or version directory
-    nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(travis_repo_slug)/blob/$(branch)/$(folder)/"
-    push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
-
-    ## replace $__BINDER_ROOT_URL__ to dev or version directory
-    binder_root_url = "https://mybinder.org/v2/gh/$(travis_repo_slug)/$(branch)?filepath=$(folder)/"
-    push!(repls, "@__BINDER_ROOT_URL__" => binder_root_url)
-
-    if get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") != "true"
-        @info "not running on Travis, skipping links will not be correct."
+        ## Warn about broken link expansions
+        if (match(r"@__REPO_ROOT_URL__", content)     !== nothing) ||
+           (match(r"@__NBVIEWER_ROOT_URL__", content) !== nothing) ||
+           (match(r"@__BINDER_ROOT_URL__", content)   !== nothing)
+           @warn("expansion of `@__REPO_ROOT_URL__`, `@__REPO_ROOT_URL__` and " *
+                 " `@__REPO_ROOT_URL__` will only be correct if running in " *
+                 "DocumentationGenerator.jl or Travis CI.")
+        end
     end
 
     # run some Documenter specific things

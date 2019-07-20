@@ -98,17 +98,17 @@ The following convenience "macros" are always expanded:
   [`Literate.notebook`](@ref) and [`Literate.script`](@ref)
   (defaults to the filename of the input file).
 
-- `@__REPO__ROOT_URL__`
+- `@__REPO_ROOT_URL__`
 
-  expands to `https://github.com/$(ENV["TRAVIS_REPO_SLUG"])/blob/master/`
+  expands to `https://github.com/$(ENV["TRAVIS_REPO_SLUG"])/blob/master`
   and is a convenient way to use when you want to link to files outside the
-  doc-build directory. For example `@__REPO__ROOT_URL__src/Literate.jl` would link
+  doc-build directory. For example `@__REPO_ROOT_URL__/src/Literate.jl` would link
   to the source of the Literate module.
 
 - `@__NBVIEWER_ROOT_URL__`
 
   expands to
-  `https://nbviewer.jupyter.org/github/$(ENV["TRAVIS_REPO_SLUG"])/blob/gh-pages/$(folder)/`
+  `https://nbviewer.jupyter.org/github/$(ENV["TRAVIS_REPO_SLUG"])/blob/gh-pages/$(folder)`
   where `folder` is the folder that `Documenter.deploydocs` deploys too.
   This can be used if you want a link that opens the generated notebook in
   [http://nbviewer.jupyter.org/](http://nbviewer.jupyter.org/).
@@ -116,11 +116,17 @@ The following convenience "macros" are always expanded:
 - `@__BINDER_ROOT_URL__`
 
   expands to
-  `https://mybinder.org/v2/gh/$(ENV["TRAVIS_REPO_SLUG"])/$(branch)?filepath=$(folder)/`
+  `https://mybinder.org/v2/gh/$(ENV["TRAVIS_REPO_SLUG"])/$(branch)?filepath=$(folder)`
   where `branch`/`folder` is the branch and folder where `Documenter.deploydocs`
   deploys too. This can be used if you want a link that opens the generated notebook in
   [https://mybinder.org/](https://mybinder.org/).
   To add a binder-badge in e.g. the HTML output you can use:
   ```
-  [![Binder](https://mybinder.org/badge_logo.svg)](@__BINDER_ROOT_URL__path/to/notebook.inpynb)
+  [![Binder](https://mybinder.org/badge_logo.svg)](@__BINDER_ROOT_URL__/path/to/notebook.inpynb)
   ```
+
+!!! note
+    `@__REPO_ROOT_URL__` and `@__NBVIEWER_ROOT_URL__` works for documentation built with
+    [DocumentationGenerator.jl](https://github.com/JuliaDocs/DocumentationGenerator.jl)
+    but `@__BINDER_ROOT_URL__` does not, since `mybinder.org` requires the files
+    to be located inside a git repository.
