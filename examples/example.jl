@@ -1,22 +1,22 @@
 # # **7.** Example
 #
-#md # [![](https://mybinder.org/badge_logo.svg)](@__BINDER_ROOT_URL__generated/example.ipynb)
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__generated/example.ipynb)
+#md # [![](https://mybinder.org/badge_logo.svg)](@__BINDER_ROOT_URL__/generated/example.ipynb)
+#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/generated/example.ipynb)
 #
 # This is an example generated with Literate based on this
-# source file: [`example.jl`](@__REPO_ROOT_URL__examples/example.jl).
+# source file: [`example.jl`](@__REPO_ROOT_URL__/examples/example.jl).
 # You are seeing the
 #md # HTML-output which Documenter have generated based on a markdown
 #md # file generated with Literate. The corresponding notebook
 #md # can be viewed in [nbviewer](http://nbviewer.jupyter.org/) here:
-#md # [`example.ipynb`](@__NBVIEWER_ROOT_URL__generated/example.ipynb),
+#md # [`example.ipynb`](@__NBVIEWER_ROOT_URL__/generated/example.ipynb),
 #md # and opened in [binder](https://mybinder.org/) here:
-#md # [`example.ipynb`](@__BINDER_ROOT_URL__generated/example.ipynb),
+#md # [`example.ipynb`](@__BINDER_ROOT_URL__/generated/example.ipynb),
 #nb # generated notebook output. The corresponding markdown (HTML) output
 #nb # can be found here: [`example.html`](https://fredrikekre.github.io/Literate.jl/dev/generated/example.html),
 # and the plain script output can be found here: [`example.jl`](./example.jl).
 
-# It is recommended to have the [source file](@__REPO_ROOT_URL__examples/example.jl)
+# It is recommended to have the [source file](@__REPO_ROOT_URL__/examples/example.jl)
 # available when reading this, to better understand how the syntax in the source file
 # corresponds to the output you are seeing.
 

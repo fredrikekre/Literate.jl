@@ -181,7 +181,7 @@ function replace_default(content, sym;
         ### replace @__NBVIEWER_ROOT_URL__ to dev or version directory
         nbviewer_root_url = "https://nbviewer.jupyter.org/urls/$(base_url)"
         push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
-        ### replace $__BINDER_ROOT_URL__ to dev or version directory
+        ### replace @__BINDER_ROOT_URL__ to dev or version directory
         ### TODO: Binder requires files to be in a git repository :(
         if match(r"@__BINDER_ROOT_URL__", content) !== nothing
             @warn("mybinder.org requires the notebook to be in a git repository, " *
@@ -196,13 +196,13 @@ function replace_default(content, sym;
         ### and release folders since these will not change
         folder = isempty(travis_tag) ? "dev" : travis_tag
         ### replace @__REPO_ROOT_URL__ to master/commit
-        repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)/"
+        repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)"
         push!(repls, "@__REPO_ROOT_URL__" => repo_root_url)
         ### replace @__NBVIEWER_ROOT_URL__ to dev or version directory
-        nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(travis_repo_slug)/blob/$(branch)/$(folder)/"
+        nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(travis_repo_slug)/blob/$(branch)/$(folder)"
         push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
-        ### replace $__BINDER_ROOT_URL__ to dev or version directory
-        binder_root_url = "https://mybinder.org/v2/gh/$(travis_repo_slug)/$(branch)?filepath=$(folder)/"
+        ### replace @__BINDER_ROOT_URL__ to dev or version directory
+        binder_root_url = "https://mybinder.org/v2/gh/$(travis_repo_slug)/$(branch)?filepath=$(folder)"
         push!(repls, "@__BINDER_ROOT_URL__" => binder_root_url)
     else
         ## Warn about broken link expansions
@@ -369,7 +369,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
         end
         content = """
         # ```@meta
-        # EditURL = "@__REPO_ROOT_URL__$(path)"
+        # EditURL = "@__REPO_ROOT_URL__/$(path)"
         # ```
 
         """ * content

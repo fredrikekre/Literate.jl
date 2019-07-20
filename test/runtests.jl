@@ -186,11 +186,13 @@ content = """
     #+
     end
     # name: @__NAME__
-    # Link to repo root: @__REPO_ROOT_URL__
-    # Link to nbviewer: @__NBVIEWER_ROOT_URL__
+    # Link to repo root: @__REPO_ROOT_URL__/file.jl
+    # Link to nbviewer: @__NBVIEWER_ROOT_URL__/file.jl
+    # Link to binder: @__BINDER_ROOT_URL__/file.jl
     ## name: @__NAME__
-    ## Link to repo root: @__REPO_ROOT_URL__
-    ## Link to nbviewer: @__NBVIEWER_ROOT_URL__
+    ## Link to repo root: @__REPO_ROOT_URL__/file.jl
+    ## Link to nbviewer: @__NBVIEWER_ROOT_URL__/file.jl
+    ## Link to binder: @__BINDER_ROOT_URL__/file.jl
 
     # PLACEHOLDER1
     # PLACEHOLDER2
@@ -253,8 +255,9 @@ content = """
             end
 
             # name: inputfile
-            # Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/
-            # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/
+            # Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl
+            # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/file.jl
+            # Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=v1.2.0/file.jl
 
             # PLACEHOLDER3
             # PLACEHOLDER4
@@ -279,10 +282,21 @@ content = """
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", script)
 
+            # building under DocumentationGenerator.jl
+            withenv("DOCUMENTATIONGENERATOR" => "true",
+                    "DOCUMENTATIONGENERATOR_BASE_URL" => "pkg.julialang.org/docs/Literate/XPnWG/1.2.0") do
+                @test_logs((:warn, r"mybinder.org"), match_mode=:any,
+                    Literate.script(inputfile, outdir))
+            end
+            script = read(joinpath(outdir, "inputfile.jl"), String)
+            @test occursin("jupyter.org/urls/pkg.julialang.org/docs/Literate/XPnWG/1.2.0/file.jl", script)
+            @test_broken occursin("https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", script)
+
             # pre- and post-processing
-            Literate.script(inputfile, outdir,
-                preprocess = x -> replace(x, "PLACEHOLDER3" => "3REDLOHECALP"),
-                postprocess = x -> replace(x, "PLACEHOLDER4" => "4REDLOHECALP"))
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.script(inputfile, outdir,
+                    preprocess = x -> replace(x, "PLACEHOLDER3" => "3REDLOHECALP"),
+                    postprocess = x -> replace(x, "PLACEHOLDER4" => "4REDLOHECALP")))
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test !occursin("PLACEHOLDER1", script)
             @test !occursin("PLACEHOLDER2", script)
@@ -292,14 +306,16 @@ content = """
             @test occursin("4REDLOHECALP", script)
 
             # name
-            Literate.script(inputfile, outdir, name = "foobar")
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.script(inputfile, outdir, name = "foobar"))
             script = read(joinpath(outdir, "foobar.jl"), String)
             @test occursin("name: foobar", script)
             @test !occursin("name: inputfile", script)
             @test !occursin("name: @__NAME__", script)
 
             # keep_comments
-            Literate.script(inputfile, outdir, keep_comments = true)
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.script(inputfile, outdir, keep_comments = true))
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test occursin("# # Example", script)
             @test occursin("# foo, bar", script)
@@ -369,13 +385,15 @@ end
             ```
 
             name: inputfile
-            Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/
-            Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/
+            Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl
+            Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/file.jl
+            Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=v1.2.0/file.jl
 
             ```@example inputfile
             # name: inputfile
-            # Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/
-            # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/
+            # Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl
+            # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/file.jl
+            # Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=v1.2.0/file.jl
             ```
 
             PLACEHOLDER1
@@ -419,10 +437,21 @@ end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", markdown)
 
+            # building under DocumentationGenerator.jl
+            withenv("DOCUMENTATIONGENERATOR" => "true",
+                    "DOCUMENTATIONGENERATOR_BASE_URL" => "pkg.julialang.org/docs/Literate/XPnWG/1.2.0") do
+                @test_logs((:warn, r"mybinder.org"), match_mode=:any,
+                    Literate.markdown(inputfile, outdir))
+            end
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin("jupyter.org/urls/pkg.julialang.org/docs/Literate/XPnWG/1.2.0/file.jl", markdown)
+            @test_broken occursin("https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
+
             # pre- and post-processing
-            Literate.markdown(inputfile, outdir,
-                preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
-                postprocess = x -> replace(replace(x, "PLACEHOLDER2" => "2REDLOHECALP"), "PLACEHOLDER4" => "4REDLOHECALP"))
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.markdown(inputfile, outdir,
+                    preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
+                    postprocess = x -> replace(replace(x, "PLACEHOLDER2" => "2REDLOHECALP"), "PLACEHOLDER4" => "4REDLOHECALP")))
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test !occursin("PLACEHOLDER1", markdown)
             @test !occursin("PLACEHOLDER2", markdown)
@@ -434,7 +463,8 @@ end
             @test occursin("4REDLOHECALP", markdown)
 
             # documenter = false
-            Literate.markdown(inputfile, outdir, documenter = false)
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.markdown(inputfile, outdir, documenter = false))
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```julia", markdown)
             @test !occursin("```@example", markdown)
@@ -442,14 +472,16 @@ end
             @test !occursin("EditURL", markdown)
 
             # codefence
-            Literate.markdown(inputfile, outdir, codefence = "```c" => "```")
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.markdown(inputfile, outdir, codefence = "```c" => "```"))
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```c", markdown)
             @test !occursin("```@example", markdown)
             @test !occursin("```julia", markdown)
 
             # name
-            Literate.markdown(inputfile, outdir, name = "foobar")
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.markdown(inputfile, outdir, name = "foobar"))
             markdown = read(joinpath(outdir, "foobar.md"), String)
             @test occursin("```@example foobar", markdown)
             @test !occursin("```@example inputfile", markdown)
@@ -545,16 +577,18 @@ end
             """
                "source": [
                 "name: inputfile\\n",
-                "Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/\\n",
-                "Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/"
+                "Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl\\n",
+                "Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/file.jl\\n",
+                "Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=v1.2.0/file.jl"
                ]
             """,
 
             """
                "source": [
                 "# name: inputfile\\n",
-                "# Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/\\n",
-                "# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/"
+                "# Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl\\n",
+                "# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/file.jl\\n",
+                "# Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=v1.2.0/file.jl"
                ]
             """,
 
@@ -633,6 +667,16 @@ end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", notebook)
 
+            # building under DocumentationGenerator.jl
+            withenv("DOCUMENTATIONGENERATOR" => "true",
+                    "DOCUMENTATIONGENERATOR_BASE_URL" => "pkg.julialang.org/docs/Literate/XPnWG/1.2.0") do
+                @test_logs((:warn, r"mybinder.org"), match_mode=:any,
+                    Literate.notebook(inputfile, outdir, execute = false))
+            end
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+            @test occursin("jupyter.org/urls/pkg.julialang.org/docs/Literate/XPnWG/1.2.0/file.jl", notebook)
+            @test_broken occursin("https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", notebook)
+
             # pre- and post-processing
             function post(nb)
                 for cell in nb["cells"]
@@ -643,9 +687,10 @@ end
                 end
                 return nb
             end
-            Literate.notebook(inputfile, outdir, execute = false,
-                preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
-                postprocess = post)
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.notebook(inputfile, outdir, execute = false,
+                    preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
+                    postprocess = post))
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test !occursin("PLACEHOLDER1", notebook)
             @test !occursin("PLACEHOLDER2", notebook)
@@ -657,20 +702,23 @@ end
             @test occursin("4REDLOHECALP", notebook)
 
             # documenter = false
-            Literate.notebook(inputfile, outdir, documenter = false, execute = false)
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.notebook(inputfile, outdir, documenter = false, execute = false))
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test occursin("# [Example](@id example-id", notebook)
             @test occursin("[foo](@ref), [bar](@ref bbaarr)", notebook)
 
             # name
-            Literate.notebook(inputfile, outdir, name = "foobar", execute = false)
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.notebook(inputfile, outdir, name = "foobar", execute = false))
             notebook = read(joinpath(outdir, "foobar.ipynb"), String)
             @test occursin("name: foobar", notebook)
             @test !occursin("name: inputfile", notebook)
             @test !occursin("name: @__NAME__", notebook)
 
             # execute = true
-            Literate.notebook(inputfile, outdir)
+            @test_logs((:warn, r"expansion of"), match_mode=:any,
+                Literate.notebook(inputfile, outdir))
             expected_outputs = rstrip.((
             """
              "cells": [
@@ -706,12 +754,12 @@ end
 
             # test error when executing notebook
             write(inputfile, "for i in 1:10\n    println(i)")
-            r = try
-                Literate.notebook(inputfile, outdir)
-            catch err
-                @info "^^ the above error log message is expected ^^"
-                err
-            end
+            r = @test_logs((:error, r"error when executing"), match_mode=:any,
+                try
+                    Literate.notebook(inputfile, outdir)
+                catch err
+                    err
+                end)
             @test isa(r, ErrorException)
             @test occursin("when executing the following code block", r.msg)
 
