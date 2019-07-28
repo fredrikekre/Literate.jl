@@ -35,6 +35,7 @@ with each line categorized:
 # In julia rational numbers can be constructed with the `//` operator.   <- markdown
 # Lets define two rational numbers, `x` and `y`:                         <- markdown
                                                                          <- code
+## Define variable x and y                                               <- code
 x = 1 // 3                                                               <- code
 y = 2 // 5                                                               <- code
                                                                          <- code
@@ -52,6 +53,7 @@ chunks:
 # In julia rational numbers can be constructed with the `//` operator.   │ markdown
 # Lets define two rational numbers, `x` and `y`:                         ┘
                                                                          ┐
+## Define variable x and y                                               │
 x = 1 // 3                                                               │
 y = 2 // 5                                                               │ code
                                                                          ┘
@@ -74,6 +76,7 @@ Lets define two rational numbers, `x` and `y`:
 ```
 Chunk #2:
 ```julia
+# Define variable x and y
 x = 1 // 3
 y = 2 // 5
 ```

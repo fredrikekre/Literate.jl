@@ -13,7 +13,7 @@ The basic syntax is simple:
 
 Leading whitespace is allowed before `#`, but it will be removed when generating the
 output. Since `#`-lines is treated as markdown we can not use that for regular julia
-comments, for this you can instead use `##`, which will render as `#` in the output.
+comments, for this you can instead use `## `, which will render as `# ` in the output.
 
 Lets look at a simple example:
 ```julia
@@ -22,6 +22,7 @@ Lets look at a simple example:
 # In julia rational numbers can be constructed with the `//` operator.
 # Lets define two rational numbers, `x` and `y`:
 
+## Define variable x and y
 x = 1//3
 y = 2//5
 
@@ -29,7 +30,7 @@ y = 2//5
 
 z = x + y
 ```
-In the lines starting with `#` we can use regular markdown syntax, for example the `#`
+In the lines starting with `# ` we can use regular markdown syntax, for example the `#`
 used for the heading and the backticks for formatting code. The other lines are regular
 julia code. We note a couple of things:
 - The script is valid julia, which means that we can `include` it and the example will run
