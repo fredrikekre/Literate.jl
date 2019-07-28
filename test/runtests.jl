@@ -224,6 +224,8 @@ content = """
     #nb # # Explicit markdown cell with metadata
     """
 
+const expansion_warning = get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true" ? () : (:warn, r"expansion of")
+
 @testset "Literate.script" begin
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do
@@ -293,7 +295,7 @@ content = """
             @test_broken occursin("https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", script)
 
             # pre- and post-processing
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.script(inputfile, outdir,
                     preprocess = x -> replace(x, "PLACEHOLDER3" => "3REDLOHECALP"),
                     postprocess = x -> replace(x, "PLACEHOLDER4" => "4REDLOHECALP")))
@@ -306,7 +308,7 @@ content = """
             @test occursin("4REDLOHECALP", script)
 
             # name
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.script(inputfile, outdir, name = "foobar"))
             script = read(joinpath(outdir, "foobar.jl"), String)
             @test occursin("name: foobar", script)
@@ -314,7 +316,7 @@ content = """
             @test !occursin("name: @__NAME__", script)
 
             # keep_comments
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.script(inputfile, outdir, keep_comments = true))
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test occursin("# # Example", script)
@@ -448,7 +450,7 @@ end
             @test_broken occursin("https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
 
             # pre- and post-processing
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.markdown(inputfile, outdir,
                     preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
                     postprocess = x -> replace(replace(x, "PLACEHOLDER2" => "2REDLOHECALP"), "PLACEHOLDER4" => "4REDLOHECALP")))
@@ -463,7 +465,7 @@ end
             @test occursin("4REDLOHECALP", markdown)
 
             # documenter = false
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.markdown(inputfile, outdir, documenter = false))
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```julia", markdown)
@@ -472,7 +474,7 @@ end
             @test !occursin("EditURL", markdown)
 
             # codefence
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.markdown(inputfile, outdir, codefence = "```c" => "```"))
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```c", markdown)
@@ -480,7 +482,7 @@ end
             @test !occursin("```julia", markdown)
 
             # name
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.markdown(inputfile, outdir, name = "foobar"))
             markdown = read(joinpath(outdir, "foobar.md"), String)
             @test occursin("```@example foobar", markdown)
@@ -687,7 +689,7 @@ end
                 end
                 return nb
             end
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.notebook(inputfile, outdir, execute = false,
                     preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
                     postprocess = post))
@@ -702,14 +704,14 @@ end
             @test occursin("4REDLOHECALP", notebook)
 
             # documenter = false
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.notebook(inputfile, outdir, documenter = false, execute = false))
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test occursin("# [Example](@id example-id", notebook)
             @test occursin("[foo](@ref), [bar](@ref bbaarr)", notebook)
 
             # name
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.notebook(inputfile, outdir, name = "foobar", execute = false))
             notebook = read(joinpath(outdir, "foobar.ipynb"), String)
             @test occursin("name: foobar", notebook)
@@ -717,7 +719,7 @@ end
             @test !occursin("name: @__NAME__", notebook)
 
             # execute = true
-            @test_logs((:warn, r"expansion of"), match_mode=:any,
+            @test_logs(expansion_warning, match_mode=:any,
                 Literate.notebook(inputfile, outdir))
             expected_outputs = rstrip.((
             """
