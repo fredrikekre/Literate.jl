@@ -4,6 +4,7 @@
 # In julia rational numbers can be constructed with the `//` operator.   &lt;- markdown
 # Lets define two rational numbers, `x` and `y`:                         &lt;- markdown
                                                                          &lt;- code
+## Define variable x and y                                               &lt;- code
 x = 1 // 3                                                               &lt;- code
 y = 2 // 5                                                               &lt;- code
                                                                          &lt;- code
@@ -14,6 +15,7 @@ z = x + y                                                                &lt;- c
 # In julia rational numbers can be constructed with the `//` operator.   │ markdown
 # Lets define two rational numbers, `x` and `y`:                         ┘
                                                                          ┐
+## Define variable x and y                                               │
 x = 1 // 3                                                               │
 y = 2 // 5                                                               │ code
                                                                          ┘
@@ -22,7 +24,8 @@ y = 2 // 5                                                               │ cod
 z = x + y                                                                ┘ code</code></pre><p>In the last parsing step all empty leading and trailing lines for each chunk are removed, but empty lines <em>within the same</em> block are kept. The leading <code>#</code> tokens are also removed from the markdown chunks. Finally we would end up with the following 4 chunks:</p><p>Chunks #1:</p><pre><code class="language-markdown"># Rational numbers
 
 In julia rational numbers can be constructed with the `//` operator.
-Lets define two rational numbers, `x` and `y`:</code></pre><p>Chunk #2:</p><pre><code class="language-julia">x = 1 // 3
+Lets define two rational numbers, `x` and `y`:</code></pre><p>Chunk #2:</p><pre><code class="language-julia"># Define variable x and y
+x = 1 // 3
 y = 2 // 5</code></pre><p>Chunk #3:</p><pre><code class="language-markdown">When adding `x` and `y` together we obtain a new rational number:</code></pre><p>Chunk #4:</p><pre><code class="language-julia">z = x + y</code></pre><p>It is then up to the <a href="#Document-generation-1">Document generation</a> step to decide how these chunks should be treated.</p><h3><a class="nav-anchor" id="Custom-control-over-chunk-splits-1" href="#Custom-control-over-chunk-splits-1">Custom control over chunk splits</a></h3><p>Sometimes it is convenient to be able to manually control how the chunks are split. For example, if you want to split a block of code into two, such that they end up in two different <code>@example</code> blocks or notebook cells. The <code>#-</code> token can be used for this purpose. All lines starting with <code>#-</code> are used as &quot;chunk-splitters&quot;:</p><pre><code class="language-julia">x = 1 // 3
 y = 2 // 5
 #-
