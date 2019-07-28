@@ -124,11 +124,13 @@ function replace_default(content, sym;
     if credit
         if sym === :jl
             content *= """
+
                 #-
                 ## This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
                 """
         else
             content *= """
+
                 #-
                 # *This $(sym === :md ? "page" : "notebook") was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
                 """
