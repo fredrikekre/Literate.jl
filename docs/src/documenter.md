@@ -41,9 +41,9 @@ if we set `documenter = true`:
   ````
   is replaced with notebook compatible
   ```
-  \begin{equation}
+  $$
   \int f dx
-  \end{equation}
+  $$
   ```
 
 ### [`Literate.script`](@ref):

@@ -157,7 +157,7 @@ function replace_default(content, sym;
         push!(repls, r"^#!nb.*\n?"m => "") # remove #!nb lines
         push!(repls, r"^#jl.*\n?"m => "")  # remove leading #jl lines
         push!(repls, r"^#!jl "m => "")     # remove leading #!jl
-        push!(repls, r"```math(.*?)```"s => s"\\begin{equation}\1\\end{equation}")
+        push!(repls, r"```math(.*?)```"s => s"$$\1$$")
     else # sym === :jl
         push!(repls, r"^#md.*\n?"m => "")  # remove #md lines
         push!(repls, r"^#!md "m => "")     # remove leading #!md
