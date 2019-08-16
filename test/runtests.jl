@@ -611,9 +611,9 @@ end
             """
                "source": [
                 "Some math:\\n",
-                "\\\\begin{equation}\\n",
+                "\$\$\\n",
                 "\\\\int f(x) dx\\n",
-                "\\\\end{equation}"
+                "\$\$"
                ]
             """,
 
