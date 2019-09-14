@@ -50,6 +50,25 @@ makedocs(
         "generated/example.md"]
 )
 
+############################################
+# Set up for pushing preview docs from PRs #
+############################################
+if haskey(ENV, "TRAVIS_PULL_REQUEST") && ENV["TRAVIS_PULL_REQUEST"] != "false"
+    @info "Pushing preview docs."
+    PR = ENV["TRAVIS_PULL_REQUEST"]
+    # Overwrite Documenter's function for generating the versions.js file
+    foreach(Base.delete_method, methods(Documenter.Writers.HTMLWriter.generate_version_file))
+    Documenter.Writers.HTMLWriter.generate_version_file(_, _) = nothing
+    # Overwrite necessary environment variables to trick Documenter to deploy
+    ENV["TRAVIS_PULL_REQUEST"] = "false"
+    ENV["TRAVIS_BRANCH"] = "master"
+    deploydocs(
+        devurl = "preview-PR$(PR)",
+        repo = "github.com/fredrikekre/Literate.jl.git",
+    )
+    exit(0)
+end
+
 deploydocs(
     repo = "github.com/fredrikekre/Literate.jl.git",
 )
