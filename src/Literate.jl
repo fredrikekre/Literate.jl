@@ -65,7 +65,7 @@ function parse(content; allow_continued = true)
                 push!(chunks, CodeChunk())
             end
             # remove "## " and "##\n"
-            line = replace(replace(line, r"^(\h*)#(# .*)$" => s"\1\2"), r"^(\h*#)#$" => "\1")
+            line = replace(replace(line, r"^(\h*)#(# .*)$" => s"\1\2"), r"^(\h*#)#$" => s"\1")
             push!(chunks[end].lines, line)
         end
     end
