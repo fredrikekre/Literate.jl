@@ -100,6 +100,14 @@ end
     #
     #-
         #
+    #-
+    ## Line 73
+    ##
+    ## Line 75
+    #-
+        ## Line 77
+        ##
+        ## Line 79
     """
     expected_chunks = Chunk[
         MDChunk(["" => "Line 1"]),
@@ -134,7 +142,9 @@ end
         MDChunk(["" => "Line 53"]),
         CodeChunk(["# Line 57", "Line 58", "# Line 59", "##Line 60"], false),
         MDChunk(["    " => "Line 62", "    " => "# Line 63"]),
-        CodeChunk(["Line 64", "    # Line 65", "    Line 66", "Line 67"], false)
+        CodeChunk(["Line 64", "    # Line 65", "    Line 66", "Line 67"], false),
+        CodeChunk(["# Line 73", "#", "# Line 75"], false),
+        CodeChunk(["    # Line 77", "    #", "    # Line 79"], false),
         ]
     parsed_chunks = Literate.parse(content)
     compare_chunks(parsed_chunks, expected_chunks)
