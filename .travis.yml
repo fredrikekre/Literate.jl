@@ -17,15 +17,15 @@ after_success:
       julia --project=test/coverage -e 'using Pkg; Pkg.instantiate();
           using Coverage; Codecov.submit(Codecov.process_folder())';
     fi
-jobs:
-  include:
-    - stage: Documentation
-      julia: 1.2
-      os: linux
-      script:
-        - julia --project=docs -e 'using Pkg; Pkg.instantiate()'
-        - julia --project=docs --color=yes docs/make.jl
-      after_success: skip
+# jobs:
+#   include:
+#     - stage: Documentation
+#       julia: 1.2
+#       os: linux
+#       script:
+#         - julia --project=docs -e 'using Pkg; Pkg.instantiate()'
+#         - julia --project=docs --color=yes docs/make.jl
+#       after_success: skip
 notifications:
   email: false
 git:
