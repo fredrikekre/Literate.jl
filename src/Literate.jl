@@ -189,22 +189,28 @@ function replace_default(content, sym;
             @warn("mybinder.org requires the notebook to be in a git repository, " *
                   "which does not work with DocumentationGenerator.jl")
         end
-    elseif get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true"
-        ## Travis CI
+    elseif haskey(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL") || haskey(ENV, "GITHUB_ACTION")
+        ## Travis CI / GitHub Actions
         ### Use same logic as Documenter to figure out the deploy folder
-        travis_repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "TRAVIS_REPO_SLUG")
-        travis_tag = get(ENV, "TRAVIS_TAG", "TRAVIS_TAG")
+        repo_slug = get(ENV, "TRAVIS_REPO_SLUG", get(ENV, "GITHUB_REPOSITORY", "REPO_SLUG"))
+        tag = get(ENV, "TRAVIS_TAG") do
+            github_ref = get(ENV, "GITHUB_REF", nothing)
+            github_ref === nothing && return nothing
+            m = match(r"^refs/tags/(.*)$", github_ref)
+            m === nothing && return nothing
+            return String(m.captures[1])
+        end
         ### use the versioned directory for links, even for the stable
         ### and release folders since these will not change
-        folder = isempty(travis_tag) ? "dev" : travis_tag
+        folder = (tag === nothing || isempty(tag)) ? "dev" : tag
         ### replace @__REPO_ROOT_URL__ to master/commit
-        repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)"
+        repo_root_url = "https://github.com/$(repo_slug)/blob/$(commit)"
         push!(repls, "@__REPO_ROOT_URL__" => repo_root_url)
         ### replace @__NBVIEWER_ROOT_URL__ to dev or version directory
-        nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(travis_repo_slug)/blob/$(branch)/$(folder)"
+        nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(repo_slug)/blob/$(branch)/$(folder)"
         push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
         ### replace @__BINDER_ROOT_URL__ to dev or version directory
-        binder_root_url = "https://mybinder.org/v2/gh/$(travis_repo_slug)/$(branch)?filepath=$(folder)"
+        binder_root_url = "https://mybinder.org/v2/gh/$(repo_slug)/$(branch)?filepath=$(folder)"
         push!(repls, "@__BINDER_ROOT_URL__" => binder_root_url)
     else
         ## Warn about broken link expansions
@@ -212,8 +218,8 @@ function replace_default(content, sym;
            (match(r"@__NBVIEWER_ROOT_URL__", content) !== nothing) ||
            (match(r"@__BINDER_ROOT_URL__", content)   !== nothing)
            @warn("expansion of `@__REPO_ROOT_URL__`, `@__REPO_ROOT_URL__` and " *
-                 " `@__REPO_ROOT_URL__` will only be correct if running in " *
-                 "DocumentationGenerator.jl or Travis CI.")
+                 " `@__REPO_ROOT_URL__` will only be correct if running from " *
+                 "DocumentationGenerator.jl, Travis CI or GitHub Actions.")
         end
     end
 
