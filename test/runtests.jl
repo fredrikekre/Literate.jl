@@ -294,6 +294,30 @@ const expansion_warning = get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true" 
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", script)
 
+            # GitHub Actions with a tag
+            withenv("GITHUB_ACTION" => "Build docs",
+                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
+                    "GITHUB_REF" => "refs/tags/v1.2.0",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
+                    "TRAVIS_REPO_SLUG" => nothing,
+                    "TRAVIS_TAG" => nothing) do
+                Literate.script(inputfile, outdir)
+            end
+            script = read(joinpath(outdir, "inputfile.jl"), String)
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/", script)
+
+            # GitHub Actions without a tag
+            withenv("GITHUB_ACTION" => "Build docs",
+                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
+                    "GITHUB_REF" => "refs/heads/master",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
+                    "TRAVIS_REPO_SLUG" => nothing,
+                    "TRAVIS_TAG" => nothing) do
+                Literate.script(inputfile, outdir)
+            end
+            script = read(joinpath(outdir, "inputfile.jl"), String)
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", script)
+
             # building under DocumentationGenerator.jl
             withenv("DOCUMENTATIONGENERATOR" => "true",
                     "DOCUMENTATIONGENERATOR_BASE_URL" => "pkg.julialang.org/docs/Literate/XPnWG/1.2.0") do
@@ -444,6 +468,30 @@ end
             withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
                     "TRAVIS_TAG" => "",
                     "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+                Literate.markdown(inputfile, outdir)
+            end
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", markdown)
+
+            # GitHub Actions with a tag
+            withenv("GITHUB_ACTION" => "Build docs",
+                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
+                    "GITHUB_REF" => "refs/tags/v1.2.0",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
+                    "TRAVIS_REPO_SLUG" => nothing,
+                    "TRAVIS_TAG" => nothing) do
+                Literate.markdown(inputfile, outdir)
+            end
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/", markdown)
+
+            # GitHub Actions without a tag
+            withenv("GITHUB_ACTION" => "Build docs",
+                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
+                    "GITHUB_REF" => "refs/heads/master",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
+                    "TRAVIS_REPO_SLUG" => nothing,
+                    "TRAVIS_TAG" => nothing) do
                 Literate.markdown(inputfile, outdir)
             end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
@@ -674,6 +722,30 @@ end
             withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
                     "TRAVIS_TAG" => "",
                     "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+                Literate.notebook(inputfile, outdir, execute = false)
+            end
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", notebook)
+
+            # GitHub Actions with a tag
+            withenv("GITHUB_ACTION" => "Build docs",
+                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
+                    "GITHUB_REF" => "refs/tags/v1.2.0",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
+                    "TRAVIS_REPO_SLUG" => nothing,
+                    "TRAVIS_TAG" => nothing) do
+                Literate.notebook(inputfile, outdir, execute = false)
+            end
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/", notebook)
+
+            # GitHub Actions without a tag
+            withenv("GITHUB_ACTION" => "Build docs",
+                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
+                    "GITHUB_REF" => "refs/heads/master",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
+                    "TRAVIS_REPO_SLUG" => nothing,
+                    "TRAVIS_TAG" => nothing) do
                 Literate.notebook(inputfile, outdir, execute = false)
             end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
