@@ -315,17 +315,17 @@ end
     Literate.markdown(inputfile, outputdir; kwargs...)
 
 Generate a markdown file from `inputfile` and write the result
-to the directory`outputdir`.
+to the directory `outputdir`.
 
 Keyword arguments:
-- `name`: name of the output file, excluding `.md`. `name` is also used to name
+- `name`: name of the output file, excluding `.md`; `name` is also used to name
   all the `@example` blocks, and to replace `@__NAME__`.
   Defaults to the filename of `inputfile`.
 - `preprocess`, `postprocess`: custom pre- and post-processing functions,
   see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
   section of the manual. Defaults to `identity`.
 - `documenter`: boolean that tells if the output is intended to use with Documenter.jl.
-  Defaults to `true`. See the the manual section on
+  Defaults to `true`. See the manual section on
   [Interaction with Documenter](@ref Interaction-with-Documenter).
 - `codefence`: A `Pair` of opening and closing code fence. Defaults to
   ````
