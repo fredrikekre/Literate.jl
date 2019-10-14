@@ -81,6 +81,18 @@ if get(ENV, "GITHUB_EVENT_NAME", nothing) == "pull_request"
         devurl = "preview-PR$(PR)",
         repo = "github.com/fredrikekre/Literate.jl.git",
     )
+    # Add a comment on the PR with a link to the preview
+    # TODO: URL available from JSON.parsefile(ENV["GITHUB..."])["pull_request"]["comments_url"]
+    msg = "Documentation built successfully, a preview can be found here: https://fredrikekre.github.io/Literate.jl/preview-PR$(PR)"
+    cmd = `curl -X POST`
+    push!(cmd.exec, "-H", "Authorization: token $(ENV["GITHUB_TOKEN"])")
+    push!(cmd.exec, "-H", "Content-Type: application/json")
+    push!(cmd.exec, "-d", "'{\"body\":\"$(msg)\"}'")
+    push!(cmd.exec, "https://api.github.com/repos/fredrikekre/Literate.jl/issues/$(PR)/comments")
+    try
+        success(cmd)
+    catch
+    end
     exit(0)
 end
 
