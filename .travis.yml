@@ -1,32 +1,32 @@
-## Documentation: http://docs.travis-ci.com/user/languages/julia/
-language: julia
-os:
-  - linux
-  - osx
-julia:
-  - 1.0
-  - 1.2
-  - 1.3
-  - nightly
-branches:
-  only:
-    - master
-    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
-after_success:
-  - if [[ $TRAVIS_JULIA_VERSION = 1.2 ]] && [[ $TRAVIS_OS_NAME = linux ]]; then
-      julia --project=test/coverage -e 'using Pkg; Pkg.instantiate();
-          using Coverage; Codecov.submit(Codecov.process_folder())';
-    fi
-# jobs:
-#   include:
-#     - stage: Documentation
-#       julia: 1.2
-#       os: linux
-#       script:
-#         - julia --project=docs -e 'using Pkg; Pkg.instantiate()'
-#         - julia --project=docs --color=yes docs/make.jl
-#       after_success: skip
-notifications:
-  email: false
-git:
-  depth: 99999999
+# ## Documentation: http://docs.travis-ci.com/user/languages/julia/
+# language: julia
+# os:
+#   - linux
+#   - osx
+# julia:
+#   - 1.0
+#   - 1.2
+#   - 1.3
+#   - nightly
+# branches:
+#   only:
+#     - master
+#     - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+# after_success:
+#   - if [[ $TRAVIS_JULIA_VERSION = 1.2 ]] && [[ $TRAVIS_OS_NAME = linux ]]; then
+#       julia --project=test/coverage -e 'using Pkg; Pkg.instantiate();
+#           using Coverage; Codecov.submit(Codecov.process_folder())';
+#     fi
+# # jobs:
+# #   include:
+# #     - stage: Documentation
+# #       julia: 1.2
+# #       os: linux
+# #       script:
+# #         - julia --project=docs -e 'using Pkg; Pkg.instantiate()'
+# #         - julia --project=docs --color=yes docs/make.jl
+# #       after_success: skip
+# notifications:
+#   email: false
+# git:
+#   depth: 99999999
