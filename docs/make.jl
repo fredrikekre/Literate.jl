@@ -87,7 +87,7 @@ if get(ENV, "GITHUB_EVENT_NAME", nothing) == "pull_request"
     cmd = `curl -X POST`
     push!(cmd.exec, "-H", "Authorization: token $(ENV["GITHUB_TOKEN"])")
     push!(cmd.exec, "-H", "Content-Type: application/json")
-    push!(cmd.exec, "-d", "'{\"body\":\"$(msg)\"}'")
+    push!(cmd.exec, "-d", "{\"body\":\"$(msg)\"}")
     push!(cmd.exec, "https://api.github.com/repos/fredrikekre/Literate.jl/issues/$(PR)/comments")
     try
         success(cmd)
