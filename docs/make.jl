@@ -70,22 +70,17 @@ using Literate
 # end
 if get(ENV, "GITHUB_EVENT_NAME", nothing) == "pull_request"
     @info "Pushing preview docs."
-    @show ENV["GITHUB_REF"]
-    @show ENV["GITHUB_ACTOR"]
-    @show ENV["GITHUB_EVENT_PATH"]
-    @show ENV["GITHUB_SHA"]
-    @show Literate.JSON.parsefile(ENV["GITHUB_EVENT_PATH"])
-    # PR = ENV["TRAVIS_PULL_REQUEST"]
-    # # Overwrite Documenter's function for generating the versions.js file
-    # foreach(Base.delete_method, methods(Documenter.Writers.HTMLWriter.generate_version_file))
-    # Documenter.Writers.HTMLWriter.generate_version_file(_, _) = nothing
-    # # Overwrite necessary environment variables to trick Documenter to deploy
-    # ENV["TRAVIS_PULL_REQUEST"] = "false"
-    # ENV["TRAVIS_BRANCH"] = "master"
-    # deploydocs(
-    #     devurl = "preview-PR$(PR)",
-    #     repo = "github.com/fredrikekre/Literate.jl.git",
-    # )
+    PR = match(r"refs\/pull\/(\d+)\/merge", ENV["GITHUB_REF"]).captures[1]
+    # Overwrite Documenter's function for generating the versions.js file
+    foreach(Base.delete_method, methods(Documenter.Writers.HTMLWriter.generate_version_file))
+    Documenter.Writers.HTMLWriter.generate_version_file(_, _) = nothing
+    # Overwrite necessary environment variables to trick Documenter to deploy
+    ENV["GITHUB_EVENT_NAME"] = "push"
+    ENV["GITHUB_REF"] = "refs/heads/master"
+    deploydocs(
+        devurl = "preview-PR$(PR)",
+        repo = "github.com/fredrikekre/Literate.jl.git",
+    )
     exit(0)
 end
 
