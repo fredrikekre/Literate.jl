@@ -19,5 +19,5 @@ jobs:
         run: julia --project=docs -e 'using Pkg; Pkg.instantiate(); Pkg.update()'
       - name: Build and deploy
         env:
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: julia --project=docs --color=yes docs/make.jl

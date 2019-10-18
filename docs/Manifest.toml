@@ -23,9 +23,9 @@ version = "0.9.6"
 
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
-git-tree-sha1 = "84aa74986c5b9b898b0d1acaf3258741ee64754f"
+git-tree-sha1 = "ed2c4abadf84c53d9e58510b5fc48912c2336fbb"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "2.1.0"
+version = "2.2.0"
 
 [[Contour]]
 deps = ["LinearAlgebra", "StaticArrays", "Test"]
@@ -64,8 +64,8 @@ version = "0.8.1"
 
 [[Documenter]]
 deps = ["Base64", "Dates", "DocStringExtensions", "InteractiveUtils", "JSON", "LibGit2", "Logging", "Markdown", "REPL", "Test", "Unicode"]
-git-tree-sha1 = "8a7ee80972d66b68a14dfbb9757c6b52f40efe93"
-repo-rev = "master"
+git-tree-sha1 = "2b45ba82d7de1083af18f09af4ebdeb4dd99b9f3"
+repo-rev = "1d5b4cd18f241d267e8d0088783f5ba274df157b"
 repo-url = "https://github.com/JuliaDocs/Documenter.jl.git"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 version = "0.24.0-DEV"
@@ -169,10 +169,10 @@ deps = ["Dates", "LibGit2", "Markdown", "Printf", "REPL", "Random", "SHA", "UUID
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [[PlotThemes]]
-deps = ["PlotUtils", "Requires", "Test"]
-git-tree-sha1 = "f3afd2d58e1f6ac9be2cea46e4a9083ccc1d990b"
+deps = ["PlotUtils", "Requires", "Statistics"]
+git-tree-sha1 = "d2f3a41081a72815f5c59eacdc8046237a7cbe12"
 uuid = "ccf2f8ad-2431-5c83-bf29-c5338b663b6a"
-version = "0.3.0"
+version = "0.4.0"
 
 [[PlotUtils]]
 deps = ["Colors", "Dates", "Printf", "Random", "Reexport"]
@@ -246,9 +246,9 @@ uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "db23bbf50064c582b6f2b9b043c8e7e98ea8c0c6"
+git-tree-sha1 = "1085ffbf5fd48fdba64ef8e902ca429c4e1212d3"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "0.11.0"
+version = "0.11.1"
 
 [[Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
