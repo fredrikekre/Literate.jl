@@ -361,7 +361,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     # run some Documenter specific things
     if documenter
         # change the Edit on GitHub link
-        repo = get(ENV, "TRAVIS_REPO_SLUG", nothing)
+        repo = get(ENV, "TRAVIS_REPO_SLUG", get(ENV, "GITHUB_REPOSITORY", nothing))
         if repo === nothing
             path = ""
         else
