@@ -52,4 +52,5 @@ makedocs(
 
 deploydocs(
     repo = "github.com/fredrikekre/Literate.jl.git",
+    push_preview = true,
 )
