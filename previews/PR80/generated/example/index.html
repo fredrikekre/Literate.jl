@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>7. Example · Literate.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/custom.css" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../index.html"><img src="../assets/logo.png" alt="Literate.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">Literate.jl</span></div><form class="docs-search" action="../search.html"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../index.html"><strong>1.</strong> Introduction</a></li><li><a class="tocitem" href="../fileformat.html"><strong>2.</strong> File Format</a></li><li><a class="tocitem" href="../pipeline.html"><strong>3.</strong> Processing pipeline</a></li><li><a class="tocitem" href="../outputformats.html"><strong>4.</strong> Output Formats</a></li><li><a class="tocitem" href="../customprocessing.html"><strong>5.</strong> Custom pre- and post-processing</a></li><li><a class="tocitem" href="../documenter.html"><strong>6.</strong> Interaction with Documenter.jl</a></li><li class="is-active"><a class="tocitem" href="example.html"><strong>7.</strong> Example</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href="example.html"><strong>7.</strong> Example</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="example.html"><strong>7.</strong> Example</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/fredrikekre/Literate.jl/blob/master/examples/example.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="**7.**-Example-1"><strong>7.</strong> Example<a class="docs-heading-anchor" href="#**7.**-Example-1" title="Permalink"></a></h1><p><a href="https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/generated/example.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt/></a> <a href="https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/dev/generated/example.ipynb"><img src="https://img.shields.io/badge/show-nbviewer-579ACA.svg" alt/></a></p><p>This is an example generated with Literate based on this source file: <a href="https://github.com/fredrikekre/Literate.jl/blob/master/examples/example.jl"><code>example.jl</code></a>. You are seeing the HTML-output which Documenter have generated based on a markdown file generated with Literate. The corresponding notebook can be viewed in <a href="http://nbviewer.jupyter.org/">nbviewer</a> here: <a href="https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/dev/generated/example.ipynb"><code>example.ipynb</code></a>, and opened in <a href="https://mybinder.org/">binder</a> here: <a href="https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/generated/example.ipynb"><code>example.ipynb</code></a>, and the plain script output can be found here: <a href="example.jl"><code>example.jl</code></a>.</p><p>It is recommended to have the <a href="https://github.com/fredrikekre/Literate.jl/blob/master/examples/example.jl">source file</a> available when reading this, to better understand how the syntax in the source file corresponds to the output you are seeing.</p><h3 id="Basic-syntax-1">Basic syntax<a class="docs-heading-anchor" href="#Basic-syntax-1" title="Permalink"></a></h3><p>The basic syntax for Literate is simple, lines starting with <code>#</code> is interpreted as markdown, and all the other lines are interpreted as code. Here is some code:</p><pre><code class="language-julia">x = 1//3
-y = 2//5</code></pre><pre><code class="language-none">2//5</code></pre><p>In markdown sections we can use markdown syntax. For example, we can write <em>text in italic font</em>, <strong>text in bold font</strong> and use <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">links</a>.</p><p>It is possible to filter out lines depending on the output using the <code>#md</code>, <code>#nb</code>, <code>#jl</code> and <code>#src</code> tags (see <a href="../fileformat.html#Filtering-Lines-1">Filtering Lines</a>):</p><ul><li>This line starts with <code>#md</code> and is thus only visible in the markdown output.</li></ul><p>The source file is parsed in chunks of markdown and code. Starting a line with <code>#-</code> manually inserts a chunk break. For example, if we want to display the output of the following operations we may insert <code>#-</code> in between. These two code blocks will now end up in different <code>@example</code>-blocks in the markdown output, and two different notebook cells in the notebook output.</p><pre><code class="language-julia">x + y</code></pre><pre><code class="language-none">11//15</code></pre><pre><code class="language-julia">x * y</code></pre><pre><code class="language-none">2//15</code></pre><h3 id="Output-Capturing-1">Output Capturing<a class="docs-heading-anchor" href="#Output-Capturing-1" title="Permalink"></a></h3><p>Code chunks are by default placed in Documenter <code>@example</code> blocks in the generated markdown. This means that the output will be captured in a block when Documenter is building the docs. In notebooks the output is captured in output cells, if the <code>execute</code> keyword argument is set to true. Output to <code>stdout</code>/<code>stderr</code> is also captured.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Note that Documenter currently only displays output to <code>stdout</code>/<code>stderr</code> if there is no other result to show. Since the vector <code>[1, 2, 3, 4]</code> is returned from <code>foo</code>, the printing of <code>&quot;This string is printed to stdout.&quot;</code> is hidden.</p></div></div><pre><code class="language-julia">function foo()
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>7. Example · Literate.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="../../assets/custom.css" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="Literate.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">Literate.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../"><strong>1.</strong> Introduction</a></li><li><a class="tocitem" href="../../fileformat/"><strong>2.</strong> File Format</a></li><li><a class="tocitem" href="../../pipeline/"><strong>3.</strong> Processing pipeline</a></li><li><a class="tocitem" href="../../outputformats/"><strong>4.</strong> Output Formats</a></li><li><a class="tocitem" href="../../customprocessing/"><strong>5.</strong> Custom pre- and post-processing</a></li><li><a class="tocitem" href="../../documenter/"><strong>6.</strong> Interaction with Documenter.jl</a></li><li class="is-active"><a class="tocitem" href><strong>7.</strong> Example</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href><strong>7.</strong> Example</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href><strong>7.</strong> Example</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/fredrikekre/Literate.jl/blob/master/examples/example.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="**7.**-Example-1"><strong>7.</strong> Example<a class="docs-heading-anchor" href="#**7.**-Example-1" title="Permalink"></a></h1><p><a href="https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/generated/example.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt/></a> <a href="https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/dev/generated/example.ipynb"><img src="https://img.shields.io/badge/show-nbviewer-579ACA.svg" alt/></a></p><p>This is an example generated with Literate based on this source file: <a href="https://github.com/fredrikekre/Literate.jl/blob/master/examples/example.jl"><code>example.jl</code></a>. You are seeing the HTML-output which Documenter have generated based on a markdown file generated with Literate. The corresponding notebook can be viewed in <a href="http://nbviewer.jupyter.org/">nbviewer</a> here: <a href="https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/dev/generated/example.ipynb"><code>example.ipynb</code></a>, and opened in <a href="https://mybinder.org/">binder</a> here: <a href="https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/generated/example.ipynb"><code>example.ipynb</code></a>, and the plain script output can be found here: <a href="../example.jl"><code>example.jl</code></a>.</p><p>It is recommended to have the <a href="https://github.com/fredrikekre/Literate.jl/blob/master/examples/example.jl">source file</a> available when reading this, to better understand how the syntax in the source file corresponds to the output you are seeing.</p><h3 id="Basic-syntax-1">Basic syntax<a class="docs-heading-anchor" href="#Basic-syntax-1" title="Permalink"></a></h3><p>The basic syntax for Literate is simple, lines starting with <code>#</code> is interpreted as markdown, and all the other lines are interpreted as code. Here is some code:</p><pre><code class="language-julia">x = 1//3
+y = 2//5</code></pre><pre><code class="language-none">2//5</code></pre><p>In markdown sections we can use markdown syntax. For example, we can write <em>text in italic font</em>, <strong>text in bold font</strong> and use <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">links</a>.</p><p>It is possible to filter out lines depending on the output using the <code>#md</code>, <code>#nb</code>, <code>#jl</code> and <code>#src</code> tags (see <a href="../../fileformat/#Filtering-Lines-1">Filtering Lines</a>):</p><ul><li>This line starts with <code>#md</code> and is thus only visible in the markdown output.</li></ul><p>The source file is parsed in chunks of markdown and code. Starting a line with <code>#-</code> manually inserts a chunk break. For example, if we want to display the output of the following operations we may insert <code>#-</code> in between. These two code blocks will now end up in different <code>@example</code>-blocks in the markdown output, and two different notebook cells in the notebook output.</p><pre><code class="language-julia">x + y</code></pre><pre><code class="language-none">11//15</code></pre><pre><code class="language-julia">x * y</code></pre><pre><code class="language-none">2//15</code></pre><h3 id="Output-Capturing-1">Output Capturing<a class="docs-heading-anchor" href="#Output-Capturing-1" title="Permalink"></a></h3><p>Code chunks are by default placed in Documenter <code>@example</code> blocks in the generated markdown. This means that the output will be captured in a block when Documenter is building the docs. In notebooks the output is captured in output cells, if the <code>execute</code> keyword argument is set to true. Output to <code>stdout</code>/<code>stderr</code> is also captured.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Note that Documenter currently only displays output to <code>stdout</code>/<code>stderr</code> if there is no other result to show. Since the vector <code>[1, 2, 3, 4]</code> is returned from <code>foo</code>, the printing of <code>&quot;This string is printed to stdout.&quot;</code> is hidden.</p></div></div><pre><code class="language-julia">function foo()
     println(&quot;This string is printed to stdout.&quot;)
     return [1, 2, 3, 4]
 end
@@ -16,114 +16,114 @@ y2 = cos.(x)
 plot(x, [y1, y2])</code></pre><?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="400" viewBox="0 0 2400 1600">
 <defs>
-  <clipPath id="clip7600">
+  <clipPath id="clip3000">
     <rect x="0" y="0" width="2400" height="1600"/>
   </clipPath>
 </defs>
-<path clip-path="url(#clip7600)" d="
+<path clip-path="url(#clip3000)" d="
 M0 1600 L2400 1600 L2400 0 L0 0  Z
   " fill="#ffffff" fill-rule="evenodd" fill-opacity="1"/>
 <defs>
-  <clipPath id="clip7601">
+  <clipPath id="clip3001">
     <rect x="480" y="0" width="1681" height="1600"/>
   </clipPath>
 </defs>
-<path clip-path="url(#clip7600)" d="
+<path clip-path="url(#clip3000)" d="
 M86.9921 1521.01 L2352.76 1521.01 L2352.76 47.2441 L86.9921 47.2441  Z
   " fill="#ffffff" fill-rule="evenodd" fill-opacity="1"/>
 <defs>
-  <clipPath id="clip7602">
+  <clipPath id="clip3002">
     <rect x="86" y="47" width="2267" height="1475"/>
   </clipPath>
 </defs>
-<polyline clip-path="url(#clip7602)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   151.118,1521.01 151.118,47.2441 
   "/>
-<polyline clip-path="url(#clip7602)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   718.11,1521.01 718.11,47.2441 
   "/>
-<polyline clip-path="url(#clip7602)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   1285.1,1521.01 1285.1,47.2441 
   "/>
-<polyline clip-path="url(#clip7602)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   1852.1,1521.01 1852.1,47.2441 
   "/>
-<polyline clip-path="url(#clip7602)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   86.9921,1479.31 2352.76,1479.31 
   "/>
-<polyline clip-path="url(#clip7602)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   86.9921,1131.72 2352.76,1131.72 
   "/>
-<polyline clip-path="url(#clip7602)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   86.9921,784.13 2352.76,784.13 
   "/>
-<polyline clip-path="url(#clip7602)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   86.9921,436.542 2352.76,436.542 
   "/>
-<polyline clip-path="url(#clip7602)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#000000; stroke-width:2; stroke-opacity:0.1; fill:none" points="
   86.9921,88.9544 2352.76,88.9544 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   86.9921,1521.01 2352.76,1521.01 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   86.9921,1521.01 86.9921,47.2441 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   151.118,1521.01 151.118,1498.9 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   718.11,1521.01 718.11,1498.9 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   1285.1,1521.01 1285.1,1498.9 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   1852.1,1521.01 1852.1,1498.9 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   86.9921,1479.31 120.979,1479.31 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   86.9921,1131.72 120.979,1131.72 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   86.9921,784.13 120.979,784.13 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   86.9921,436.542 120.979,436.542 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   86.9921,88.9544 120.979,88.9544 
   "/>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 151.118, 1575.01)" x="151.118" y="1575.01">0</text>
 </g>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 718.11, 1575.01)" x="718.11" y="1575.01">5</text>
 </g>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 1285.1, 1575.01)" x="1285.1" y="1575.01">10</text>
 </g>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:middle;" transform="rotate(0, 1852.1, 1575.01)" x="1852.1" y="1575.01">15</text>
 </g>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 62.9921, 1496.81)" x="62.9921" y="1496.81">-1.0</text>
 </g>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 62.9921, 1149.22)" x="62.9921" y="1149.22">-0.5</text>
 </g>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 62.9921, 801.63)" x="62.9921" y="801.63">0.0</text>
 </g>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 62.9921, 454.042)" x="62.9921" y="454.042">0.5</text>
 </g>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:end;" transform="rotate(0, 62.9921, 106.454)" x="62.9921" y="106.454">1.0</text>
 </g>
-<polyline clip-path="url(#clip7602)" style="stroke:#009af9; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#009af9; stroke-width:4; stroke-opacity:1; fill:none" points="
   151.118,784.13 153.257,771.014 155.397,757.902 157.536,744.8 159.676,731.712 161.816,718.643 163.955,705.597 166.095,692.579 168.235,679.593 170.374,666.645 
   172.514,653.738 174.654,640.878 176.793,628.069 178.933,615.315 181.073,602.622 183.212,589.993 185.352,577.433 187.492,564.947 189.631,552.539 191.771,540.214 
   193.911,527.975 196.05,515.827 198.19,503.775 200.33,491.823 202.469,479.975 204.609,468.235 206.748,456.607 208.888,445.096 211.028,433.706 213.167,422.441 
@@ -226,7 +226,7 @@ M86.9921 1521.01 L2352.76 1521.01 L2352.76 47.2441 L86.9921 47.2441  Z
   2269.37,901.615 2271.51,888.667 2273.65,875.681 2275.79,862.663 2277.93,849.617 2280.07,836.548 2282.21,823.459 2284.35,810.357 2286.49,797.246 2288.63,784.13 
   
   "/>
-<polyline clip-path="url(#clip7602)" style="stroke:#e26f46; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3002)" style="stroke:#e26f46; stroke-width:4; stroke-opacity:1; fill:none" points="
   151.118,88.9544 153.257,89.0781 155.397,89.4493 157.536,90.0678 159.676,90.9334 161.816,92.0458 163.955,93.4045 166.095,95.0092 168.235,96.8592 170.374,98.9539 
   172.514,101.292 174.654,103.874 176.793,106.698 178.933,109.763 181.073,113.068 183.212,116.612 185.352,120.394 187.492,124.412 189.631,128.665 191.771,133.151 
   193.911,137.869 196.05,142.817 198.19,147.993 200.33,153.396 202.469,159.023 204.609,164.873 206.748,170.943 208.888,177.232 211.028,183.737 213.167,190.455 
@@ -329,23 +329,23 @@ M86.9921 1521.01 L2352.76 1521.01 L2352.76 47.2441 L86.9921 47.2441  Z
   2269.37,98.9539 2271.51,96.8592 2273.65,95.0092 2275.79,93.4045 2277.93,92.0458 2280.07,90.9334 2282.21,90.0678 2284.35,89.4493 2286.49,89.0781 2288.63,88.9544 
   
   "/>
-<path clip-path="url(#clip7600)" d="
+<path clip-path="url(#clip3000)" d="
 M1989.93 312.204 L2280.76 312.204 L2280.76 130.764 L1989.93 130.764  Z
   " fill="#ffffff" fill-rule="evenodd" fill-opacity="1"/>
-<polyline clip-path="url(#clip7600)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#000000; stroke-width:4; stroke-opacity:1; fill:none" points="
   1989.93,312.204 2280.76,312.204 2280.76,130.764 1989.93,130.764 1989.93,312.204 
   "/>
-<polyline clip-path="url(#clip7600)" style="stroke:#009af9; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#009af9; stroke-width:4; stroke-opacity:1; fill:none" points="
   2013.93,191.244 2157.93,191.244 
   "/>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2181.93, 208.744)" x="2181.93" y="208.744">y1</text>
 </g>
-<polyline clip-path="url(#clip7600)" style="stroke:#e26f46; stroke-width:4; stroke-opacity:1; fill:none" points="
+<polyline clip-path="url(#clip3000)" style="stroke:#e26f46; stroke-width:4; stroke-opacity:1; fill:none" points="
   2013.93,251.724 2157.93,251.724 
   "/>
-<g clip-path="url(#clip7600)">
+<g clip-path="url(#clip3000)">
 <text style="fill:#000000; fill-opacity:1; font-family:Arial,Helvetica Neue,Helvetica,sans-serif; font-size:48px; text-anchor:start;" transform="rotate(0, 2181.93, 269.224)" x="2181.93" y="269.224">y2</text>
 </g>
 </svg>
-<h3 id="Custom-processing-1">Custom processing<a class="docs-heading-anchor" href="#Custom-processing-1" title="Permalink"></a></h3><p>It is possible to give Literate custom pre- and post-processing functions. For example, here we insert two placeholders, which we will replace with something else at time of generation. We have here replaced our placeholders with <code>z</code> and <code>1.0 + 2.0im</code>:</p><pre><code class="language-julia">z = 1.0 + 2.0im</code></pre><pre><code class="language-none">1.0 + 2.0im</code></pre><h3 id="documenter-interaction-1">Documenter.jl interaction<a class="docs-heading-anchor" href="#documenter-interaction-1" title="Permalink"></a></h3><p>In the source file it is possible to use Documenter.jl style references, such as <code>@ref</code> and <code>@id</code>. These will be filtered out in the notebook output. For example, <a href="example.html#documenter-interaction-1">here is a link</a>, but it is only visible as a link if you are reading the markdown output. We can also use equations:</p><div>\[\int_\Omega \nabla v \cdot \nabla u\ \mathrm{d}\Omega = \int_\Omega v f\ \mathrm{d}\Omega\]</div><p>using Documenters math syntax. Documenters syntax is automatically changed to <code>\begin{equation} ... \end{equation}</code> in the notebook output to display correctly.</p><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../documenter.html">« <strong>6.</strong> Interaction with Documenter.jl</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 16 November 2019 01:19">Saturday 16 November 2019</span>. Using Julia version 1.2.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+<h3 id="Custom-processing-1">Custom processing<a class="docs-heading-anchor" href="#Custom-processing-1" title="Permalink"></a></h3><p>It is possible to give Literate custom pre- and post-processing functions. For example, here we insert two placeholders, which we will replace with something else at time of generation. We have here replaced our placeholders with <code>z</code> and <code>1.0 + 2.0im</code>:</p><pre><code class="language-julia">z = 1.0 + 2.0im</code></pre><pre><code class="language-none">1.0 + 2.0im</code></pre><h3 id="documenter-interaction-1">Documenter.jl interaction<a class="docs-heading-anchor" href="#documenter-interaction-1" title="Permalink"></a></h3><p>In the source file it is possible to use Documenter.jl style references, such as <code>@ref</code> and <code>@id</code>. These will be filtered out in the notebook output. For example, <a href="#documenter-interaction-1">here is a link</a>, but it is only visible as a link if you are reading the markdown output. We can also use equations:</p><div>\[\int_\Omega \nabla v \cdot \nabla u\ \mathrm{d}\Omega = \int_\Omega v f\ \mathrm{d}\Omega\]</div><p>using Documenters math syntax. Documenters syntax is automatically changed to <code>\begin{equation} ... \end{equation}</code> in the notebook output to display correctly.</p><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../documenter/">« <strong>6.</strong> Interaction with Documenter.jl</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 16 November 2019 01:26">Saturday 16 November 2019</span>. Using Julia version 1.2.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
