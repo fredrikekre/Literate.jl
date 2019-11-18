@@ -1,4 +1,6 @@
 using Documenter
+ENV["JULIA_DEBUG"] = "Documenter"
+Documenter.post_status(; type="pending", repo="github.com/fredrikekre/Literate.jl.git")
 using Literate
 using Plots # to not capture precompilation output
 
@@ -52,4 +54,5 @@ makedocs(
 
 deploydocs(
     repo = "github.com/fredrikekre/Literate.jl.git",
+    push_preview=true,
 )
