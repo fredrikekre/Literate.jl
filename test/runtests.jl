@@ -221,6 +221,9 @@ content = """
         ## Indented comment
     end
 
+    # Semicolon output supression
+    1 + 1;
+
     #nb # A notebook cell with special metadata
     #nb %% Meta1 {"meta": "data"}
     #nb 1+1
@@ -278,6 +281,8 @@ const expansion_warning = get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true" 
 
                 # Indented comment
             end
+
+            1 + 1;
 
             # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
 
@@ -456,6 +461,13 @@ end
             ```@example inputfile
                 # Indented comment
             end
+            ```
+
+            Semicolon output supression
+
+            ```@example inputfile
+            1 + 1;
+            nothing #hide
             ```
 
             *This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
