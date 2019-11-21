@@ -71,7 +71,7 @@ end
 
 foo()
 
-# Just like in the REPL, outputs ending with a semicolon hide the output:
+# Just like in the REPL, outputs ending with a semicolon hides the output:
 1 + 1;
 
 # Both Documenter's `@example` block and notebooks can display images. Here is an example
