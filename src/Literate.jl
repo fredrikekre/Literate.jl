@@ -223,8 +223,8 @@ function replace_default(content, sym;
         if (match(r"@__REPO_ROOT_URL__", content)     !== nothing) ||
            (match(r"@__NBVIEWER_ROOT_URL__", content) !== nothing) ||
            (match(r"@__BINDER_ROOT_URL__", content)   !== nothing)
-           @warn("expansion of `@__REPO_ROOT_URL__`, `@__REPO_ROOT_URL__` and " *
-                 " `@__REPO_ROOT_URL__` will only be correct if running from " *
+           @warn("expansion of `@__REPO_ROOT_URL__`, `@__NBVIEWER_ROOT_URL__` and " *
+                 " `@__BINDER_ROOT_URL__` will only be correct if running from " *
                  "DocumentationGenerator.jl, Travis CI or GitHub Actions.")
         end
     end
