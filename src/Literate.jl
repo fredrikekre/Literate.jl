@@ -408,8 +408,13 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
                 write(iomd, "; continued = true")
             end
             write(iomd, '\n')
+            last_line = ""
             for line in chunk.lines
                 write(iomd, line, '\n')
+                last_line = line
+            end
+            if documenter && REPL.ends_with_semicolon(last_line)
+                write(iomd, "nothing #hide\n")
             end
             write(iomd, codefence.second, '\n')
         end
