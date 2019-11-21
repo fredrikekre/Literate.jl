@@ -1,5 +1,10 @@
 # Literate.jl changelog
 
+## Version `v2.1`
+
+* ![Feature][badge-breaking] Link macros now works when running on GitHub Actions
+  ([cf2b552][cf2b552]).
+
 ## Version `v2.0`
 
 * ![BREAKING][badge-breaking] The link macros `@__REPO_ROOT_URL__`, `@__NBVIEWER_ROOT_URL__`
@@ -34,6 +39,7 @@
 [1d02868]: https://github.com/fredrikekre/Literate.jl/commit/1d0286818f4946caf84420736cd64608a776d294
 [0872a96]: https://github.com/fredrikekre/Literate.jl/commit/0872a96a88dbf3d7647e6e78612cb9b7ed300428
 [fa64dcd]: https://github.com/fredrikekre/Literate.jl/commit/fa64dcd796543b2ea8f7e036f397f42549bd87f5
+[cf2b552]: https://github.com/fredrikekre/Literate.jl/commit/cf2b5525507217b6552e9c36f63419eddb5df58f
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
 [badge-deprecation]: https://img.shields.io/badge/deprecation-orange.svg
