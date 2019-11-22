@@ -1,6 +1,12 @@
 name: Documentation
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - 'master'
+      - 'release-'
+    tags: '*'
+  pull_request:
 
 jobs:
   build:
