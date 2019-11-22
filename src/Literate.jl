@@ -118,16 +118,14 @@ function parse(content; allow_continued = true)
 end
 
 function replace_default(content, sym;
-                         name = error("required kwarg"),
-                         documenter = true,
-                         credit = true,
+                         config::Dict,
                          branch = "gh-pages",
                          commit = "master"
                          )
     repls = Pair{Any,Any}[]
 
     # add some shameless advertisement
-    if credit
+    if config["credit"]::Bool
         if sym === :jl
             content *= """
 
@@ -174,7 +172,7 @@ function replace_default(content, sym;
     end
 
     # name
-    push!(repls, "@__NAME__" => name)
+    push!(repls, "@__NAME__" => config["name"]::String)
 
     # fix links
     if get(ENV, "DOCUMENTATIONGENERATOR", "") == "true"
@@ -230,7 +228,7 @@ function replace_default(content, sym;
     end
 
     # run some Documenter specific things
-    if documenter && sym !== :md
+    if config["documenter"]::Bool && sym !== :md
         ## - remove documenter style `@ref`s and `@id`s
         push!(repls, r"\[(.*?)\]\(@ref\)" => s"\1")     # [foo](@ref) => foo
         push!(repls, r"\[(.*?)\]\(@ref .*?\)" => s"\1") # [foo](@ref bar) => foo
@@ -247,29 +245,61 @@ end
 
 filename(str) = first(splitext(last(splitdir(str))))
 
+function create_configuration(inputfile; user_config, user_kwargs)
+    # Combine user config with user kwargs
+    user_config = Dict{String,Any}(string(k) => v for (k, v) in user_config)
+    user_kwargs = Dict{String,Any}(string(k) => v for (k, v) in user_kwargs)
+    user_config = merge!(user_config, user_kwargs)
+
+    # Add default config
+    cfg = Dict{String,Any}()
+    cfg["name"] = filename(inputfile)
+    cfg["preprocess"] = identity
+    cfg["postprocess"] = identity
+    cfg["documenter"] = true
+    cfg["credit"] = true
+    cfg["keep_comments"] = false
+    cfg["codefence"] = get(user_config, "documenter", true) ?
+        ("```@example $(get(user_config, "name", cfg["name"]))" => "```") : ("```julia" => "```")
+    cfg["execute"] = true
+
+    # Merge default_config with user_config
+    merge!(cfg, user_config)
+    return cfg
+end
+
 """
-    Literate.script(inputfile, outputdir; kwargs...)
+    DEFAULT_CONFIGURATION
+
+Default configuration for [`Literate.markdown`](@ref), [`Literate.notebook`](@ref) and
+[`Literate.script`] which is used for everything not specified by the user.
+See the manual section about [Configuration](@ref) for more information.
+
+| Configuration key | Description | Default value | Comment |
+| ----------------- |:----------- |:------------- |:------- |
+| `name` | Name of the output file (excluding file extension). | `filename(inputfile)` |   |
+| `preprocess` | Custom preprocessing function mapping `String` to `String`. | `identity` | See [Custom pre- and post-processing](@ref Custom-pre-and-post-processing). |
+| `postprocess` | Custom preprocessing function mapping `String` to `String`. | `identity` | See [Custom pre- and post-processing](@ref Custom-pre-and-post-processing). |
+| `documenter` | Boolean signaling that the source contains Documenter.jl elements. | `true` | See [Interaction with Documenter](@ref Interaction-with-Documenter). |
+| `credit` | Boolean for controlling the addition of `This file was generated with Literate.jl ...` to the bottom of the page. If you find Literate.jl useful then feel free to keep this. | `true` |    |
+| `keep_comments` | When `true`, keeps markdown lines as comments in the output script. | `false` | Only applicable for `Literate.script`. |
+| `codefence` | Pair containing opening and closing fence for wrapping code blocks. | `````"```julia" => "```"````` | If `documenter` is `true` the default is `````"```@example"=>"```"`````. |
+| `execute` | Whether to execute and capture the output. | `true` | Only applicable for `Literate.notebook`. |
+"""
+const DEFAULT_CONFIGURATION=nothing # Dummy const for documentation
+
+"""
+    Literate.script(inputfile, outputdir; config::Dict=Dict(), kwargs...)
 
 Generate a plain script file from `inputfile` and write the result to `outputdir`.
 
-Keyword arguments:
-- `name`: name of the output file, excluding `.jl`. `name` is also used to
-  replace `@__NAME__`. Defaults to the filename of `inputfile`.
-- `preprocess`, `postprocess`: custom pre- and post-processing functions,
-  see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
-  section of the manual. Defaults to `identity`.
-- `documenter`: boolean that says if the source contains Documenter.jl specific things
-  to filter out during script generation. Defaults to `true`. See the the manual
-  section on [Interaction with Documenter](@ref Interaction-with-Documenter).
-- `keep_comments`: boolean that, if set to `true`, keeps markdown lines
-  as comments in the output script. Defaults to `false`.
-- `credit`: boolean that controls the addition of `This file was generated with
-  Literate.jl ...` to the bottom of the page. If you find Literate.jl useful then
-  feel free to keep this to the default, which is `true`.
+See the manual section on [Configuration](@ref) for documentation
+of possible configuration with `config` and other keyword arguments.
 """
-function script(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                name = filename(inputfile), documenter = true, credit = true,
-                keep_comments::Bool=false, kwargs...)
+function script(inputfile, outputdir; config::Dict=Dict(), kwargs...)
+    # Create configuration by merging default and userdefined
+    config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs)
+
     # normalize paths
     inputfile = normpath(inputfile)
     isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
@@ -282,10 +312,10 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
     content = read(inputfile, String)
 
     # run custom pre-processing from user
-    content = preprocess(content)
+    content = config["preprocess"](content)
 
     # default replacements
-    content = replace_default(content, :jl; name = name, documenter = documenter, credit = credit)
+    content = replace_default(content, :jl; config=config)
 
     # create the script file
     chunks = parse(content)
@@ -296,7 +326,7 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
                 write(ioscript, line, '\n')
             end
             write(ioscript, '\n') # add a newline between each chunk
-        elseif isa(chunk, MDChunk) && keep_comments
+        elseif isa(chunk, MDChunk) && config["keep_comments"]::Bool
             for line in chunk.lines
                 write(ioscript, rstrip(line.first * "# " * line.second * '\n'))
             end
@@ -305,11 +335,11 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
     end
 
     # custom post-processing from user
-    content = postprocess(String(take!(ioscript)))
+    content = config["postprocess"](String(take!(ioscript)))
 
     # write to file
     isdir(outputdir) || error("not a directory: $(outputdir)")
-    outputfile = joinpath(outputdir, name * ".jl")
+    outputfile = joinpath(outputdir, config["name"]::String * ".jl")
 
     @info "writing result to `$(Base.contractuser(outputfile))`"
     write(outputfile, content)
@@ -318,38 +348,18 @@ function script(inputfile, outputdir; preprocess = identity, postprocess = ident
 end
 
 """
-    Literate.markdown(inputfile, outputdir; kwargs...)
+    Literate.markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
 
 Generate a markdown file from `inputfile` and write the result
 to the directory `outputdir`.
 
-Keyword arguments:
-- `name`: name of the output file, excluding `.md`; `name` is also used to name
-  all the `@example` blocks, and to replace `@__NAME__`.
-  Defaults to the filename of `inputfile`.
-- `preprocess`, `postprocess`: custom pre- and post-processing functions,
-  see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
-  section of the manual. Defaults to `identity`.
-- `documenter`: boolean that tells if the output is intended to use with Documenter.jl.
-  Defaults to `true`. See the manual section on
-  [Interaction with Documenter](@ref Interaction-with-Documenter).
-- `codefence`: A `Pair` of opening and closing code fence. Defaults to
-  ````
-  "```@example \$(name)" => "```"
-  ````
-  if `documenter = true` and
-  ````
-  "```julia" => "```"
-  ````
-  if `documenter = false`.
-- `credit`: boolean that controls the addition of `This file was generated with
-  Literate.jl ...` to the bottom of the page. If you find Literate.jl useful then
-  feel free to keep this to the default, which is `true`.
+See the manual section on [Configuration](@ref) for documentation
+of possible configuration with `config` and other keyword arguments.
 """
-function markdown(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                  name = filename(inputfile), documenter::Bool = true, credit = true,
-                  codefence::Pair = documenter ? "```@example $(name)" => "```" : "```julia" => "```",
-                  kwargs...)
+function markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
+    # Create configuration by merging default and userdefined
+    config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs)
+
     # normalize paths
     inputfile = normpath(inputfile)
     isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
@@ -362,10 +372,10 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     content = read(inputfile, String)
 
     # run custom pre-processing from user
-    content = preprocess(content)
+    content = config["preprocess"](content)
 
     # run some Documenter specific things
-    if documenter
+    if config["documenter"]::Bool
         # change the Edit on GitHub link
         repo = get(ENV, "TRAVIS_REPO_SLUG", get(ENV, "GITHUB_REPOSITORY", nothing))
         if repo === nothing
@@ -390,7 +400,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     end
 
     # default replacements
-    content = replace_default(content, :md; name = name, documenter = documenter, credit = credit)
+    content = replace_default(content, :md; config=config)
 
     # create the markdown file
     chunks = parse(content)
@@ -402,9 +412,10 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
                 write(iomd, line.second, '\n') # skip indent here
             end
         else # isa(chunk, CodeChunk)
+            codefence = config["codefence"]::Pair
             write(iomd, codefence.first)
             # make sure the code block is finalized if we are printing to ```@example
-            if chunk.continued && startswith(codefence.first, "```@example") && documenter
+            if chunk.continued && startswith(codefence.first, "```@example") && config["documenter"]::Bool
                 write(iomd, "; continued = true")
             end
             write(iomd, '\n')
@@ -413,7 +424,7 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
                 write(iomd, line, '\n')
                 last_line = line
             end
-            if documenter && REPL.ends_with_semicolon(last_line)
+            if config["documenter"]::Bool && REPL.ends_with_semicolon(last_line)
                 write(iomd, "nothing #hide\n")
             end
             write(iomd, codefence.second, '\n')
@@ -422,11 +433,11 @@ function markdown(inputfile, outputdir; preprocess = identity, postprocess = ide
     end
 
     # custom post-processing from user
-    content = postprocess(String(take!(iomd)))
+    content = config["postprocess"](String(take!(iomd)))
 
     # write to file
     isdir(outputdir) || error("not a directory: $(outputdir)")
-    outputfile = joinpath(outputdir, name * ".md")
+    outputfile = joinpath(outputdir, config["name"]::String * ".md")
 
     @info "writing result to `$(Base.contractuser(outputfile))`"
     write(outputfile, content)
@@ -450,29 +461,17 @@ line_is_nbmeta(line::Pair) = line_is_nbmeta(line.second)
 line_is_nbmeta(line) = startswith(line, "%% ")
 
 """
-    Literate.notebook(inputfile, outputdir; kwargs...)
+    Literate.notebook(inputfile, outputdir; config::Dict=Dict(), kwargs...)
 
 Generate a notebook from `inputfile` and write the result to `outputdir`.
 
-Keyword arguments:
-- `name`: name of the output file, excluding `.ipynb`. `name` is also used to
-  replace `@__NAME__`. Defaults to the filename of `inputfile`.
-- `preprocess`, `postprocess`: custom pre- and post-processing functions,
-  see the [Custom pre- and post-processing](@ref Custom-pre-and-post-processing)
-  section of the manual. Defaults to `identity`.
-- `execute`: a boolean deciding if the generated notebook should also
-  be executed or not. Defaults to `true`. The current working directory
-  is set to `outputdir` when executing the notebook.
-- `documenter`: boolean that says if the source contains Documenter.jl specific things
-  to filter out during notebook generation. Defaults to `true`. See the the manual
-  section on [Interaction with Documenter](@ref Interaction-with-Documenter).
-- `credit`: boolean that controls the addition of `This file was generated with
-  Literate.jl ...` to the bottom of the page. If you find Literate.jl useful then
-  feel free to keep this to the default, which is `true`.
+See the manual section on [Configuration](@ref) for documentation
+of possible configuration with `config` and other keyword arguments.
 """
-function notebook(inputfile, outputdir; preprocess = identity, postprocess = identity,
-                  execute::Bool=true, documenter::Bool=true, credit = true,
-                  name = filename(inputfile), kwargs...)
+function notebook(inputfile, outputdir; config::Dict=Dict(), kwargs...)
+    # Create configuration by merging default and userdefined
+    config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs)
+
     # normalize paths
     inputfile = normpath(inputfile)
     isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
@@ -485,10 +484,10 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     content = read(inputfile, String)
 
     # run custom pre-processing from user
-    content = preprocess(content)
+    content = config["preprocess"](content)
 
     # default replacements
-    content = replace_default(content, :nb; name = name, documenter = documenter, credit = credit)
+    content = replace_default(content, :nb; config=config)
 
     # parse
     chunks = parse(content; allow_continued = false)
@@ -544,10 +543,10 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
     nb["metadata"] = metadata
 
     # custom post-processing from user
-    nb = postprocess(nb)
+    nb = config["postprocess"](nb)
 
-    if execute
-        @info "executing notebook `$(name * ".ipynb")`"
+    if config["execute"]::Bool
+        @info "executing notebook `$(config["name"] * ".ipynb")`"
         try
             cd(outputdir) do
                 nb = execute_notebook(nb)
@@ -560,7 +559,7 @@ function notebook(inputfile, outputdir; preprocess = identity, postprocess = ide
 
     # write to file
     isdir(outputdir) || error("not a directory: $(outputdir)")
-    outputfile = joinpath(outputdir, name * ".ipynb")
+    outputfile = joinpath(outputdir, config["name"]::String * ".ipynb")
 
     @info "writing result to `$(Base.contractuser(outputfile))`"
     ionb = IOBuffer()
@@ -635,7 +634,7 @@ function execute_notebook(nb)
         end
 
     end
-    nb
+    return nb
 end
 
 end # module
