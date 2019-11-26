@@ -34,9 +34,9 @@ version = "1.1.0"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "1fe8fad5fc84686dcbc674aa255bc867a64f8132"
+git-tree-sha1 = "a1b652fb77ae8ca7ea328fa7ba5aa151036e5c10"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.17.5"
+version = "0.17.6"
 
 [[Dates]]
 deps = ["Printf"]
@@ -58,9 +58,9 @@ version = "0.8.1"
 
 [[Documenter]]
 deps = ["Base64", "Dates", "DocStringExtensions", "InteractiveUtils", "JSON", "LibGit2", "Logging", "Markdown", "REPL", "Test", "Unicode"]
-git-tree-sha1 = "0e52069b5970cb27234153f578227947565152c5"
+git-tree-sha1 = "7f6ad432deb42aa108bc79205ee96d28724b084f"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-version = "0.24.0"
+version = "0.24.1"
 
 [[FFMPEG]]
 deps = ["BinaryProvider", "Libdl"]
@@ -74,10 +74,10 @@ uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 version = "0.6.1"
 
 [[GR]]
-deps = ["Base64", "DelimitedFiles", "LinearAlgebra", "Pkg", "Printf", "Random", "Serialization", "Sockets", "Test"]
-git-tree-sha1 = "2b29ed254586324366e43f4283880978e6956d1f"
+deps = ["Base64", "DelimitedFiles", "LinearAlgebra", "Printf", "Random", "Serialization", "Sockets", "Test"]
+git-tree-sha1 = "c690c2ab22ac9ee323d9966deae61a089362b25c"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.42.0"
+version = "0.44.0"
 
 [[GeometryTypes]]
 deps = ["ColorTypes", "FixedPointNumbers", "IterTools", "LinearAlgebra", "StaticArrays"]
@@ -173,9 +173,9 @@ version = "0.6.1"
 
 [[Plots]]
 deps = ["Base64", "Contour", "Dates", "FFMPEG", "FixedPointNumbers", "GR", "GeometryTypes", "JSON", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Printf", "REPL", "Random", "RecipesBase", "Reexport", "Requires", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs"]
-git-tree-sha1 = "0d7cf139b508defb467ac4fd655f4bd4d92f30cf"
+git-tree-sha1 = "11c75a31269c1c64790e7cb910346f64cd4440c1"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "0.27.0"
+version = "0.27.1"
 
 [[Printf]]
 deps = ["Unicode"]

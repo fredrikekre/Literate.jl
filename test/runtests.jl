@@ -237,9 +237,31 @@ content = """
     #nb # # Explicit markdown cell with metadata
     """
 
-const expansion_warning = get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true" ? () : (:warn, r"expansion of")
-
-@testset "Literate.script" begin
+const TRAVIS_ENV = Dict(
+    "TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
+    "TRAVIS_TAG" => "v1.2.0",
+    "TRAVIS_PULL_REQUEST" => "false",
+    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true",
+    "TRAVIS_BUILD_DIR" => normpath(joinpath(@__DIR__, "..")),
+)
+const ACTIONS_ENV = Dict(
+    "GITHUB_ACTIONS" => "true",
+    "GITHUB_ACTION" => "Build docs",
+    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
+    "GITHUB_EVENT_NAME" => "push",
+    "GITHUB_REF" => "refs/tags/v1.2.0",
+    "GITHUB_WORKSPACE" => normpath(joinpath(@__DIR__, "..")),
+    (k => nothing for k in keys(TRAVIS_ENV))...,
+)
+const GITLAB_ENV = Dict(
+    "GITLAB_CI" => "true",
+    "CI_PROJECT_URL" => "https://gitlab.com/fredrikekre/Literate.jl",
+    "CI_PAGES_URL" => "https://fredrikekre.gitlab.io/Literate.jl",
+    "CI_PROJECT_DIR" => normpath(joinpath(@__DIR__, "..")),
+    (k => nothing for k in keys(TRAVIS_ENV))...,
+    (k => nothing for k in keys(ACTIONS_ENV))...,
+)
+@testset "Literate.script" begin; Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do
             # write content to inputfile
@@ -248,9 +270,7 @@ const expansion_warning = get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true" 
             outdir = mktempdir(pwd())
 
             # test defaults
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
-                    "TRAVIS_TAG" => "v1.2.0",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+            withenv(TRAVIS_ENV...) do
                 Literate.script(inputfile, outdir)
             end
             expected_script = """
@@ -290,54 +310,70 @@ const expansion_warning = get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true" 
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test script == expected_script
 
-            # no tag -> latest directory
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
-                    "TRAVIS_TAG" => "",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+            # Travis with with PR preview build
+            withenv(TRAVIS_ENV...,
+                    "TRAVIS_TAG" => nothing,
+                    "TRAVIS_PULL_REQUEST" => "42") do
                 Literate.script(inputfile, outdir)
             end
             script = read(joinpath(outdir, "inputfile.jl"), String)
-            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", script)
+            @test occursin("# Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", script)
+            @test occursin("# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/previews/PR42/file.jl", script)
+            @test occursin("# Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=previews/PR42/file.jl", script)
+
+            # Travis with no tag -> dev directory
+            withenv(TRAVIS_ENV...,
+                    "TRAVIS_TAG" => nothing) do
+                Literate.script(inputfile, outdir)
+            end
+            script = read(joinpath(outdir, "inputfile.jl"), String)
+            @test occursin("# Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", script)
+            @test occursin("# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/dev/file.jl", script)
+            @test occursin("# Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/file.jl", script)
 
             # GitHub Actions with a tag
-            withenv("GITHUB_ACTION" => "Build docs",
-                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
-                    "GITHUB_REF" => "refs/tags/v1.2.0",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
-                    "TRAVIS_REPO_SLUG" => nothing,
-                    "TRAVIS_TAG" => nothing) do
+            withenv(ACTIONS_ENV...) do
                 Literate.script(inputfile, outdir)
             end
             script = read(joinpath(outdir, "inputfile.jl"), String)
-            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/", script)
+            @test occursin("# Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", script)
+            @test occursin("# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/file.jl", script)
+            @test occursin("# Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=v1.2.0/file.jl", script)
 
-            # GitHub Actions without a tag
-            withenv("GITHUB_ACTION" => "Build docs",
-                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
-                    "GITHUB_REF" => "refs/heads/master",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
-                    "TRAVIS_REPO_SLUG" => nothing,
-                    "TRAVIS_TAG" => nothing) do
+            # GitHub Actions with PR preview build
+            withenv(ACTIONS_ENV...,
+                    "GITHUB_EVENT_NAME" => "pull_request",
+                    "GITHUB_REF" => "refs/pull/42/merge") do
                 Literate.script(inputfile, outdir)
             end
             script = read(joinpath(outdir, "inputfile.jl"), String)
-            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", script)
+            @test occursin("# Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", script)
+            @test occursin("# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/previews/PR42/file.jl", script)
+            @test occursin("# Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=previews/PR42/file.jl", script)
+
+            # GitHub Actions without a tag -> dev directory
+            withenv(ACTIONS_ENV...,
+                    "GITHUB_REF" => "refs/heads/master") do
+                Literate.script(inputfile, outdir)
+            end
+            script = read(joinpath(outdir, "inputfile.jl"), String)
+            @test occursin("# Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", script)
+            @test occursin("# Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/dev/file.jl", script)
+            @test occursin("# Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/file.jl", script)
 
             # building under DocumentationGenerator.jl
             withenv("DOCUMENTATIONGENERATOR" => "true",
                     "DOCUMENTATIONGENERATOR_BASE_URL" => "pkg.julialang.org/docs/Literate/XPnWG/1.2.0") do
-                @test_logs((:warn, r"mybinder.org"), match_mode=:any,
-                    Literate.script(inputfile, outdir))
+                Literate.script(inputfile, outdir)
             end
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test occursin("jupyter.org/urls/pkg.julialang.org/docs/Literate/XPnWG/1.2.0/file.jl", script)
             @test_broken occursin("https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", script)
 
             # pre- and post-processing
-            @test_logs(expansion_warning, match_mode=:any,
-                Literate.script(inputfile, outdir,
-                    preprocess = x -> replace(x, "PLACEHOLDER3" => "3REDLOHECALP"),
-                    postprocess = x -> replace(x, "PLACEHOLDER4" => "4REDLOHECALP")))
+            Literate.script(inputfile, outdir,
+                preprocess = x -> replace(x, "PLACEHOLDER3" => "3REDLOHECALP"),
+                postprocess = x -> replace(x, "PLACEHOLDER4" => "4REDLOHECALP"))
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test !occursin("PLACEHOLDER1", script)
             @test !occursin("PLACEHOLDER2", script)
@@ -347,16 +383,14 @@ const expansion_warning = get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true" 
             @test occursin("4REDLOHECALP", script)
 
             # name
-            @test_logs(expansion_warning, match_mode=:any,
-                Literate.script(inputfile, outdir, name = "foobar"))
+            Literate.script(inputfile, outdir, name = "foobar")
             script = read(joinpath(outdir, "foobar.jl"), String)
             @test occursin("name: foobar", script)
             @test !occursin("name: inputfile", script)
             @test !occursin("name: @__NAME__", script)
 
             # keep_comments
-            @test_logs(expansion_warning, match_mode=:any,
-                Literate.script(inputfile, outdir, keep_comments = true))
+            Literate.script(inputfile, outdir, keep_comments = true)
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test occursin("# # Example", script)
             @test occursin("# foo, bar", script)
@@ -366,9 +400,9 @@ const expansion_warning = get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true" 
             @test_throws ArgumentError Literate.script("nonexistent.jl", outdir)
         end
     end
-end
+end end
 
-@testset "Literate.markdown" begin
+@testset "Literate.markdown" begin; Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do
             # write content to inputfile
@@ -377,9 +411,7 @@ end
             outdir = mktempdir(pwd())
 
             # test defaults
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
-                    "TRAVIS_TAG" => "v1.2.0",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+            withenv(TRAVIS_ENV...) do
                 Literate.markdown(inputfile, outdir)
             end
             expected_markdown = """
@@ -476,54 +508,85 @@ end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test markdown == expected_markdown
 
-            # no tag -> latest directory
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
-                    "TRAVIS_TAG" => "",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+            # Travis with PR preview build
+            withenv(TRAVIS_ENV...,
+                    "TRAVIS_TAG" => nothing,
+                    "TRAVIS_PULL_REQUEST" => "42") do
                 Literate.markdown(inputfile, outdir)
             end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", markdown)
+            @test occursin("Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
+            @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/previews/PR42/file.jl", markdown)
+            @test occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=previews/PR42/file.jl", markdown)
+            @test occursin("EditURL = \"https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
+
+            # Travis with no tag -> dev directory
+            withenv(TRAVIS_ENV...,
+                    "TRAVIS_TAG" => nothing) do
+                Literate.markdown(inputfile, outdir)
+            end
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin("Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
+            @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/dev/file.jl", markdown)
+            @test occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/file.jl", markdown)
+            @test occursin("EditURL = \"https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
 
             # GitHub Actions with a tag
-            withenv("GITHUB_ACTION" => "Build docs",
-                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
-                    "GITHUB_REF" => "refs/tags/v1.2.0",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
-                    "TRAVIS_REPO_SLUG" => nothing,
-                    "TRAVIS_TAG" => nothing) do
+            withenv(ACTIONS_ENV...) do
                 Literate.markdown(inputfile, outdir)
             end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/", markdown)
+            @test occursin("Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
+            @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/file.jl", markdown)
+            @test occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=v1.2.0/file.jl", markdown)
+            @test occursin("EditURL = \"https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
 
-            # GitHub Actions without a tag
-            withenv("GITHUB_ACTION" => "Build docs",
-                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
-                    "GITHUB_REF" => "refs/heads/master",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
-                    "TRAVIS_REPO_SLUG" => nothing,
-                    "TRAVIS_TAG" => nothing) do
+            # GitHub Actions with PR preview build
+            withenv(ACTIONS_ENV...,
+                    "GITHUB_REF" => "refs/pull/42/merge",
+                    "GITHUB_EVENT_NAME" => "pull_request") do
                 Literate.markdown(inputfile, outdir)
             end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", markdown)
+            @test occursin("Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
+            @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/previews/PR42/file.jl", markdown)
+            @test occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=previews/PR42/file.jl", markdown)
+            @test occursin("EditURL = \"https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
+
+            # GitHub Actions without a tag -> dev directory
+            withenv(ACTIONS_ENV...,
+                    "GITHUB_REF" => "refs/heads/master") do
+                Literate.markdown(inputfile, outdir)
+            end
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin("Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
+            @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/dev/file.jl", markdown)
+            @test occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/file.jl", markdown)
+            @test occursin("EditURL = \"https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
+
+            # GitLab CI with GitLab Pages
+            withenv(GITLAB_ENV...) do
+                Literate.markdown(inputfile, outdir)
+            end
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin("Link to repo root: https://gitlab.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
+            @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/urls/fredrikekre.gitlab.io/Literate.jl/file.jl", markdown)
+            @test_broken occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/file.jl", markdown)
+            @test occursin("EditURL = \"https://gitlab.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
 
             # building under DocumentationGenerator.jl
             withenv("DOCUMENTATIONGENERATOR" => "true",
                     "DOCUMENTATIONGENERATOR_BASE_URL" => "pkg.julialang.org/docs/Literate/XPnWG/1.2.0") do
-                @test_logs((:warn, r"mybinder.org"), match_mode=:any,
-                    Literate.markdown(inputfile, outdir))
+                Literate.markdown(inputfile, outdir)
             end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("jupyter.org/urls/pkg.julialang.org/docs/Literate/XPnWG/1.2.0/file.jl", markdown)
             @test_broken occursin("https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
 
             # pre- and post-processing
-            @test_logs(expansion_warning, match_mode=:any,
-                Literate.markdown(inputfile, outdir,
-                    preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
-                    postprocess = x -> replace(replace(x, "PLACEHOLDER2" => "2REDLOHECALP"), "PLACEHOLDER4" => "4REDLOHECALP")))
+            Literate.markdown(inputfile, outdir,
+                preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
+                postprocess = x -> replace(replace(x, "PLACEHOLDER2" => "2REDLOHECALP"), "PLACEHOLDER4" => "4REDLOHECALP"))
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test !occursin("PLACEHOLDER1", markdown)
             @test !occursin("PLACEHOLDER2", markdown)
@@ -535,8 +598,7 @@ end
             @test occursin("4REDLOHECALP", markdown)
 
             # documenter = false
-            @test_logs(expansion_warning, match_mode=:any,
-                Literate.markdown(inputfile, outdir, documenter = false))
+            Literate.markdown(inputfile, outdir, documenter = false)
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```julia", markdown)
             @test !occursin("```@example", markdown)
@@ -544,16 +606,14 @@ end
             @test !occursin("EditURL", markdown)
 
             # codefence
-            @test_logs(expansion_warning, match_mode=:any,
-                Literate.markdown(inputfile, outdir, codefence = "```c" => "```"))
+            Literate.markdown(inputfile, outdir, codefence = "```c" => "```")
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```c", markdown)
             @test !occursin("```@example", markdown)
             @test !occursin("```julia", markdown)
 
             # name
-            @test_logs(expansion_warning, match_mode=:any,
-                Literate.markdown(inputfile, outdir, name = "foobar"))
+            Literate.markdown(inputfile, outdir, name = "foobar")
             markdown = read(joinpath(outdir, "foobar.md"), String)
             @test occursin("```@example foobar", markdown)
             @test !occursin("```@example inputfile", markdown)
@@ -565,9 +625,9 @@ end
             @test_throws ArgumentError Literate.markdown("nonexistent.jl", outdir)
         end
     end
-end
+end end
 
-@testset "Literate.notebook" begin
+@testset "Literate.notebook" begin; Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do
             # write content to inputfile
@@ -576,9 +636,7 @@ end
             outdir = mktempdir(pwd())
 
             # test defaults
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
-                    "TRAVIS_TAG" => "v1.2.0",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+            withenv(TRAVIS_ENV...) do
                 Literate.notebook(inputfile, outdir, execute = false)
             end
             expected_cells = rstrip.((
@@ -731,33 +789,32 @@ end
             end
 
             # no tag -> latest directory
-            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
-                    "TRAVIS_TAG" => "",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+            withenv(TRAVIS_ENV...,
+                    "TRAVIS_TAG" => nothing) do
                 Literate.notebook(inputfile, outdir, execute = false)
             end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test occursin("fredrikekre/Literate.jl/blob/gh-pages/dev/", notebook)
 
             # GitHub Actions with a tag
-            withenv("GITHUB_ACTION" => "Build docs",
-                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
-                    "GITHUB_REF" => "refs/tags/v1.2.0",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
-                    "TRAVIS_REPO_SLUG" => nothing,
-                    "TRAVIS_TAG" => nothing) do
+            withenv(ACTIONS_ENV...) do
                 Literate.notebook(inputfile, outdir, execute = false)
             end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test occursin("fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/", notebook)
 
+            # GitHub Actions with PR preview build
+            withenv(ACTIONS_ENV...,
+                    "GITHUB_REF" => "refs/pull/42/merge",
+                    "GITHUB_EVENT_NAME" => "pull_request") do
+                Literate.notebook(inputfile, outdir, execute = false)
+            end
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+            @test occursin("fredrikekre/Literate.jl/blob/gh-pages/previews/PR42/", notebook)
+
             # GitHub Actions without a tag
-            withenv("GITHUB_ACTION" => "Build docs",
-                    "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
-                    "GITHUB_REF" => "refs/heads/master",
-                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => nothing,
-                    "TRAVIS_REPO_SLUG" => nothing,
-                    "TRAVIS_TAG" => nothing) do
+            withenv(ACTIONS_ENV...,
+                    "GITHUB_REF" => "refs/heads/master") do
                 Literate.notebook(inputfile, outdir, execute = false)
             end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
@@ -766,8 +823,7 @@ end
             # building under DocumentationGenerator.jl
             withenv("DOCUMENTATIONGENERATOR" => "true",
                     "DOCUMENTATIONGENERATOR_BASE_URL" => "pkg.julialang.org/docs/Literate/XPnWG/1.2.0") do
-                @test_logs((:warn, r"mybinder.org"), match_mode=:any,
-                    Literate.notebook(inputfile, outdir, execute = false))
+                Literate.notebook(inputfile, outdir, execute = false)
             end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test occursin("jupyter.org/urls/pkg.julialang.org/docs/Literate/XPnWG/1.2.0/file.jl", notebook)
@@ -783,10 +839,9 @@ end
                 end
                 return nb
             end
-            @test_logs(expansion_warning, match_mode=:any,
                 Literate.notebook(inputfile, outdir, execute = false,
                     preprocess = x -> replace(replace(x, "PLACEHOLDER1" => "1REDLOHECALP"), "PLACEHOLDER3" => "3REDLOHECALP"),
-                    postprocess = post))
+                postprocess = post)
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test !occursin("PLACEHOLDER1", notebook)
             @test !occursin("PLACEHOLDER2", notebook)
@@ -798,23 +853,20 @@ end
             @test occursin("4REDLOHECALP", notebook)
 
             # documenter = false
-            @test_logs(expansion_warning, match_mode=:any,
-                Literate.notebook(inputfile, outdir, documenter = false, execute = false))
+            Literate.notebook(inputfile, outdir, documenter = false, execute = false)
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test occursin("# [Example](@id example-id", notebook)
             @test occursin("[foo](@ref), [bar](@ref bbaarr)", notebook)
 
             # name
-            @test_logs(expansion_warning, match_mode=:any,
-                Literate.notebook(inputfile, outdir, name = "foobar", execute = false))
+            Literate.notebook(inputfile, outdir, name = "foobar", execute = false)
             notebook = read(joinpath(outdir, "foobar.ipynb"), String)
             @test occursin("name: foobar", notebook)
             @test !occursin("name: inputfile", notebook)
             @test !occursin("name: @__NAME__", notebook)
 
             # execute = true
-            @test_logs(expansion_warning, match_mode=:any,
-                Literate.notebook(inputfile, outdir))
+            Literate.notebook(inputfile, outdir)
             expected_outputs = rstrip.((
             """
              "cells": [
@@ -877,4 +929,33 @@ end
             @test occursin("\"application/vnd.vegalite.v2+json\":", notebook)
         end
     end
-end
+end end
+
+@testset "Configuration" begin; Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
+    mktempdir(@__DIR__) do sandbox
+        cd(sandbox) do
+            # write content to inputfile
+            inputfile = "inputfile.jl"
+            write(inputfile, content)
+            outdir = mktempdir(pwd())
+
+            config=Dict(
+                "repo_root_url" => "www.example1.com",
+                "nbviewer_root_url" => "www.example2.com",
+                "binder_root_url" => "www.example3.com",
+            )
+
+            # Overwriting of URLs
+            withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
+                    "TRAVIS_TAG" => nothing,
+                    "TRAVIS_PULL_REQUEST" => "false",
+                    "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
+                Literate.script(inputfile, outdir; config=config)
+            end
+            script = read(joinpath(outdir, "inputfile.jl"), String)
+            @test occursin("Link to repo root: www.example1.com/file.jl", script)
+            @test occursin("Link to nbviewer: www.example2.com/file.jl", script)
+            @test occursin("Link to binder: www.example3.com/file.jl", script)
+        end
+    end
+end end
