@@ -136,6 +136,8 @@ function replace_default(content, sym;
             content *= """
 
                 #-
+                # ---
+                #
                 # *This $(sym === :md ? "page" : "notebook") was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
                 """
         end

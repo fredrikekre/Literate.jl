@@ -502,6 +502,8 @@ end end
             nothing #hide
             ```
 
+            ---
+
             *This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
 
             """
@@ -768,6 +770,8 @@ end end
 
             """
                "source": [
+                "---\\n",
+                "\\n",
                 "*This notebook was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*"
                ]
             """))
