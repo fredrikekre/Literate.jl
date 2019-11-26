@@ -393,7 +393,7 @@ function markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
         path = replace(path, "\\" => "/")
         content = """
         # ```@meta
-        # EditURL = "@__REPO_ROOT_URL__/$(path)"
+        # EditURL = "$(path)"
         # ```
 
         """ * content
