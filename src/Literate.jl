@@ -175,56 +175,16 @@ function replace_default(content, sym;
     push!(repls, "@__NAME__" => config["name"]::String)
 
     # fix links
+
     if get(ENV, "DOCUMENTATIONGENERATOR", "") == "true"
         ## DocumentationGenerator.jl
-        ### URL to the root of the deployment, see
-        ### https://github.com/JuliaDocs/DocumentationGenerator.jl/pull/76
         base_url = get(ENV, "DOCUMENTATIONGENERATOR_BASE_URL", "DOCUMENTATIONGENERATOR_BASE_URL")
-        ### replace @__REPO_ROOT_URL__ to master/commit
-        # TODO
-        # repo_root_url = "https://github.com/$(travis_repo_slug)/blob/$(commit)"
-        # push!(repls, "@__REPO_ROOT_URL__" => repo_root_url)
-        ### replace @__NBVIEWER_ROOT_URL__ to dev or version directory
         nbviewer_root_url = "https://nbviewer.jupyter.org/urls/$(base_url)"
         push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
-        ### replace @__BINDER_ROOT_URL__ to dev or version directory
-        ### TODO: Binder requires files to be in a git repository :(
-        if match(r"@__BINDER_ROOT_URL__", content) !== nothing
-            @warn("mybinder.org requires the notebook to be in a git repository, " *
-                  "which does not work with DocumentationGenerator.jl")
-        end
-    elseif haskey(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL") || haskey(ENV, "GITHUB_ACTION")
-        ## Travis CI / GitHub Actions
-        ### Use same logic as Documenter to figure out the deploy folder
-        repo_slug = get(ENV, "TRAVIS_REPO_SLUG", get(ENV, "GITHUB_REPOSITORY", "REPO_SLUG"))
-        tag = get(ENV, "TRAVIS_TAG") do
-            github_ref = get(ENV, "GITHUB_REF", nothing)
-            github_ref === nothing && return nothing
-            m = match(r"^refs/tags/(.*)$", github_ref)
-            m === nothing && return nothing
-            return String(m.captures[1])
-        end
-        ### use the versioned directory for links, even for the stable
-        ### and release folders since these will not change
-        folder = (tag === nothing || isempty(tag)) ? "dev" : tag
-        ### replace @__REPO_ROOT_URL__ to master/commit
-        repo_root_url = "https://github.com/$(repo_slug)/blob/$(commit)"
-        push!(repls, "@__REPO_ROOT_URL__" => repo_root_url)
-        ### replace @__NBVIEWER_ROOT_URL__ to dev or version directory
-        nbviewer_root_url = "https://nbviewer.jupyter.org/github/$(repo_slug)/blob/$(branch)/$(folder)"
-        push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
-        ### replace @__BINDER_ROOT_URL__ to dev or version directory
-        binder_root_url = "https://mybinder.org/v2/gh/$(repo_slug)/$(branch)?filepath=$(folder)"
-        push!(repls, "@__BINDER_ROOT_URL__" => binder_root_url)
     else
-        ## Warn about broken link expansions
-        if (match(r"@__REPO_ROOT_URL__", content)     !== nothing) ||
-           (match(r"@__NBVIEWER_ROOT_URL__", content) !== nothing) ||
-           (match(r"@__BINDER_ROOT_URL__", content)   !== nothing)
-           @warn("expansion of `@__REPO_ROOT_URL__`, `@__NBVIEWER_ROOT_URL__` and " *
-                 " `@__BINDER_ROOT_URL__` will only be correct if running from " *
-                 "DocumentationGenerator.jl, Travis CI or GitHub Actions.")
-        end
+        push!(repls, "@__REPO_ROOT_URL__" => get(config, "repo_root_url", "<unknown>"))
+        push!(repls, "@__NBVIEWER_ROOT_URL__" => get(config, "nbviewer_root_url", "<unknown>"))
+        push!(repls, "@__BINDER_ROOT_URL__" => get(config, "binder_root_url", "<unknown>"))
     end
 
     # run some Documenter specific things
@@ -262,6 +222,53 @@ function create_configuration(inputfile; user_config, user_kwargs)
     cfg["codefence"] = get(user_config, "documenter", true) ?
         ("```@example $(get(user_config, "name", cfg["name"]))" => "```") : ("```julia" => "```")
     cfg["execute"] = true
+    # Guess the package (or repository) root url
+    edit_commit = "master" # TODO: Make this configurable like Documenter?
+    deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
+    if haskey(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL") # Travis CI
+        repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "unknown-repository")
+        deploy_folder = if get(ENV, "TRAVIS_PULL_REQUEST", nothing) == "false"
+            get(ENV, "TRAVIS_TAG", get(user_config, "devurl", "dev"))
+        else
+            "previews/PR$(get(ENV, "TRAVIS_PULL_REQUEST", "##"))"
+        end
+        cfg["repo_root_url"] = "https://github.com/$(repo_slug)/blob/$(edit_commit)"
+        cfg["nbviewer_root_url"] = "https://nbviewer.jupyter.org/github/$(repo_slug)/blob/$(deploy_branch)/$(deploy_folder)"
+        cfg["binder_root_url"] = "https://mybinder.org/v2/gh/$(repo_slug)/$(deploy_branch)?filepath=$(deploy_folder)"
+        if (dir = get(ENV, "TRAVIS_BUILD_DIR", nothing)) !== nothing
+            cfg["repo_root_path"] = dir
+        end
+    elseif haskey(ENV, "GITHUB_ACTIONS")
+        repo_slug = get(ENV, "GITHUB_REPOSITORY", "unknown-repository")
+        deploy_folder = if get(ENV, "GITHUB_EVENT_NAME", nothing) == "push"
+            if (m = match(r"^refs\/tags\/(.*)$", get(ENV, "GITHUB_REF", ""))) !== nothing
+                String(m.captures[1])
+            else
+                get(user_config, "devurl", "dev")
+            end
+        elseif (m = match(r"refs\/pull\/(\d+)\/merge", get(ENV, "GITHUB_REF", ""))) !== nothing
+            "previews/PR$(m.captures[1])"
+        else
+            "dev"
+        end
+        cfg["repo_root_url"] = "https://github.com/$(repo_slug)/blob/$(edit_commit)"
+        cfg["nbviewer_root_url"] = "https://nbviewer.jupyter.org/github/$(repo_slug)/blob/$(deploy_branch)/$(deploy_folder)"
+        cfg["binder_root_url"] = "https://mybinder.org/v2/gh/$(repo_slug)/$(deploy_branch)?filepath=$(deploy_folder)"
+        if (dir = get(ENV, "GITHUB_WORKSPACE", nothing)) !== nothing
+            cfg["repo_root_path"] = dir
+        end
+    elseif haskey(ENV, "GITLAB_CI")
+        if (url = get(ENV, "CI_PROJECT_URL", nothing)) !== nothing
+            cfg["repo_root_url"] = "$(url)/blob/$(edit_commit)"
+        end
+        if (url = get(ENV, "CI_PAGES_URL", nothing)) !== nothing &&
+           (m = match(r"https://(.+)", url)) !== nothing
+            cfg["nbviewer_root_url"] = "https://nbviewer.jupyter.org/urls/$(m[1])"
+        end
+        if (dir = get(ENV, "CI_PROJECT_DIR", nothing)) !== nothing
+            cfg["repo_root_path"] = dir
+        end
+    end
 
     # Merge default_config with user_config
     merge!(cfg, user_config)
@@ -285,6 +292,11 @@ See the manual section about [Configuration](@ref) for more information.
 | `keep_comments` | When `true`, keeps markdown lines as comments in the output script. | `false` | Only applicable for `Literate.script`. |
 | `codefence` | Pair containing opening and closing fence for wrapping code blocks. | `````"```julia" => "```"````` | If `documenter` is `true` the default is `````"```@example"=>"```"`````. |
 | `execute` | Whether to execute and capture the output. | `true` | Only applicable for `Literate.notebook`. |
+| `devurl` | URL for "in-development" docs. | `"dev"` | See [Documenter docs](https://juliadocs.github.io/Documenter.jl/). Unused if `repo_root_url`/`nbviewer_root_url`/`binder_root_url` are set. |
+| `repo_root_url` | URL to the root of the repository. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for `@__REPO_ROOT_URL__`. |
+| `nbviewer_root_url` | URL to the root of the repository as seen on nbviewer. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for `@__NBVIEWER_ROOT_URL__`. |
+| `binder_root_url` | URL to the root of the repository as seen on mybinder. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for `@__BINDER_ROOT_URL__`. |
+| `repo_root_path` | Filepath to the root of the repository. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for computing [Documenters `EditURL`](@ref Interaction-with-Documenter). |
 """
 const DEFAULT_CONFIGURATION=nothing # Dummy const for documentation
 
@@ -377,20 +389,8 @@ function markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
     # run some Documenter specific things
     if config["documenter"]::Bool
         # change the Edit on GitHub link
-        repo = get(ENV, "TRAVIS_REPO_SLUG", get(ENV, "GITHUB_REPOSITORY", nothing))
-        if repo === nothing
-            path = ""
-        else
-            pkg = String(first(split(last(split(repo, '/')), '.')))
-            pkgsrc = Base.find_package(pkg)
-            if pkgsrc === nothing
-                path = ""
-            else
-                repo_root = first(split(pkgsrc, joinpath("src", pkg * ".jl")))
-                path = relpath(inputfile, repo_root)
-                path = replace(path, "\\" => "/")
-            end
-        end
+        path = relpath(inputfile, get(config, "repo_root_path", pwd())::String)
+        path = replace(path, "\\" => "/")
         content = """
         # ```@meta
         # EditURL = "@__REPO_ROOT_URL__/$(path)"
