@@ -2,7 +2,7 @@
 
 ## Version `v2.1`
 
-* ![Feature][badge-breaking] Link macros now works when running on GitHub Actions
+* ![Feature][badge-feature] Link macros now works when running on GitHub Actions
   ([cf2b552][cf2b552]).
 
 ## Version `v2.0`
