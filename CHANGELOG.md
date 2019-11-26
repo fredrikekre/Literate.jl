@@ -1,5 +1,16 @@
 # Literate.jl changelog
 
+## Version `v2.2`
+
+* ![Feature][badge-feature] Configuration can now be passed as a `config::Dict`
+  keyword argument to the generators ([0f9e836][0f9e836]).
+
+* ![Feature][badge-feature] Link macros now works when running on GitLab CI
+  ([4e71b15][4e71b15]).
+
+* ![Feature][badge-feature] Literate now supports more configuration for
+  e.g. URL's that `@__REPO_ROOT_URL__` and friends expand to ([4e71b15][4e71b15]).
+
 ## Version `v2.1`
 
 * ![Feature][badge-feature] Link macros now works when running on GitHub Actions
@@ -40,6 +51,8 @@
 [0872a96]: https://github.com/fredrikekre/Literate.jl/commit/0872a96a88dbf3d7647e6e78612cb9b7ed300428
 [fa64dcd]: https://github.com/fredrikekre/Literate.jl/commit/fa64dcd796543b2ea8f7e036f397f42549bd87f5
 [cf2b552]: https://github.com/fredrikekre/Literate.jl/commit/cf2b5525507217b6552e9c36f63419eddb5df58f
+[0f9e836]: https://github.com/fredrikekre/Literate.jl/commit/0f9e836d68f238becd3e193b22ebdad06e4d7ffa
+[4e71b15]: https://github.com/fredrikekre/Literate.jl/commit/4e71b159e5ce392c23e6f18116f96803191354c3
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
 [badge-deprecation]: https://img.shields.io/badge/deprecation-orange.svg
