@@ -91,43 +91,36 @@ using Test                      #src
 
 ## [**2.3.** Default Replacements](@id Default-Replacements)
 
-The following convenience "macros" are always expanded:
+The following convenience "macros"/source placeholders are always expanded:
 
-- `@__NAME__`
+- `@__NAME__`:
 
   expands to the `name` keyword argument to [`Literate.markdown`](@ref),
   [`Literate.notebook`](@ref) and [`Literate.script`](@ref)
   (defaults to the filename of the input file).
 
-- `@__REPO_ROOT_URL__`
+- `@__REPO_ROOT_URL__`:
 
-  expands to `https://github.com/$(ENV["TRAVIS_REPO_SLUG"])/blob/master`
-  and is a convenient way to use when you want to link to files outside the
-  doc-build directory. For example `@__REPO_ROOT_URL__/src/Literate.jl` would link
-  to the source of the Literate module.
+  Can be used to link to files in the repository.
+  For example `@__REPO_ROOT_URL__/src/Literate.jl` would link to the
+  [source of the Literate module](https://github.com/fredrikekre/Literate.jl/blob/master/src/Literate.jl).
+  This variable is automatically determined on Travis CI, GitHub Actions and GitLab CI,
+  but can be configured, see [Configuration](@ref Configuration).
 
-- `@__NBVIEWER_ROOT_URL__`
+- `@__NBVIEWER_ROOT_URL__`:
 
-  expands to
-  `https://nbviewer.jupyter.org/github/$(ENV["TRAVIS_REPO_SLUG"])/blob/gh-pages/$(folder)`
-  where `folder` is the folder that `Documenter.deploydocs` deploys too.
-  This can be used if you want a link that opens the generated notebook in
+  Can be used if you want a link that opens the generated notebook in
   [http://nbviewer.jupyter.org/](http://nbviewer.jupyter.org/).
+  This variable is automatically determined on Travis CI, GitHub Actions and GitLab CI,
+  but can be configured, see [Configuration](@ref Configuration).
 
-- `@__BINDER_ROOT_URL__`
+- `@__BINDER_ROOT_URL__`:
 
-  expands to
-  `https://mybinder.org/v2/gh/$(ENV["TRAVIS_REPO_SLUG"])/$(branch)?filepath=$(folder)`
-  where `branch`/`folder` is the branch and folder where `Documenter.deploydocs`
-  deploys too. This can be used if you want a link that opens the generated notebook in
-  [https://mybinder.org/](https://mybinder.org/).
-  To add a binder-badge in e.g. the HTML output you can use:
+  Can be used if you want a link that opens the generated notebook in
+  [https://mybinder.org/](https://mybinder.org/). For example,
+  to add a binder-badge in e.g. the HTML output you can use:
   ```
   [![Binder](https://mybinder.org/badge_logo.svg)](@__BINDER_ROOT_URL__/path/to/notebook.inpynb)
   ```
-
-!!! note
-    `@__REPO_ROOT_URL__` and `@__NBVIEWER_ROOT_URL__` works for documentation built with
-    [DocumentationGenerator.jl](https://github.com/JuliaDocs/DocumentationGenerator.jl)
-    but `@__BINDER_ROOT_URL__` does not, since `mybinder.org` requires the files
-    to be located inside a git repository.
+  This variable is automatically determined on Travis CI, GitHub Actions and GitLab CI,
+  but can be configured, see [Configuration](@ref Configuration).
