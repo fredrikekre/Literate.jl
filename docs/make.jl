@@ -1,5 +1,9 @@
 using Documenter
-ENV["JULIA_DEBUG"] = "Documenter"
+
+if haskey(ENV, "GITHUB_ACTIONS")
+    ENV["JULIA_DEBUG"] = "Documenter"
+end
+
 Documenter.post_status(; type="pending", repo="github.com/fredrikekre/Literate.jl.git")
 using Literate
 using Plots # to not capture precompilation output
@@ -23,16 +27,23 @@ Literate.markdown(joinpath(@__DIR__, "src/outputformats.jl"), OUTPUT; credit = f
 Literate.notebook(joinpath(@__DIR__, "src/outputformats.jl"), OUTPUT; name = "notebook")
 Literate.script(joinpath(@__DIR__, "src/outputformats.jl"), OUTPUT; credit = false)
 
-# # replace the link in outputformats.md
-# travis_tag = get(ENV, "TRAVIS_TAG", "")
-# folder = isempty(travis_tag) ? "latest" : travis_tag
-# url = "https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/$(folder)/"
-# if get(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL", "") == "true"
-#     str = read(joinpath(@__DIR__, "src/outputformats.md"), String)
-#     str = replace(str, "[notebook.ipynb](generated/notebook.ipynb)." => "[notebook.ipynb]($(url)generated/notebook.ipynb).")
-#     write(joinpath(@__DIR__, "src/outputformats.md"), str)
-# end
-
+# Replace the link in outputformats.md
+# since that page is not "literated"
+if haskey(ENV, "GITHUB_ACTIONS")
+    folder = Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
+        Documenter.deploy_folder(
+            Documenter.auto_detect_deploy_system();
+            repo = "github.com/fredrikekre/Literate.jl.git",
+            devbranch = "master",
+            push_preview = true,
+            devurl = "dev",
+        )
+    end
+    url = "https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/$(folder)/"
+    str = read(joinpath(@__DIR__, "src/outputformats.md"), String)
+    str = replace(str, "[notebook.ipynb](generated/notebook.ipynb)." => "[notebook.ipynb]($(url)generated/notebook.ipynb).")
+    write(joinpath(@__DIR__, "src/outputformats.md"), str)
+end
 
 makedocs(
     format = Documenter.HTML(
