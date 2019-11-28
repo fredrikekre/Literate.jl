@@ -36,5 +36,7 @@ Literate.markdown("examples/README.jl", "."; documenter=false)
 [codecov-img]: https://codecov.io/gh/fredrikekre/Literate.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/fredrikekre/Literate.jl
 
+---
+
 *This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
 
