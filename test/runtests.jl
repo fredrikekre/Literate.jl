@@ -312,7 +312,7 @@ const GITLAB_ENV = Dict(
 
             # Travis with with PR preview build
             withenv(TRAVIS_ENV...,
-                    "TRAVIS_TAG" => nothing,
+                    "TRAVIS_TAG" => "",
                     "TRAVIS_PULL_REQUEST" => "42") do
                 Literate.script(inputfile, outdir)
             end
@@ -323,7 +323,7 @@ const GITLAB_ENV = Dict(
 
             # Travis with no tag -> dev directory
             withenv(TRAVIS_ENV...,
-                    "TRAVIS_TAG" => nothing) do
+                    "TRAVIS_TAG" => "") do
                 Literate.script(inputfile, outdir)
             end
             script = read(joinpath(outdir, "inputfile.jl"), String)
@@ -512,7 +512,7 @@ end end
 
             # Travis with PR preview build
             withenv(TRAVIS_ENV...,
-                    "TRAVIS_TAG" => nothing,
+                    "TRAVIS_TAG" => "",
                     "TRAVIS_PULL_REQUEST" => "42") do
                 Literate.markdown(inputfile, outdir)
             end
@@ -524,7 +524,7 @@ end end
 
             # Travis with no tag -> dev directory
             withenv(TRAVIS_ENV...,
-                    "TRAVIS_TAG" => nothing) do
+                    "TRAVIS_TAG" => "") do
                 Literate.markdown(inputfile, outdir)
             end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
@@ -794,7 +794,7 @@ end end
 
             # no tag -> latest directory
             withenv(TRAVIS_ENV...,
-                    "TRAVIS_TAG" => nothing) do
+                    "TRAVIS_TAG" => "") do
                 Literate.notebook(inputfile, outdir, execute = false)
             end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
@@ -951,7 +951,7 @@ end end
 
             # Overwriting of URLs
             withenv("TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
-                    "TRAVIS_TAG" => nothing,
+                    "TRAVIS_TAG" => "",
                     "TRAVIS_PULL_REQUEST" => "false",
                     "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true") do
                 Literate.script(inputfile, outdir; config=config)
