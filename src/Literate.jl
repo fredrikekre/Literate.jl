@@ -230,7 +230,8 @@ function create_configuration(inputfile; user_config, user_kwargs)
     if haskey(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL") # Travis CI
         repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "unknown-repository")
         deploy_folder = if get(ENV, "TRAVIS_PULL_REQUEST", nothing) == "false"
-            get(ENV, "TRAVIS_TAG", get(user_config, "devurl", "dev"))
+            t = get(ENV, "TRAVIS_TAG", "")
+            isempty(t) ? get(user_config, "devurl", "dev") : t
         else
             "previews/PR$(get(ENV, "TRAVIS_PULL_REQUEST", "##"))"
         end
