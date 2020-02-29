@@ -152,7 +152,9 @@ function replace_default(content, sym;
     if sym === :md
         push!(repls, r"^#md "m => "")      # remove leading #md
         push!(repls, r"^#!md.*\n?"m => "") # remove leading #!md lines
-        push!(repls, r"^#nb.*\n?"m => "")  # remove #nb lines
+        push!(repls, r".*#!md$\n?"m => "") # remove trailing #!md lines
+        push!(repls, r"^#nb.*\n?"m => "")  # remove leading #nb lines
+        push!(repls, r".*#nb$\n?"m => "")  # remove trailing #nb lines
         push!(repls, r"^#!nb "m => "")     # remove leading #!nb
         push!(repls, r"^#jl.*\n?"m => "")  # remove leading #jl lines
         push!(repls, r".*#jl$\n?"m => "")  # remove trailing #jl lines
@@ -162,7 +164,8 @@ function replace_default(content, sym;
         push!(repls, r".*#md$\n?"m => "")  # remove trailing #md lines
         push!(repls, r"^#!md "m => "")     # remove leading #!md
         push!(repls, r"^#nb "m => "")      # remove leading #nb
-        push!(repls, r"^#!nb.*\n?"m => "") # remove #!nb lines
+        push!(repls, r"^#!nb.*\n?"m => "") # remove leading #!nb lines
+        push!(repls, r".*#!nb$\n?"m => "") # remove trailing #!nb lines
         push!(repls, r"^#jl.*\n?"m => "")  # remove leading #jl lines
         push!(repls, r".*#jl$\n?"m => "")  # remove trailing #jl lines
         push!(repls, r"^#!jl "m => "")     # remove leading #!jl
@@ -171,10 +174,12 @@ function replace_default(content, sym;
         push!(repls, r"^#md.*\n?"m => "")  # remove leading #md lines
         push!(repls, r".*#md$\n?"m => "")  # remove trailing #md lines
         push!(repls, r"^#!md "m => "")     # remove leading #!md
-        push!(repls, r"^#nb.*\n?"m => "")  # remove #nb lines
+        push!(repls, r"^#nb.*\n?"m => "")  # remove leading #nb lines
+        push!(repls, r".*#nb$\n?"m => "")  # remove trailing #nb lines
         push!(repls, r"^#!nb "m => "")     # remove leading #!nb
         push!(repls, r"^#jl "m => "")      # remove leading #jl
-        push!(repls, r"^#!jl.*\n?"m => "") # remove #!jl lines
+        push!(repls, r"^#!jl.*\n?"m => "") # remove leading #!jl lines
+        push!(repls, r".*#!jl$\n?"m => "") # remove trailing #!jl lines
     end
 
     # name
