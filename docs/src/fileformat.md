@@ -56,7 +56,7 @@ certain lines:
 - `#jl `: line exclusive to script output,
 - `#src `: line exclusive to the source code and thus filtered out unconditionally.
 
-Lines *starting* with one of these tokens are filtered out in the
+Lines *starting* or *ending* with one of these tokens are filtered out in the
 [preprocessing step](@ref Pre-processing).
 
 !!! tip
