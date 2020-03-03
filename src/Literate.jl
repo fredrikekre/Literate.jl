@@ -19,10 +19,11 @@ import .Documenter
 # * The file is parsed in "chunks" of code and markdown. A new chunk is created when the
 #   lines switch context from markdown to code and vice versa.
 # * Lines starting with `#-` can be used to start a new chunk.
-# * Lines starting with `#md` are filtered out unless creating a markdown file
-# * Lines starting with `#nb` are filtered out unless creating a notebook
-# * Lines starting with, or ending with, `#jl` are filtered out unless creating a script file
-# * Lines starting with, or ending with, `#src` are filtered out unconditionally
+# * Lines starting/ending with `#md` are filtered out unless creating a markdown file
+# * Lines starting/ending with `#nb` are filtered out unless creating a notebook
+# * Lines starting/ending with, `#jl` are filtered out unless creating a script file
+# * Lines starting/ending with, `#src` are filtered out unconditionally
+# * #md, #nb, and #jl can be negated as #!md, #!nb, and #!jl
 # * Whitespace within a chunk is preserved
 # * Empty chunks are removed, leading and trailing empty lines in a chunk are also removed
 
@@ -146,40 +147,25 @@ function replace_default(content, sym;
     push!(repls, "\r\n" => "\n") # normalize line endings
 
     # unconditionally remove #src lines
-    push!(repls, r"^#src.*\n?"m => "") # remove leadig #src lines
+    push!(repls, r"^#src.*\n?"m => "") # remove leading #src lines
     push!(repls, r".*#src$\n?"m => "") # remove trailing #src lines
 
     if sym === :md
-        push!(repls, r"^#md "m => "")      # remove leading #md
-        push!(repls, r"^#!md.*\n?"m => "") # remove leading #!md lines
-        push!(repls, r".*#!md$\n?"m => "") # remove trailing #!md lines
-        push!(repls, r"^#nb.*\n?"m => "")  # remove leading #nb lines
-        push!(repls, r".*#nb$\n?"m => "")  # remove trailing #nb lines
-        push!(repls, r"^#!nb "m => "")     # remove leading #!nb
-        push!(repls, r"^#jl.*\n?"m => "")  # remove leading #jl lines
-        push!(repls, r".*#jl$\n?"m => "")  # remove trailing #jl lines
-        push!(repls, r"^#!jl "m => "")     # remove leading #!jl
+        push!(repls, r"^#(md|!nb|!jl) "m => "")    # remove leading #md, #!nb, and #!jl
+        push!(repls, r" #(md|!nb|!jl)$"m => "")     # remove trailing #md, #!nb, and #!jl
+        push!(repls, r"^#(!md|nb|jl).*\n?"m => "") # remove leading #!md, #nb and #jl lines
+        push!(repls, r".*#(!md|nb|jl)$\n?"m => "") # remove trailing #!md, #nb, and #jl lines
     elseif sym === :nb
-        push!(repls, r"^#md.*\n?"m => "")  # remove leading #md lines
-        push!(repls, r".*#md$\n?"m => "")  # remove trailing #md lines
-        push!(repls, r"^#!md "m => "")     # remove leading #!md
-        push!(repls, r"^#nb "m => "")      # remove leading #nb
-        push!(repls, r"^#!nb.*\n?"m => "") # remove leading #!nb lines
-        push!(repls, r".*#!nb$\n?"m => "") # remove trailing #!nb lines
-        push!(repls, r"^#jl.*\n?"m => "")  # remove leading #jl lines
-        push!(repls, r".*#jl$\n?"m => "")  # remove trailing #jl lines
-        push!(repls, r"^#!jl "m => "")     # remove leading #!jl
+        push!(repls, r"^#(!md|nb|!jl) "m => "")    # remove leading #!md, #nb, and #!jl
+        push!(repls, r" #(!md|nb|!jl)$"m => "")    # remove trailing #!md, #nb, and #!jl
+        push!(repls, r"^#(md|!nb|jl).*\n?"m => "") # remove leading #md, #!nb and #jl lines
+        push!(repls, r".*#(md|!nb|jl)$\n?"m => "") # remove trailing #md, #!nb, and #jl lines
         push!(repls, r"```math(.*?)```"s => s"$$\1$$")
     else # sym === :jl
-        push!(repls, r"^#md.*\n?"m => "")  # remove leading #md lines
-        push!(repls, r".*#md$\n?"m => "")  # remove trailing #md lines
-        push!(repls, r"^#!md "m => "")     # remove leading #!md
-        push!(repls, r"^#nb.*\n?"m => "")  # remove leading #nb lines
-        push!(repls, r".*#nb$\n?"m => "")  # remove trailing #nb lines
-        push!(repls, r"^#!nb "m => "")     # remove leading #!nb
-        push!(repls, r"^#jl "m => "")      # remove leading #jl
-        push!(repls, r"^#!jl.*\n?"m => "") # remove leading #!jl lines
-        push!(repls, r".*#!jl$\n?"m => "") # remove trailing #!jl lines
+        push!(repls, r"^#(!md|!nb|jl) "m => "")    # remove leading #!md, #!nb, and #jl
+        push!(repls, r" #(!md|!nb|jl)$"m => "")    # remove trailing #!md, #!nb, and #jl
+        push!(repls, r"^#(md|nb|!jl).*\n?"m => "") # remove leading #md, #nb and #!jl lines
+        push!(repls, r".*#(md|nb|!jl)$\n?"m => "") # remove trailing #md, #nb, and #!jl lines
     end
 
     # name

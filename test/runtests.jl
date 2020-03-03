@@ -174,17 +174,29 @@ content = """
     # [foo](@ref), [bar](@ref bbaarr)
     x = 1
     #md # Only markdown
+    # Only markdown #md
     #md x + 1
+    x + 1 #md
     #!md # Not markdown
+    # Not markdown #!md
     #!md x * 1
+    x * 1 #!md
     #nb # Only notebook
+    # Only notebook #nb
     #nb x + 2
+    x + 2 #nb
     #!nb # Not notebook
+    # Not notebook #!nb
     #!nb x * 2
+    x * 2 #!nb
     #jl # Only script
+    # Only script #jl
     #jl x + 3
+    x + 3 #jl
     #!jl # Not script
+    # Not script #!jl
     #!jl x * 3
+    x * 3 #!jl
     #src # Source code only
     Source code only          #src
     ## # Comment
@@ -277,9 +289,12 @@ const GITLAB_ENV = Dict(
             x = 1
 
             x * 1
+            x * 1
 
             x * 2
+            x * 2
 
+            x + 3
             x + 3
             # # Comment
             # another comment
@@ -427,20 +442,26 @@ end end
             ```
 
             Only markdown
+            Only markdown
 
             ```@example inputfile
+            x + 1
             x + 1
             ```
 
             Not notebook
+            Not notebook
 
             ```@example inputfile
+            x * 2
             x * 2
             ```
 
             Not script
+            Not script
 
             ```@example inputfile
+            x * 3
             x * 3
             # # Comment
             # another comment
@@ -661,36 +682,42 @@ end end
 
             """
                "source": [
+                "Not markdown\\n",
                 "Not markdown"
                ],
             """,
 
             """
                "source": [
+                "x * 1\\n",
                 "x * 1"
                ],
             """,
 
             """
                "source": [
+                "Only notebook\\n",
                 "Only notebook"
                ]
             """,
 
             """
                "source": [
+                "x + 2\\n",
                 "x + 2"
                ]
             """,
 
             """
                "source": [
+                "Not script\\n",
                 "Not script"
                ],
             """,
 
             """
                "source": [
+                "x * 3\\n",
                 "x * 3\\n",
                 "# # Comment\\n",
                 "# another comment"
