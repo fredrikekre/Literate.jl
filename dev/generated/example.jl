@@ -20,7 +20,12 @@ y1 = sin.(x)
 y2 = cos.(x)
 plot(x, [y1, y2])
 
-z = 1.0 + 2.0im
+x = 123
+
+function pre(s::String)
+    s = replace(s, "x = 123" => "y = 321")
+    return s
+end
 
 # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
 
