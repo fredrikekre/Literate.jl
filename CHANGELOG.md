@@ -1,5 +1,10 @@
 # Literate.jl changelog
 
+## Version `v2.3`
+
+* ![Feature][badge-feature] Filter tokens `#md`, `#nb`, and `#jl`, as well as their negated
+  counterparts, can now be placed at the end of lines ([b0806ed][b0806ed]).
+
 ## Version `v2.2`
 
 * ![Feature][badge-feature] Configuration can now be passed as a `config::Dict`
@@ -53,6 +58,7 @@
 [cf2b552]: https://github.com/fredrikekre/Literate.jl/commit/cf2b5525507217b6552e9c36f63419eddb5df58f
 [0f9e836]: https://github.com/fredrikekre/Literate.jl/commit/0f9e836d68f238becd3e193b22ebdad06e4d7ffa
 [4e71b15]: https://github.com/fredrikekre/Literate.jl/commit/4e71b159e5ce392c23e6f18116f96803191354c3
+[b0806ed]: https://github.com/fredrikekre/Literate.jl/commit/b0806edb6707d03c73bcb0829e96be336229bbeb
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
 [badge-deprecation]: https://img.shields.io/badge/deprecation-orange.svg
