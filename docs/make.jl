@@ -13,8 +13,7 @@ EXAMPLE = joinpath(@__DIR__, "..", "examples", "example.jl")
 OUTPUT = joinpath(@__DIR__, "src/generated")
 
 function preprocess(str)
-    str = replace(str, "MYVARIABLE" => "z")
-    str = replace(str, "MYVALUE" => "1.0 + 2.0im")
+    str = replace(str, "x = 123" => "y = 321"; count=1)
     return str
 end
 

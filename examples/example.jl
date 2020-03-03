@@ -87,11 +87,17 @@ plot(x, [y1, y2])
 # ### Custom processing
 #
 # It is possible to give Literate custom pre- and post-processing functions.
-# For example, here we insert two placeholders, which we will replace with
-# something else at time of generation. We have here replaced our placeholders
-# with `z` and `1.0 + 2.0im`:
+# For example, here we insert a placeholder value `x = 123` in the source, and use a
+# preprocessing function that replaces it with `y = 321` in the rendered output.
 
-MYVARIABLE = MYVALUE
+x = 123
+
+# In this case the preprocessing function is defined by
+
+function pre(s::String)
+    s = replace(s, "x = 123" => "y = 321")
+    return s
+end
 
 # ### [Documenter.jl interaction](@id documenter-interaction)
 #
