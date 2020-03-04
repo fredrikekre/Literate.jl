@@ -58,6 +58,7 @@ makedocs(
         "outputformats.md",
         "customprocessing.md",
         "documenter.md",
+        "tips.md",
         "generated/example.md"]
 )
 
