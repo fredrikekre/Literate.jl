@@ -514,9 +514,9 @@ function notebook(inputfile, outputdir; config::Dict=Dict(), kwargs...)
         cell["cell_type"] = chunktype
         cell["metadata"] = metadata
         cell["source"] = lines
-        cell["outputs"] = []
         if chunktype == "code"
             cell["execution_count"] = nothing
+            cell["outputs"] = []
         end
         push!(cells, cell)
     end
