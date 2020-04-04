@@ -958,6 +958,48 @@ end end
             Literate.notebook(inputfile, outdir)
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test occursin("\"application/vnd.vegalite.v2+json\":", notebook)
+
+
+            # Capturing output of more exotic types when executing a notebook
+            script = """
+                using DisplayAs
+                struct X end
+                Base.show(io::IO, ::MIME"text/plain", ::X) = print(io, "X as text/plain")
+                Base.show(io::IO, ::MIME"image/svg+xml", ::X) = print(io, "X as image/svg+xml")
+                Base.show(io::IO, ::MIME"image/png", ::X) = print(io, "X as image/png")
+                Base.show(io::IO, ::MIME"image/jpeg", ::X) = print(io, "X as image/jpeg")
+                Base.show(io::IO, ::MIME"text/markdown", ::X) = print(io, "X as text/markdown")
+                Base.show(io::IO, ::MIME"text/html", ::X) = print(io, "X as text/html")
+                Base.show(io::IO, ::MIME"text/latex", ::X) = print(io, "X as text/latex")
+                Base.show(io::IO, ::MIME"application/x-latex", ::X) = print(io, "X as application/x-latex")
+                Base.show(io::IO, ::MIME"application/vnd.vegalite.v2+json", ::X) = print(io, "{\\"X\\": \\"as application/vnd.vegalite.v2+json\\"}")
+
+                # DisplayAs does not define the following
+                Base.show(io::IO, ::MIME"application/x-latex", s::DisplayAs.Showable{>:MIME"application/x-latex"}) =
+                    show(io, MIME"application/x-latex"(), s.content)
+                Base.show(io::IO, ::MIME"application/vnd.vegalite.v2+json", s::DisplayAs.Showable{>:MIME"application/vnd.vegalite.v2+json"}) =
+                    show(io, MIME"application/vnd.vegalite.v2+json"(), s.content)
+                xs = []
+                for mime in [
+                             MIME"text/plain",
+                             MIME"image/svg+xml",
+                             MIME"image/png",
+                             MIME"image/jpeg",
+                             MIME"text/markdown",
+                             MIME"text/html",
+                             MIME"text/latex",
+                             MIME"application/x-latex",
+                             MIME"application/vnd.vegalite.v2+json"
+                            ]
+                    x = X() |> DisplayAs.Showable{mime} |> DisplayAs.Text
+                    push!(xs, x)
+                end
+                """
+            for i in 1:9
+                script *= "\n#-\nxs[$i]"
+            end
+            write(inputfile, script)
+            Literate.notebook(inputfile, outdir)
         end
     end
 end end
