@@ -37,5 +37,5 @@ HTML formats.
     be showable as just `image/png` and `text/plain` you can use
     ```julia
     img = plot(...)
-    img = DisplayAs.Text(DisplayAs.Text(img))
+    img = DisplayAs.Text(DisplayAs.PNG(img))
     ```
