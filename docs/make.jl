@@ -46,7 +46,7 @@ end
 
 makedocs(
     format = Documenter.HTML(
-        assets = ["assets/custom.css"],
+        assets = ["assets/custom.css", "assets/favicon.ico"],
         prettyurls = haskey(ENV, "GITHUB_ACTIONS"),
     ),
     modules = [Literate],
