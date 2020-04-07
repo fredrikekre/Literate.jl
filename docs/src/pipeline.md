@@ -117,7 +117,7 @@ is that `#+` enables Documenter's "continued"-blocks, see the
 ## [**3.3.** Document generation](@id Document-generation)
 
 After the parsing it is time to generate the output. What is done in this step is
-very different depending on the output target, and it is describe in more detail in
+very different depending on the output target, and it is described in more detail in
 the Output format sections: [Markdown Output](@ref), [Notebook Output](@ref) and
 [Script Output](@ref). Using the default settings, the following is happening:
 
