@@ -69,6 +69,21 @@ Cell metadata can, for example, be used for
 and the [reveal.js](https://github.com/hakimel/reveal.js) notebook extension
 [RISE](https://github.com/damianavila/RISE).
 
+The following would create a 3 slide deck with RISE:
+
+```julia
+#nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
+# # Some title
+#
+# We're using `#nb` so the metadata is only included in notebook output
+
+#nb %% A slide [code] {"slideshow": {"slide_type": "fragment"}}
+x = 1//3
+y = 2//5
+
+#nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
+# For more information about RISE, see [the docs](https://rise.readthedocs.io/en/stable/usage.html)
+```
 
 ## [**4.3.** Script Output](@id Script-Output)
 
