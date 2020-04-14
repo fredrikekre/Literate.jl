@@ -644,6 +644,44 @@ end end
             @test !occursin("name: inputfile", markdown)
             @test !occursin("name: @__NAME__", markdown)
 
+            # execute
+            write(inputfile, """
+                1+1
+                #-
+                [1 2; 3 4]
+                #-
+                struct PNG end
+                Base.show(io::IO, mime::MIME"image/png", ::PNG) = print(io, "PNG")
+                PNG()
+                #-
+                struct JPEG end
+                Base.show(io::IO, mime::MIME"image/jpeg", ::JPEG) = print(io, "JPEG")
+                JPEG()
+                #-
+                print("hello"); print(stdout, ", "); print(stderr, "world")
+                #-
+                print("hej, världen")
+                42
+                #-
+                123+123;
+                #-
+                nothing
+                #-
+                print("hello there")
+                nothing
+                """)
+            Literate.markdown(inputfile, outdir; execute=true)
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin("```\n2\n```", markdown) # text/plain
+            @test occursin("```\n2×2 Array{$(Int),2}:\n 1  2\n 3  4\n```", markdown) # text/plain
+            @test occursin(r"!\[\]\(\d+\.png\)", markdown) # image/png
+            @test occursin(r"!\[\]\(\d+\.jpeg\)", markdown) # image/jpeg
+            @test occursin("```\nhello, world\n```", markdown) # stdout/stderr
+            @test occursin("```\n42\n```", markdown) # result over stdout/stderr
+            @test !occursin("246", markdown) # empty output because trailing ;
+            @test !occursin("```\nnothing\n```", markdown) # empty output because nothing as return value
+            @test occursin("```\nhello there\n```", markdown) # nothing as return value, non-empty stdout
+
             # verify that inputfile exists
             @test_throws ArgumentError Literate.markdown("nonexistent.jl", outdir)
         end
@@ -1029,6 +1067,15 @@ end end
             @test occursin("Link to repo root: www.example1.com/file.jl", script)
             @test occursin("Link to nbviewer: www.example2.com/file.jl", script)
             @test occursin("Link to binder: www.example3.com/file.jl", script)
+
+            # Misc default configs
+            create(; kw...) = Literate.create_configuration(inputfile; user_config=Dict(), user_kwargs=kw)
+            cfg = create(; type=:md, execute=true)
+            @test cfg["execute"]
+            @test cfg["codefence"] == ("```julia" => "```")
+            cfg = create(; type=:md, execute=false)
+            @test !cfg["execute"]
+            @test cfg["codefence"] == ("```@example inputfile" => "```")
         end
     end
 end end

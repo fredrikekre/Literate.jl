@@ -1,4 +1,4 @@
-# **3.** Processing pipeline
+# [**3.** Processing pipeline](@id Processing-pipeline)
 
 The generation of output follows the same pipeline for all output formats:
 1. [Pre-processing](@ref)

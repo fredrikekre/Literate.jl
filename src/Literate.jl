@@ -202,7 +202,7 @@ end
 
 filename(str) = first(splitext(last(splitdir(str))))
 
-function create_configuration(inputfile; user_config, user_kwargs)
+function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     # Combine user config with user kwargs
     user_config = Dict{String,Any}(string(k) => v for (k, v) in user_config)
     user_kwargs = Dict{String,Any}(string(k) => v for (k, v) in user_kwargs)
@@ -216,9 +216,9 @@ function create_configuration(inputfile; user_config, user_kwargs)
     cfg["documenter"] = true
     cfg["credit"] = true
     cfg["keep_comments"] = false
-    cfg["codefence"] = get(user_config, "documenter", true) ?
+    cfg["execute"] = type === :md ? false : true
+    cfg["codefence"] = get(user_config, "documenter", true) && !get(user_config, "execute", cfg["execute"]) ?
         ("```@example $(get(user_config, "name", cfg["name"]))" => "```") : ("```julia" => "```")
-    cfg["execute"] = true
     # Guess the package (or repository) root url
     edit_commit = "master" # TODO: Make this configurable like Documenter?
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
@@ -288,8 +288,8 @@ See the manual section about [Configuration](@ref) for more information.
 | `documenter` | Boolean signaling that the source contains Documenter.jl elements. | `true` | See [Interaction with Documenter](@ref Interaction-with-Documenter). |
 | `credit` | Boolean for controlling the addition of `This file was generated with Literate.jl ...` to the bottom of the page. If you find Literate.jl useful then feel free to keep this. | `true` |    |
 | `keep_comments` | When `true`, keeps markdown lines as comments in the output script. | `false` | Only applicable for `Literate.script`. |
+| `execute` | Whether to execute and capture the output. | `true` (notebook), `false` (markdown) | Only applicable for `Literate.notebook` and `Literate.markdown`. For markdown this requires at least Literate 2.3. |
 | `codefence` | Pair containing opening and closing fence for wrapping code blocks. | `````"```julia" => "```"````` | If `documenter` is `true` the default is `````"```@example"=>"```"`````. |
-| `execute` | Whether to execute and capture the output. | `true` | Only applicable for `Literate.notebook`. |
 | `devurl` | URL for "in-development" docs. | `"dev"` | See [Documenter docs](https://juliadocs.github.io/Documenter.jl/). Unused if `repo_root_url`/`nbviewer_root_url`/`binder_root_url` are set. |
 | `repo_root_url` | URL to the root of the repository. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for `@__REPO_ROOT_URL__`. |
 | `nbviewer_root_url` | URL to the root of the repository as seen on nbviewer. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for `@__NBVIEWER_ROOT_URL__`. |
@@ -368,7 +368,7 @@ of possible configuration with `config` and other keyword arguments.
 """
 function markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
     # Create configuration by merging default and userdefined
-    config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs)
+    config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs, type=:md)
 
     # normalize paths
     inputfile = normpath(inputfile)
@@ -401,6 +401,7 @@ function markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
     content = replace_default(content, :md; config=config)
 
     # create the markdown file
+    sb = sandbox()
     chunks = parse(content)
     iomd = IOBuffer()
     continued = false
@@ -417,15 +418,17 @@ function markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
                 write(iomd, "; continued = true")
             end
             write(iomd, '\n')
-            last_line = ""
             for line in chunk.lines
                 write(iomd, line, '\n')
-                last_line = line
             end
-            if config["documenter"]::Bool && REPL.ends_with_semicolon(last_line)
+            if config["documenter"]::Bool && REPL.ends_with_semicolon(chunk.lines[end])
                 write(iomd, "nothing #hide\n")
             end
             write(iomd, codefence.second, '\n')
+            if config["execute"]::Bool
+                res = execute_markdown(sb, join(chunk.lines, '\n'), outputdir)
+                write(iomd, res, '\n')
+            end
         end
         write(iomd, '\n') # add a newline between each chunk
     end
@@ -442,6 +445,31 @@ function markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
 
     return outputfile
 end
+
+function execute_markdown(sb::Module, block::String, outputdir)
+    r, str = execute_block(sb, block)
+    if r !== nothing && !REPL.ends_with_semicolon(block)
+        for (mime, ext) in [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg")]
+            if showable(mime, r)
+                file = string(hash(block) % UInt32) * ext
+                open(joinpath(outputdir, file), "w") do io
+                    Base.invokelatest(show, io, mime, r)
+                end
+                return "![]($(file))"
+            end
+        end
+        io = IOBuffer()
+        write(io, "```\n")
+        Base.invokelatest(show, io, "text/plain", r)
+        write(io, "\n```\n")
+        return String(take!(io))
+    elseif !isempty(str)
+        return "```\n" * str * "\n```\n"
+    else
+        return ""
+    end
+end
+
 
 const JUPYTER_VERSION = v"4.3.0"
 
@@ -568,38 +596,14 @@ function notebook(inputfile, outputdir; config::Dict=Dict(), kwargs...)
 end
 
 function execute_notebook(nb)
-    m = Module(gensym())
-    # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
-    Core.eval(m, :(eval(x) = Core.eval($m, x)))
-    # modules created with Module() does not have include defined
-    # abspath is needed since this will call `include_relative`
-    Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
-
-    io = IOBuffer()
-
+    sb = sandbox()
     execution_count = 0
     for cell in nb["cells"]
         cell["cell_type"] == "code" || continue
         execution_count += 1
         cell["execution_count"] = execution_count
         block = join(cell["source"])
-        # r is the result
-        # status = (true|false)
-        # _: backtrace
-        # str combined stdout, stderr output
-        r, status, _, str = Documenter.withoutput() do
-            include_string(m, block)
-        end
-        if !status
-            error("""
-                 $(sprint(showerror, r))
-                 when executing the following code block
-
-                 ```julia
-                 $block
-                 ```
-                 """)
-        end
+        r, str = execute_block(sb, block)
 
         # str should go into stream
         if !isempty(str)
@@ -633,6 +637,39 @@ function execute_notebook(nb)
 
     end
     return nb
+end
+
+# Create a sandbox module for evaluation
+function sandbox()
+    m = Module(gensym())
+    # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
+    Core.eval(m, :(eval(x) = Core.eval($m, x)))
+    # modules created with Module() does not have include defined
+    # abspath is needed since this will call `include_relative`
+    Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
+    return m
+end
+
+# Execute a code-block in a module and capture stdout/stderr and the result
+function execute_block(sb::Module, block::String)
+    # r is the result
+    # status = (true|false)
+    # _: backtrace
+    # str combined stdout, stderr output
+    r, status, _, str = Documenter.withoutput() do
+        include_string(sb, block)
+    end
+    if !status
+        error("""
+             $(sprint(showerror, r))
+             when executing the following code block
+
+             ```julia
+             $block
+             ```
+             """)
+    end
+    return r, str
 end
 
 end # module
