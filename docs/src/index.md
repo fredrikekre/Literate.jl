@@ -1,4 +1,4 @@
-# **1.** Introduction
+# [**1.** Introduction](@id Introduction)
 
 Welcome to the documentation for Literate -- a simplistic package
 for [Literate Programming](https://en.wikipedia.org/wiki/Literate_programming).
@@ -13,11 +13,13 @@ an option to "clean" the source from all metadata, and produce a pure Julia scri
 The main design goal is simplicity. It should be simple to use, and the syntax should
 be simple. In short, all you have to do is to write a commented julia script!
 
-The public interface consists mainly of three functions, all of which take the same script file
+The public interface consists of three functions, all of which take the same script file
 as input, but generate different output:
-- [`Literate.markdown`](@ref): generates a markdown file
-- [`Literate.notebook`](@ref): generates an (optionally executed) notebook
-- [`Literate.script`](@ref): generates a plain script file, removing all metadata
+- [`Literate.markdown`](@ref) generates a markdown file. Code snippets can be executed and
+  the results included in the output.
+- [`Literate.notebook`](@ref) generates a notebook. Code snippets can be executed and
+  the results included in the output.
+- [`Literate.script`](@ref) generates a plain script file scrubbed from all metadata
   and special syntax.
 
 ### Why?

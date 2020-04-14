@@ -29,8 +29,32 @@ an `@meta` block have been added, that sets the `EditURL` variable. This is used
 by Documenter to redirect the "Edit on GitHub" link for the page,
 see [Interaction with Documenter](@ref).
 
-See the section about [Configuration](@ref) for how to configure the behavior and resulting
-output of [`Literate.markdown`](@ref).
+It possible to configure `Literate.markdown` to also evaluate code snippets, capture the
+result and include it in the output, by passing `execute=true` as a keyword argument.
+The result of the first code-block in the example above would then become
+````markdown
+```julia
+x = 1//3
+```
+```
+1//3
+```
+````
+
+In this example the output is just plain text. However, if the resulting value of the code
+block can be displayed as an image (png or jpeg) Literate will include the image
+representation of the output.
+
+!!! note
+    Since Documenter executes and captures results of `@example` block it is not necessary
+    to use `execute=true` for markdown output that is meant to be used as input to
+    Documenter.
+
+!!! compat "Literate 2.3"
+    Code execution of markdown output requires at least Literate version 2.3.
+
+See the section about [Configuration](@ref) for more information about how to configure the
+behavior and resulting output of [`Literate.markdown`](@ref).
 
 ```@docs
 Literate.markdown

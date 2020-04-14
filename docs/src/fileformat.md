@@ -1,4 +1,4 @@
-# **2.** File Format
+# [**2.** File Format](@id File-Format)
 
 The source file format for Literate is a regular, commented, julia (`.jl`) scripts.
 The idea is that the scripts also serve as documentation on their own and it is also
