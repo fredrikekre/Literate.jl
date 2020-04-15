@@ -426,8 +426,7 @@ function markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
             end
             write(iomd, codefence.second, '\n')
             if config["execute"]::Bool
-                res = execute_markdown(sb, join(chunk.lines, '\n'), outputdir)
-                write(iomd, res, '\n')
+                execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir)
             end
         end
         write(iomd, '\n') # add a newline between each chunk
@@ -446,8 +445,9 @@ function markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
     return outputfile
 end
 
-function execute_markdown(sb::Module, block::String, outputdir)
+function execute_markdown!(io::IO, sb::Module, block::String, outputdir)
     r, str = execute_block(sb, block)
+    plain_fence = "\n```\n" =>  "\n```" # issue #101: consecutive codefenced blocks need newline
     if r !== nothing && !REPL.ends_with_semicolon(block)
         for (mime, ext) in [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg")]
             if showable(mime, r)
@@ -455,18 +455,18 @@ function execute_markdown(sb::Module, block::String, outputdir)
                 open(joinpath(outputdir, file), "w") do io
                     Base.invokelatest(show, io, mime, r)
                 end
-                return "![]($(file))"
+                write(io, "![](", file, ")\n")
+                return
             end
         end
-        io = IOBuffer()
-        write(io, "```\n")
+        # fallback to text/plain
+        write(io, plain_fence.first)
         Base.invokelatest(show, io, "text/plain", r)
-        write(io, "\n```\n")
-        return String(take!(io))
+        write(io, plain_fence.second, '\n')
+        return
     elseif !isempty(str)
-        return "```\n" * str * "\n```\n"
-    else
-        return ""
+        write(io, plain_fence.first, str, plain_fence.second, '\n')
+        return
     end
 end
 
