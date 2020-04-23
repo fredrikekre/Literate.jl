@@ -1,3 +1,7 @@
-nav.toc .logo {
-    max-height: 12em;
+div#documenter .docs-sidebar .docs-logo > img {
+    max-height: 10em;
 }
+div#documenter .docs-sidebar .docs-package-name {
+    padding-top: 1rem;
+}
+/*1.0rem 0 0.5rem 0;*/

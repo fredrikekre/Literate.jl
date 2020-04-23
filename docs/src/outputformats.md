@@ -50,8 +50,8 @@ representation of the output.
     to use `execute=true` for markdown output that is meant to be used as input to
     Documenter.
 
-!!! compat "Literate 2.3"
-    Code execution of markdown output requires at least Literate version 2.3.
+!!! compat "Literate 2.4"
+    Code execution of markdown output requires at least Literate version 2.4.
 
 See the section about [Configuration](@ref) for more information about how to configure the
 behavior and resulting output of [`Literate.markdown`](@ref).
@@ -138,6 +138,9 @@ The behavior of [`Literate.markdown`](@ref), [`Literate.notebook`](@ref) and
 [`Literate.script`](@ref) can be configured by keyword arguments. There are two
 ways to do this; pass `config::Dict` as a keyword argument, or pass individual
 keyword arguments.
+
+!!! compat "Literate 2.2"
+    Passing configuration as a dictionary requires at least Literate version 2.2.
 
 !!! note "Configuration precedence"
     Individual keyword arguments takes precedence over the `config` dictionary, so for e.g.

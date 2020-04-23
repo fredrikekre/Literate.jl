@@ -34,9 +34,9 @@ version = "1.1.0"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "73eb18320fe3ba58790c8b8f6f89420f0a622773"
+git-tree-sha1 = "4dead20a1606a60292529023d6eac18a1ef6432e"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.17.11"
+version = "0.17.12"
 
 [[Dates]]
 deps = ["Printf"]
@@ -58,9 +58,11 @@ version = "0.8.1"
 
 [[Documenter]]
 deps = ["Base64", "Dates", "DocStringExtensions", "InteractiveUtils", "JSON", "LibGit2", "Logging", "Markdown", "REPL", "Test", "Unicode"]
-git-tree-sha1 = "646ebc3db49889ffeb4c36f89e5d82c6a26295ff"
+git-tree-sha1 = "d834190e7a8ae41b46eac249dbecd6dacc7c6160"
+repo-rev = "master"
+repo-url = "https://github.com/JuliaDocs/Documenter.jl.git"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-version = "0.24.7"
+version = "0.24.7+0.25-DEV"
 
 [[FFMPEG]]
 deps = ["FFMPEG_jll"]
@@ -215,10 +217,10 @@ uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
 version = "0.6.5"
 
 [[Plots]]
-deps = ["Base64", "Contour", "Dates", "FFMPEG", "FixedPointNumbers", "GR", "GeometryTypes", "JSON", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Printf", "REPL", "Random", "RecipesBase", "Reexport", "Requires", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs"]
-git-tree-sha1 = "6c24a62e4b668100b45ba6610c7bd14697fe7743"
+deps = ["Base64", "Contour", "Dates", "FFMPEG", "FixedPointNumbers", "GR", "GeometryTypes", "JSON", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "Requires", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs"]
+git-tree-sha1 = "e975cd074ccc195285fea8ba5e9c0044ee8cb949"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.0.3"
+version = "1.0.9"
 
 [[Printf]]
 deps = ["Unicode"]
@@ -236,6 +238,12 @@ uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 git-tree-sha1 = "d352369b00094cadb43d694333b051b3d55abaf2"
 uuid = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 version = "1.0.0"
+
+[[RecipesPipeline]]
+deps = ["Dates", "PlotUtils", "RecipesBase"]
+git-tree-sha1 = "3d4ecb5aa24a8582a946a2cc0d2a65b085697750"
+uuid = "01d81517-befc-4cb6-b9ec-a95719d0359c"
+version = "0.1.3"
 
 [[Reexport]]
 deps = ["Pkg"]
@@ -286,9 +294,9 @@ uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [[StatsBase]]
 deps = ["DataAPI", "DataStructures", "LinearAlgebra", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics"]
-git-tree-sha1 = "19bfcb46245f69ff4013b3df3b977a289852c3a1"
+git-tree-sha1 = "a6102b1f364befdb05746f386b67c6b7e3262c45"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.32.2"
+version = "0.33.0"
 
 [[Test]]
 deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]

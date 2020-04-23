@@ -1,5 +1,10 @@
 # Literate.jl changelog
 
+## Version `v2.4`
+
+* ![Feature][badge-feature] Markdown output can now be executed and the result included
+  in the output by pasing `execute=true` to `Literate.markdown.` ([7e89fdb][7e89fdb]).
+
 ## Version `v2.3`
 
 * ![Feature][badge-feature] Filter tokens `#md`, `#nb`, and `#jl`, as well as their negated
@@ -59,6 +64,7 @@
 [0f9e836]: https://github.com/fredrikekre/Literate.jl/commit/0f9e836d68f238becd3e193b22ebdad06e4d7ffa
 [4e71b15]: https://github.com/fredrikekre/Literate.jl/commit/4e71b159e5ce392c23e6f18116f96803191354c3
 [b0806ed]: https://github.com/fredrikekre/Literate.jl/commit/b0806edb6707d03c73bcb0829e96be336229bbeb
+[7e89fdb]: https://github.com/fredrikekre/Literate.jl/commit/7e89fdbffdfc56a08caee47287429b4611f85684
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
 [badge-deprecation]: https://img.shields.io/badge/deprecation-orange.svg

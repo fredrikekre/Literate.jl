@@ -59,6 +59,9 @@ certain lines:
 Lines *starting* or *ending* with one of these tokens are filtered out in the
 [preprocessing step](@ref Pre-processing).
 
+!!! compat "Literate 2.3"
+    Filter tokens at the end of the line requires at least Literate version 2.3.
+
 !!! tip
     The tokens can also be negated, for example a line starting with `#!nb` would
     be included in markdown and script output, but filtered out for notebook output.
@@ -124,3 +127,9 @@ The following convenience "macros"/source placeholders are always expanded:
   ```
   This variable is automatically determined on Travis CI, GitHub Actions and GitLab CI,
   but can be configured, see [Configuration](@ref Configuration).
+
+!!! compat "Literate 2.1"
+    GitHub Actions support for the macros above requires at least Literate version 2.1.
+
+!!! compat "Literate 2.2"
+    GitLab CI support for the macros above requires at least Literate version 2.2.
