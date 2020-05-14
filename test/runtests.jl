@@ -413,6 +413,11 @@ const GITLAB_ENV = Dict(
 
             # verify that inputfile exists
             @test_throws ArgumentError Literate.script("nonexistent.jl", outdir)
+
+            # default output directory
+            Literate.script(inputfile; name="default-output-directory")
+            @test isfile("default-output-directory.jl")
+            @test_throws ArgumentError Literate.script(inputfile)
         end
     end
 end end
@@ -684,6 +689,11 @@ end end
 
             # verify that inputfile exists
             @test_throws ArgumentError Literate.markdown("nonexistent.jl", outdir)
+
+            # default output directory
+            @test !isfile("inputfile.md")
+            Literate.markdown(inputfile; execute=false)
+            @test isfile("inputfile.md")
         end
     end
 end end
@@ -982,6 +992,11 @@ end end
 
             # verify that inputfile exists
             @test_throws ArgumentError Literate.notebook("nonexistent.jl", outdir)
+
+            # default output directory
+            @test !isfile("inputfile.ipynb")
+            Literate.notebook(inputfile; execute=false)
+            @test isfile("inputfile.ipynb")
 
             # world time problem with `IJulia.display_dict`
             write(inputfile, """

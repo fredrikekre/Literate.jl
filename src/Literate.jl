@@ -299,14 +299,17 @@ See the manual section about [Configuration](@ref) for more information.
 const DEFAULT_CONFIGURATION=nothing # Dummy const for documentation
 
 """
-    Literate.script(inputfile, outputdir; config::Dict=Dict(), kwargs...)
+    Literate.script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
 
 Generate a plain script file from `inputfile` and write the result to `outputdir`.
+
+!!! compat "Literate 2.5"
+    Default output directory `pwd` requires at least Literate version 2.5.
 
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
-function script(inputfile, outputdir; config::Dict=Dict(), kwargs...)
+function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     # Create configuration by merging default and userdefined
     config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs)
 
@@ -351,6 +354,10 @@ function script(inputfile, outputdir; config::Dict=Dict(), kwargs...)
     isdir(outputdir) || error("not a directory: $(outputdir)")
     outputfile = joinpath(outputdir, config["name"]::String * ".jl")
 
+    if inputfile == outputfile
+        throw(ArgumentError("outputfile (`$outputfile`) is identical to inputfile (`$inputfile`)"))
+    end
+
     @info "writing result to `$(Base.contractuser(outputfile))`"
     write(outputfile, content)
 
@@ -358,15 +365,18 @@ function script(inputfile, outputdir; config::Dict=Dict(), kwargs...)
 end
 
 """
-    Literate.markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
+    Literate.markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
 
 Generate a markdown file from `inputfile` and write the result
 to the directory `outputdir`.
 
+!!! compat "Literate 2.5"
+    Default output directory `pwd` requires at least Literate version 2.5.
+
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
-function markdown(inputfile, outputdir; config::Dict=Dict(), kwargs...)
+function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     # Create configuration by merging default and userdefined
     config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs, type=:md)
 
@@ -487,14 +497,17 @@ line_is_nbmeta(line::Pair) = line_is_nbmeta(line.second)
 line_is_nbmeta(line) = startswith(line, "%% ")
 
 """
-    Literate.notebook(inputfile, outputdir; config::Dict=Dict(), kwargs...)
+    Literate.notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
 
 Generate a notebook from `inputfile` and write the result to `outputdir`.
+
+!!! compat "Literate 2.5"
+    Default output directory `pwd` requires at least Literate version 2.5.
 
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
-function notebook(inputfile, outputdir; config::Dict=Dict(), kwargs...)
+function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     # Create configuration by merging default and userdefined
     config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs)
 

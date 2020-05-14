@@ -1,5 +1,9 @@
 # Literate.jl changelog
 
+## Version `v2.5`
+
+* ![Feature][badge-feature] The output directory now defaults to `pwd()` ([TBD][TBD]).
+
 ## Version `v2.4`
 
 * ![Feature][badge-feature] Markdown output can now be executed and the result included
