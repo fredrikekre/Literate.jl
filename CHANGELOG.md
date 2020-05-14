@@ -2,7 +2,7 @@
 
 ## Version `v2.5`
 
-* ![Feature][badge-feature] The output directory now defaults to `pwd()` ([TBD][TBD]).
+* ![Feature][badge-feature] The output directory now defaults to `pwd()` ([2ba316a][2ba316a]).
 
 ## Version `v2.4`
 
@@ -69,6 +69,7 @@
 [4e71b15]: https://github.com/fredrikekre/Literate.jl/commit/4e71b159e5ce392c23e6f18116f96803191354c3
 [b0806ed]: https://github.com/fredrikekre/Literate.jl/commit/b0806edb6707d03c73bcb0829e96be336229bbeb
 [7e89fdb]: https://github.com/fredrikekre/Literate.jl/commit/7e89fdbffdfc56a08caee47287429b4611f85684
+[2ba316a]: https://github.com/fredrikekre/Literate.jl/commit/2ba316ac90713cc6bdeaeaefd357bb3d847373cb
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
 [badge-deprecation]: https://img.shields.io/badge/deprecation-orange.svg
