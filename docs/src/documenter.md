@@ -5,7 +5,7 @@ and notebooks. Typically, though, these files will be used to render documentati
 for your package. The generators ([`Literate.markdown`](@ref), [`Literate.notebook`](@ref)
 and [`Literate.script`](@ref)) supports a keyword argument `documenter` that lets
 the generator perform some extra things, keeping in mind that the source code have been
-written with Documenter.jl in mind. So lets take a look at what will happen
+written with Documenter.jl in mind. So let's take a look at what will happen
 if we set `documenter = true`:
 
 ### [`Literate.markdown`](@ref):
