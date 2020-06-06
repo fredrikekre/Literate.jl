@@ -53,7 +53,7 @@ preprocessing step, before any other processing is performed. For Literate to re
 multiline comments it is required that the start token (`#=`) and end token (`=#`) are
 placed *on their own lines*. Note also that it is allowed to have more than one `=` in the
 tokens, for example
-```juila
+```
 #=
 This multiline comment
 is treated as markdown.
@@ -64,7 +64,7 @@ This is also markdown.
 =====================#
 ```
 is rewritten to
-```juila
+```
 # This multiline comment
 # is treated as markdown.
 
@@ -81,7 +81,7 @@ blah blah blah
 """
 ```
 is rewritten to
-```julia
+```
 # # Title
 # blah blah blah
 ```

@@ -40,6 +40,87 @@ HTML formats.
     img = DisplayAs.Text(DisplayAs.PNG(img))
     ```
 
+### [Adding admonitions using compound line filtering](@id admonitions-md)
+
+Admonitions are a useful feature for drawing attention to particular elements of 
+documentation. They are [documented in Documenter.jl]
+(https://juliadocs.github.io/Documenter.jl/stable/showcase/#Basic-Markdown) and
+an example of their use can be seen above in the blue 'note' box.
+Admonitions is a specific Julia markdown feature, and they are not recognized
+by either common mark or Jupyter notebooks. The `md` line filter can be used
+to make sure admonitions only show up in markdown output, for example:
+
+```
+#md # !!! note "Be aware!"
+#md #     This a note style admonition!
+```
+
+It is important to note that both `#md` and the second `#` are required. Literate.jl
+interprets the first `#md` as a markdown exclusive line, and then strips it out. The 
+second `#` tells Literate.jl that the line should be parsed as markdown and not a 
+Julia code block. If you only include `#md` and not the second `#` then it will 
+be parsed into Julia example block in the final documentation and not an actual 
+admonition.
+
+
+### [Custom parsing for markdown and notebook compatible admonitions](@id admonitions-compatibility)
+
+As mentioned above, admonitions are not compatible with Jupyter notebooks.
+(Though at time of writing this documentation,
+[this is an open issue in Jupyter](https://github.com/jupyter/notebook/issues/1292)
+so may change in the future.) For now, we can write a custom preprocessor function
+so that admonitions are interpreted as quotes (with their own special formatting)
+in notebooks and proper admonitions in markdown. For the case of note admonitions,
+this can be written as follows:
+
+```julia
+function md_note(str)
+    str = replace(str, r"^#note # (.*)$"m => s"""
+    # !!! note
+    #     \1""")
+    return str
+end
+
+function nb_note(str)
+    str = replace(str, r"^#note # (.*)$"m => s"""
+    # > *Note*
+    # > \1""")
+    return str
+end
+
+using Literate
+
+Literate.markdown("example.jl", "tmp/"; preprocess = md_note)
+
+Literate.notebook("example.jl", "tmp/"; preprocess = nb_note)
+```
+
+This will allow us to turn the following source code in `example.jl`:
+
+```julia
+#note # This is a useful note.
+```
+
+into the correct admonition syntax in the markdown file generated:
+
+```julia
+!!! note
+    This is a useful note.
+```
+
+and a quotation style formatting in the generated notebook cell:
+
+```julia
+> *Note*
+> This is a useful note.
+```
+
+which, in an actual notebook cell, will look similar to:
+
+> *Note*\
+> This is a useful note.
+
+
 ### [Debugging code execution](@id debug-execution)
 
 When Literate is executing code (i.e. when `execute = true` is set), it does so quietly.
