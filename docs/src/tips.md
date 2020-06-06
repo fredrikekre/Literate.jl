@@ -39,3 +39,23 @@ HTML formats.
     img = plot(...)
     img = DisplayAs.Text(DisplayAs.PNG(img))
     ```
+
+### [Adding admonitions using compound line filtering](@id admonitions-md)
+
+Admonitions are a useful feature for drawing attention to particular elements of 
+documentation. They are [documented in Documenter.jl](https://juliadocs.github.io/Documenter.jl/stable/showcase/#Basic-Markdown-1) and an example of their use can be seen above in the blue 'note' box.
+They are parsed by Documenter.jl from markdown but their syntax is not parsed
+by Julia scripts or notebooks so we need to use the `#md` line filter when
+constructing admonitions from `.jl` source files sent to Literate.jl. For example:
+
+```julia
+#md # !!! note "Be aware!"
+#md #     This a note style admonition!
+```
+
+It is important to note that both `#md` and the second `#` are required. Literate.jl
+interprets the first `#md` as a markdown exclusive line, and then strips it out. The 
+second `#` tells Literate.jl that the line should be parsed as markdown and not a 
+Julia code block. If you only include `#md` and not the second `#` then it will 
+be parsed into Julia example block in the final documentation and not an actual 
+admonition.
