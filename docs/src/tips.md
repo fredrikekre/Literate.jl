@@ -64,7 +64,7 @@ admonition.
 
 As mentioned above, admonitions are not compatible with Jupyter notebooks.
 (Though at time of writing this documentation,
-[this is an open issue in Jupter](https://github.com/jupyter/notebook/issues/1292)
+[this is an open issue in Jupyter](https://github.com/jupyter/notebook/issues/1292)
  so may change in the future.) For now, we can write a custom preprocessor function
  so that admonitions are interpreted as quotes (with their own special formatting)
  in notebooks and proper admonitions in markdown. For the case of note admonitions,
