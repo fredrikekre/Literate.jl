@@ -277,7 +277,7 @@ end
     DEFAULT_CONFIGURATION
 
 Default configuration for [`Literate.markdown`](@ref), [`Literate.notebook`](@ref) and
-[`Literate.script`] which is used for everything not specified by the user.
+[`Literate.script`](@ref) which is used for everything not specified by the user.
 See the manual section about [Configuration](@ref) for more information.
 
 | Configuration key | Description | Default value | Comment |
