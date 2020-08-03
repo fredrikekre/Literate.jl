@@ -678,7 +678,7 @@ end end
             Literate.markdown(inputfile, outdir; execute=true)
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```\n2\n```", markdown) # text/plain
-            @test occursin("```\n2×2 Array{$(Int),2}:\n 1  2\n 3  4\n```", markdown) # text/plain
+            @test occursin("```\n2×2 $(Matrix{Int}):\n 1  2\n 3  4\n```", markdown) # text/plain
             @test occursin(r"!\[\]\(\d+\.png\)", markdown) # image/png
             @test occursin(r"!\[\]\(\d+\.jpeg\)", markdown) # image/jpeg
             @test occursin("```\nhello, world\n```", markdown) # stdout/stderr
