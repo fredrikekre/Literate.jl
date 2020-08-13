@@ -663,6 +663,10 @@ end end
                 Base.show(io::IO, mime::MIME"image/jpeg", ::JPEG) = print(io, "JPEG")
                 JPEG()
                 #-
+                struct MD end
+                Base.show(io::IO, mime::MIME"text/markdown", ::MD) = print(io, "# " * "MD")
+                MD()
+                #-
                 print("hello"); print(stdout, ", "); print(stderr, "world")
                 #-
                 print("hej, världen")
@@ -681,6 +685,7 @@ end end
             @test occursin("```\n2×2 $(Matrix{Int}):\n 1  2\n 3  4\n```", markdown) # text/plain
             @test occursin(r"!\[\]\(\d+\.png\)", markdown) # image/png
             @test occursin(r"!\[\]\(\d+\.jpeg\)", markdown) # image/jpeg
+            @test occursin(r"# MD", markdown) # text/markdown
             @test occursin("```\nhello, world\n```", markdown) # stdout/stderr
             @test occursin("```\n42\n```", markdown) # result over stdout/stderr
             @test !occursin("246", markdown) # empty output because trailing ;

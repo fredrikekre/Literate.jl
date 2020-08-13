@@ -469,6 +469,12 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir)
                 return
             end
         end
+        if showable(MIME("text/markdown"), r)
+            write(io, '\n')
+            Base.invokelatest(show, io, MIME("text/markdown"), r)
+            write(io, '\n')
+            return
+        end
         # fallback to text/plain
         write(io, plain_fence.first)
         Base.invokelatest(show, io, "text/plain", r)
