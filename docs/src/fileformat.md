@@ -57,10 +57,20 @@ certain lines:
 - `#src `: line exclusive to the source code and thus filtered out unconditionally.
 
 Lines *starting* or *ending* with one of these tokens are filtered out in the
-[preprocessing step](@ref Pre-processing).
+[preprocessing step](@ref Pre-processing). In addition, for markdown output, lines
+ending with `#hide` are filtered out similar to Documenter.jl.
+
+
+!!! note "Difference between `#src` and `#hide`"
+    `#src` and `#hide` are quite similar. The only difference is that `#src` lines
+    are filtered out *before* execution (if `execute=true`) and `#hide` lines
+    are filtered out *after* execution.
+
+!!! compat "Literate 2.6"
+    The `#hide` token requires at least Literate version 2.6.
 
 !!! compat "Literate 2.3"
-    Filter tokens at the end of the line requires at least Literate version 2.3.
+    Filter tokens at the *end of the line* requires at least Literate version 2.3.
 
 !!! tip
     The tokens can also be negated, for example a line starting with `#!nb` would

@@ -236,6 +236,14 @@ content = """
     # Semicolon output supression
     1 + 1;
 
+    # Completely hidden
+    hidden = 12     #hide
+    hidden * hidden #hide
+
+    # Partially hidden
+    hidden2 = 12      #hide
+    hidden2 * hidden2
+
     #nb # A notebook cell with special metadata
     #nb %% Meta1 {"meta": "data"}
     #nb 1+1
@@ -318,6 +326,12 @@ const GITLAB_ENV = Dict(
             end
 
             1 + 1;
+
+            hidden = 12     #hide
+            hidden * hidden #hide
+
+            hidden2 = 12      #hide
+            hidden2 * hidden2
 
             # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
 
@@ -528,6 +542,20 @@ end end
             nothing #hide
             ```
 
+            Completely hidden
+
+            ```@example inputfile
+            hidden = 12     #hide
+            hidden * hidden #hide
+            ```
+
+            Partially hidden
+
+            ```@example inputfile
+            hidden2 = 12      #hide
+            hidden2 * hidden2
+            ```
+
             ---
 
             *This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
@@ -632,6 +660,7 @@ end end
             @test !occursin("```@example", markdown)
             @test !occursin("continued = true", markdown)
             @test !occursin("EditURL", markdown)
+            @test !occursin("#hide", markdown)
 
             # codefence
             Literate.markdown(inputfile, outdir, codefence = "```c" => "```")

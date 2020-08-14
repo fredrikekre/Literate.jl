@@ -421,20 +421,26 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
                 write(iomd, line.second, '\n') # skip indent here
             end
         else # isa(chunk, CodeChunk)
+            iocode = IOBuffer()
             codefence = config["codefence"]::Pair
-            write(iomd, codefence.first)
+            write(iocode, codefence.first)
             # make sure the code block is finalized if we are printing to ```@example
             if chunk.continued && startswith(codefence.first, "```@example") && config["documenter"]::Bool
-                write(iomd, "; continued = true")
+                write(iocode, "; continued = true")
             end
-            write(iomd, '\n')
+            write(iocode, '\n')
             for line in chunk.lines
-                write(iomd, line, '\n')
+                # filter out trailing #hide (unless leaving it for Documenter)
+                if !(endswith(line, "#hide") && !(config["documenter"]::Bool))
+                    write(iocode, line, '\n')
+                end
             end
             if config["documenter"]::Bool && REPL.ends_with_semicolon(chunk.lines[end])
-                write(iomd, "nothing #hide\n")
+                write(iocode, "nothing #hide\n")
             end
-            write(iomd, codefence.second, '\n')
+            write(iocode, codefence.second, '\n')
+            write_code = !(all(l -> endswith(l, "#hide"), chunk.lines) && !(config["documenter"]::Bool))
+            write_code && write(iomd, seekstart(iocode))
             if config["execute"]::Bool
                 execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir)
             end
