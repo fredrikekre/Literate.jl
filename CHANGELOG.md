@@ -1,5 +1,13 @@
 # Literate.jl changelog
 
+## Version `v2.6`
+
+* ![Feature][badge-feature] New end-of-line token `#hide` which filters out the line
+  *after* execution in `Literate.markdown(...; execute=true)` ([6d1aec9][6d1aec9]).
+
+* ![Feature][badge-feature] Markdown execution now captures the `text/markdown` MIME
+  ([e08ca0a][e08ca0a]).
+
 ## Version `v2.5`
 
 * ![Feature][badge-feature] The output directory now defaults to `pwd()` ([2ba316a][2ba316a]).
@@ -7,7 +15,8 @@
 ## Version `v2.4`
 
 * ![Feature][badge-feature] Markdown output can now be executed and the result included
-  in the output by pasing `execute=true` to `Literate.markdown.` ([7e89fdb][7e89fdb]).
+  in the output by pasing `execute=true` to `Literate.markdown`. Currently captures the
+  following MIMEs: `text/plain`, `image/png`, and `image/jpeg` ([7e89fdb][7e89fdb]).
 
 ## Version `v2.3`
 
@@ -70,6 +79,8 @@
 [b0806ed]: https://github.com/fredrikekre/Literate.jl/commit/b0806edb6707d03c73bcb0829e96be336229bbeb
 [7e89fdb]: https://github.com/fredrikekre/Literate.jl/commit/7e89fdbffdfc56a08caee47287429b4611f85684
 [2ba316a]: https://github.com/fredrikekre/Literate.jl/commit/2ba316ac90713cc6bdeaeaefd357bb3d847373cb
+[e08ca0a]: https://github.com/fredrikekre/Literate.jl/commit/e08ca0a19bd5e61dac778ddf4aaf6cef37532e48
+[6d1aec9]: https://github.com/fredrikekre/Literate.jl/commit/6d1aec90b13c6ad888be0fdc77583e9c525b5dc1
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
 [badge-deprecation]: https://img.shields.io/badge/deprecation-orange.svg
