@@ -343,6 +343,20 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     return inputfile, outputdir, config, chunks
 end
 
+function write_result(content, inputfile, outputdir, config, type; print=print)
+    isdir(outputdir) || error("not a directory: $(outputdir)")
+    ext = type === :nb ? ".ipynb" : ".$(type)"
+    outputfile = joinpath(outputdir, config["name"]::String * ext)
+    if inputfile == outputfile
+        throw(ArgumentError("outputfile (`$outputfile`) is identical to inputfile (`$inputfile`)"))
+    end
+    @info "writing result to `$(Base.contractuser(outputfile))`"
+    open(outputfile, "w") do io
+        print(io, content)
+    end
+    return outputfile
+end
+
 """
     Literate.script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
 
@@ -379,16 +393,7 @@ function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     content = config["postprocess"](String(take!(ioscript)))
 
     # write to file
-    isdir(outputdir) || error("not a directory: $(outputdir)")
-    outputfile = joinpath(outputdir, config["name"]::String * ".jl")
-
-    if inputfile == outputfile
-        throw(ArgumentError("outputfile (`$outputfile`) is identical to inputfile (`$inputfile`)"))
-    end
-
-    @info "writing result to `$(Base.contractuser(outputfile))`"
-    write(outputfile, content)
-
+    outputfile = write_result(content, inputfile, outputdir, config, :jl)
     return outputfile
 end
 
@@ -450,12 +455,7 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     content = config["postprocess"](String(take!(iomd)))
 
     # write to file
-    isdir(outputdir) || error("not a directory: $(outputdir)")
-    outputfile = joinpath(outputdir, config["name"]::String * ".md")
-
-    @info "writing result to `$(Base.contractuser(outputfile))`"
-    write(outputfile, content)
-
+    outputfile = write_result(content, inputfile, outputdir, config, :md)
     return outputfile
 end
 
@@ -588,14 +588,7 @@ function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     end
 
     # write to file
-    isdir(outputdir) || error("not a directory: $(outputdir)")
-    outputfile = joinpath(outputdir, config["name"]::String * ".ipynb")
-
-    @info "writing result to `$(Base.contractuser(outputfile))`"
-    ionb = IOBuffer()
-    JSON.print(ionb, nb, 1)
-    write(outputfile, seekstart(ionb))
-
+    outputfile = write_result(nb, inputfile, outputdir, config, :nb; print = (io, c)->JSON.print(io, c, 1))
     return outputfile
 end
 
