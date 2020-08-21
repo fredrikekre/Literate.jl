@@ -529,6 +529,14 @@ function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb)
 
     # create the notebook
+    nb = jupyter_notebook(chunks, config)
+
+    # write to file
+    outputfile = write_result(nb, config; print = (io, c)->JSON.print(io, c, 1))
+    return outputfile
+end
+
+function jupyter_notebook(chunks, config)
     nb = Dict()
     nb["nbformat"] = JUPYTER_VERSION.major
     nb["nbformat_minor"] = JUPYTER_VERSION.minor
@@ -584,18 +592,16 @@ function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     if config["execute"]::Bool
         @info "executing notebook `$(config["name"] * ".ipynb")`"
         try
-            cd(outputdir) do
+            cd(config["literate_outputdir"]) do
                 nb = execute_notebook(nb)
             end
         catch err
-            @error "error when executing notebook based on input file: `$(Base.contractuser(inputfile))`"
+            @error "error when executing notebook based on input file: " *
+                   "`$(Base.contractuser(config["literate_inputfile"]))`"
             rethrow(err)
         end
     end
-
-    # write to file
-    outputfile = write_result(nb, config; print = (io, c)->JSON.print(io, c, 1))
-    return outputfile
+    return nb
 end
 
 function execute_notebook(nb)
