@@ -604,16 +604,17 @@ Generate a notebook from `inputfile` and write the result to `outputdir`.
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
-function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
+function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), flavor=:jupyter, kwargs...)
     # preprocessing and parsing
     chunks, config =
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb)
 
     # create the notebook
-    nb = jupyter_notebook(chunks, config)
+    nb = flavor == :jupyter ? jupyter_notebook(chunks, config) : pluto_notebook(chunks, config)
 
     # write to file
-    outputfile = write_result(nb, config; print = (io, c)->JSON.print(io, c, 1))
+    print = flavor == :jupyter ? (io, c)->JSON.print(io, c, 1) : Base.print
+    outputfile = write_result(nb, config; print = print)
     return outputfile
 end
 
@@ -740,6 +741,77 @@ function execute_notebook(nb; inputfile::String="<unknown>")
         end
     end
     return nb
+end
+
+function pluto_notebook(chunks, config)
+    ionb = IOBuffer()
+    # Print header
+    write(ionb, """
+        ### A Pluto.jl notebook ###
+        # v0.11.0
+
+        using Markdown
+
+        """)
+
+    # Print cells
+    uuids = Base.UUID[]
+    for (i, chunk) in enumerate(chunks)
+        io = IOBuffer()
+        if isa(chunk, MDChunk)
+            if length(chunk.lines) == 1
+                line = escape_string(chunk.lines[1].second, '"')
+                write(io, "md\"", line, "\"\n")
+            else
+                write(io, "md\"\"\"\n")
+                for line in chunk.lines
+                    write(io, line.second, '\n') # Skip indent
+                end
+                write(io, "\"\"\"\n")
+            end
+            content = String(take!(io))
+        else # isa(chunk, CodeChunk)
+            for line in chunk.lines
+                write(io, line, '\n')
+            end
+            content = String(take!(io))
+            # Compute number of expressions in the code block and perhaps wrap in begin/end
+            nexprs, idx = 0, 1
+            while true
+                ex, idx = Meta.parse(content, idx)
+                ex === nothing && break
+                nexprs += 1
+            end
+            if nexprs > 1
+                io = IOBuffer()
+                print(io, "begin\n")
+                foreach(l -> print(io, "  ", l, '\n'), eachline(IOBuffer(content)))
+                print(io, "end\n")
+                content = String(take!(io))
+            end
+        end
+        uuid = uuid4(content, i)
+        push!(uuids, uuid)
+        print(ionb, "# ╔═╡ ", uuid, '\n')
+        write(ionb, content, '\n')
+    end
+
+    # Print cell order
+    print(ionb, "# ╔═╡ Cell order:\n")
+    foreach(x -> print(ionb, "# ╠═", x, '\n'), uuids)
+
+    # custom post-processing from user
+    nb = config["postprocess"](String(take!(ionb)))
+    return nb
+end
+
+# UUID v4 from cell content and cell number (to keep it somewhat stable)
+function uuid4(c, n)
+    c, n = hash(c), hash(n)
+    u = (convert(UInt128, c) << 64) ⊻ convert(UInt128, n)
+    u &= 0xffffffffffff0fff3fffffffffffffff
+    u |= 0x00000000000040008000000000000000
+    return Base.UUID(u)
 end
 
 # Create a sandbox module for evaluation
