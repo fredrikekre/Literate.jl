@@ -315,6 +315,11 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
                    type === (:jl) ? "plain script file" : error("nope")
     @info "generating $(output_thing) from `$(Base.contractuser(inputfile))`"
 
+    # Add some information for passing around Literate methods
+    config["literate_inputfile"] = inputfile
+    config["literate_outputdir"] = outputdir
+    config["literate_ext"] = type === (:nb) ? ".ipynb" : ".$(type)"
+
     # read content
     content = read(inputfile, String)
 
@@ -340,13 +345,14 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     # parse the content into chunks
     chunks = parse(content; allow_continued = type !== :nb)
 
-    return inputfile, outputdir, config, chunks
+    return chunks, config
 end
 
-function write_result(content, inputfile, outputdir, config, type; print=print)
+function write_result(content, config; print=print)
+    inputfile = config["literate_inputfile"]
+    outputdir = config["literate_outputdir"]
     isdir(outputdir) || error("not a directory: $(outputdir)")
-    ext = type === :nb ? ".ipynb" : ".$(type)"
-    outputfile = joinpath(outputdir, config["name"]::String * ext)
+    outputfile = joinpath(outputdir, config["name"]::String * config["literate_ext"])
     if inputfile == outputfile
         throw(ArgumentError("outputfile (`$outputfile`) is identical to inputfile (`$inputfile`)"))
     end
@@ -370,7 +376,7 @@ of possible configuration with `config` and other keyword arguments.
 """
 function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     # preprocessing and parsing
-    inputfile, outputdir, config, chunks =
+    chunks, config =
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:jl)
 
     # create the script file
@@ -393,7 +399,7 @@ function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     content = config["postprocess"](String(take!(ioscript)))
 
     # write to file
-    outputfile = write_result(content, inputfile, outputdir, config, :jl)
+    outputfile = write_result(content, config)
     return outputfile
 end
 
@@ -411,7 +417,7 @@ of possible configuration with `config` and other keyword arguments.
 """
 function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     # preprocessing and parsing
-    inputfile, outputdir, config, chunks =
+    chunks, config =
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:md)
 
     # create the markdown file
@@ -455,7 +461,7 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     content = config["postprocess"](String(take!(iomd)))
 
     # write to file
-    outputfile = write_result(content, inputfile, outputdir, config, :md)
+    outputfile = write_result(content, config)
     return outputfile
 end
 
@@ -519,7 +525,7 @@ of possible configuration with `config` and other keyword arguments.
 """
 function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     # preprocessing and parsing
-    inputfile, outputdir, config, chunks =
+    chunks, config =
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb)
 
     # create the notebook
@@ -588,7 +594,7 @@ function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     end
 
     # write to file
-    outputfile = write_result(nb, inputfile, outputdir, config, :nb; print = (io, c)->JSON.print(io, c, 1))
+    outputfile = write_result(nb, config; print = (io, c)->JSON.print(io, c, 1))
     return outputfile
 end
 
