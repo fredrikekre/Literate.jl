@@ -298,6 +298,51 @@ See the manual section about [Configuration](@ref) for more information.
 """
 const DEFAULT_CONFIGURATION=nothing # Dummy const for documentation
 
+function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
+    # Create configuration by merging default and userdefined
+    config = create_configuration(inputfile; user_config=user_config,
+        user_kwargs=user_kwargs, type=type)
+
+    # normalize paths
+    inputfile = normpath(inputfile)
+    isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
+    inputfile = realpath(abspath(inputfile))
+    mkpath(outputdir)
+    outputdir = realpath(abspath(outputdir))
+
+    output_thing = type === (:md) ? "markdown page" :
+                   type === (:nb) ? "notebook" :
+                   type === (:jl) ? "plain script file" : error("nope")
+    @info "generating $(output_thing) from `$(Base.contractuser(inputfile))`"
+
+    # read content
+    content = read(inputfile, String)
+
+    # run custom pre-processing from user
+    content = config["preprocess"](content)
+
+    # run some Documenter specific things for markdown output
+    if type === :md && config["documenter"]::Bool
+        # change the Edit on GitHub link
+        path = relpath(inputfile, get(config, "repo_root_path", pwd())::String)
+        path = replace(path, "\\" => "/")
+        content = """
+        # ```@meta
+        # EditURL = "@__REPO_ROOT_URL__/$(path)"
+        # ```
+
+        """ * content
+    end
+
+    # default replacements
+    content = replace_default(content, type; config=config)
+
+    # parse the content into chunks
+    chunks = parse(content; allow_continued = type !== :nb)
+
+    return inputfile, outputdir, config, chunks
+end
+
 """
     Literate.script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
 
@@ -310,28 +355,11 @@ See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
 function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
-    # Create configuration by merging default and userdefined
-    config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs)
-
-    # normalize paths
-    inputfile = normpath(inputfile)
-    isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
-    inputfile = realpath(abspath(inputfile))
-    mkpath(outputdir)
-    outputdir = realpath(abspath(outputdir))
-
-    @info "generating plain script file from `$(Base.contractuser(inputfile))`"
-    # read content
-    content = read(inputfile, String)
-
-    # run custom pre-processing from user
-    content = config["preprocess"](content)
-
-    # default replacements
-    content = replace_default(content, :jl; config=config)
+    # preprocessing and parsing
+    inputfile, outputdir, config, chunks =
+        preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:jl)
 
     # create the script file
-    chunks = parse(content)
     ioscript = IOBuffer()
     for chunk in chunks
         if isa(chunk, CodeChunk)
@@ -377,42 +405,12 @@ See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
 function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
-    # Create configuration by merging default and userdefined
-    config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs, type=:md)
-
-    # normalize paths
-    inputfile = normpath(inputfile)
-    isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
-    inputfile = realpath(abspath(inputfile))
-    mkpath(outputdir)
-    outputdir = realpath(abspath(outputdir))
-
-    @info "generating markdown page from `$(Base.contractuser(inputfile))`"
-    # read content
-    content = read(inputfile, String)
-
-    # run custom pre-processing from user
-    content = config["preprocess"](content)
-
-    # run some Documenter specific things
-    if config["documenter"]::Bool
-        # change the Edit on GitHub link
-        path = relpath(inputfile, get(config, "repo_root_path", pwd())::String)
-        path = replace(path, "\\" => "/")
-        content = """
-        # ```@meta
-        # EditURL = "@__REPO_ROOT_URL__/$(path)"
-        # ```
-
-        """ * content
-    end
-
-    # default replacements
-    content = replace_default(content, :md; config=config)
+    # preprocessing and parsing
+    inputfile, outputdir, config, chunks =
+        preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:md)
 
     # create the markdown file
     sb = sandbox()
-    chunks = parse(content)
     iomd = IOBuffer()
     continued = false
     for chunk in chunks
@@ -520,28 +518,9 @@ See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
 function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
-    # Create configuration by merging default and userdefined
-    config = create_configuration(inputfile; user_config=config, user_kwargs=kwargs)
-
-    # normalize paths
-    inputfile = normpath(inputfile)
-    isfile(inputfile) || throw(ArgumentError("cannot find inputfile `$(inputfile)`"))
-    inputfile = realpath(abspath(inputfile))
-    mkpath(outputdir)
-    outputdir = realpath(abspath(outputdir))
-
-    @info "generating notebook from `$(Base.contractuser(inputfile))`"
-    # read content
-    content = read(inputfile, String)
-
-    # run custom pre-processing from user
-    content = config["preprocess"](content)
-
-    # default replacements
-    content = replace_default(content, :nb; config=config)
-
-    # parse
-    chunks = parse(content; allow_continued = false)
+    # preprocessing and parsing
+    inputfile, outputdir, config, chunks =
+        preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb)
 
     # create the notebook
     nb = Dict()
