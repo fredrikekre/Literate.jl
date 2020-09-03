@@ -373,7 +373,7 @@ Available options:
 """
 const DEFAULT_CONFIGURATION=nothing # Dummy const for documentation
 
-function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
+function preprocessor(inputfile, outputdir; user_config, user_kwargs, type, flavor)
     # Create configuration by merging default and userdefined
     config = create_configuration(inputfile; user_config=user_config,
         user_kwargs=user_kwargs, type=type)
@@ -393,7 +393,7 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     # Add some information for passing around Literate methods
     config["literate_inputfile"] = inputfile
     config["literate_outputdir"] = outputdir
-    config["literate_ext"] = type === (:nb) ? ".ipynb" : ".$(type)"
+    config["literate_ext"] = type === (:nb) ? (flavor === :pluto ? ".jl" : ".ipynb") : ".$(type)"
 
     # read content
     content = read(inputfile, String)
@@ -607,7 +607,7 @@ of possible configuration with `config` and other keyword arguments.
 function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), flavor=:jupyter, kwargs...)
     # preprocessing and parsing
     chunks, config =
-        preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb)
+        preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb, flavor=flavor)
 
     # create the notebook
     nb = flavor == :jupyter ? jupyter_notebook(chunks, config) : pluto_notebook(chunks, config)
@@ -756,8 +756,22 @@ function pluto_notebook(chunks, config)
 
     # Print cells
     uuids = Base.UUID[]
+    folds = Bool[]
+    default_fold = Dict{String,Bool}("markdown"=>true, "code"=>false) # toggleable ???
     for (i, chunk) in enumerate(chunks)
         io = IOBuffer()
+
+        # Jupyter style metadata # TODO: factor out, identical to jupyter notebook
+        chunktype = isa(chunk, MDChunk) ? "markdown" : "code"
+        fold = default_fold[chunktype]
+        if !isempty(chunk.lines) && line_is_nbmeta(chunk.lines[1])
+            @show chunk.lines
+            metatype, metadata = parse_nbmeta(chunk.lines[1])
+            metatype !== nothing && metatype != chunktype && error("specifying a different cell type is not supported")
+            popfirst!(chunk.lines)
+            fold = get(metadata, "fold", fold)
+        end
+
         if isa(chunk, MDChunk)
             if length(chunk.lines) == 1
                 line = escape_string(chunk.lines[1].second, '"')
@@ -792,13 +806,14 @@ function pluto_notebook(chunks, config)
         end
         uuid = uuid4(content, i)
         push!(uuids, uuid)
+        push!(folds, fold)
         print(ionb, "# ╔═╡ ", uuid, '\n')
         write(ionb, content, '\n')
     end
 
     # Print cell order
     print(ionb, "# ╔═╡ Cell order:\n")
-    foreach(x -> print(ionb, "# ╠═", x, '\n'), uuids)
+    foreach(((x, f),) -> print(ionb, "# $(f ? "╟─" : "╠═")", x, '\n'), zip(uuids, folds))
 
     # custom post-processing from user
     nb = config["postprocess"](String(take!(ionb)))
