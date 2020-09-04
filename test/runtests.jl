@@ -108,6 +108,9 @@ end
         ## Line 77
         ##
         ## Line 79
+    #=
+    Line 81
+    =#
     """
     expected_chunks = Chunk[
         MDChunk(["" => "Line 1"]),
@@ -145,8 +148,9 @@ end
         CodeChunk(["Line 64", "    # Line 65", "    Line 66", "Line 67"], false),
         CodeChunk(["# Line 73", "#", "# Line 75"], false),
         CodeChunk(["    # Line 77", "    #", "    # Line 79"], false),
-        ]
-    parsed_chunks = Literate.parse(content)
+        MDChunk(["" => "Line 81"]),
+      ] 
+    parsed_chunks = Literate.parse(Literate.hashify_block_comments(content))
     compare_chunks(parsed_chunks, expected_chunks)
 
     # test leading/trailing whitespace removal

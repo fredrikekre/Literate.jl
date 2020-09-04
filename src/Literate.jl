@@ -216,6 +216,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["documenter"] = true
     cfg["credit"] = true
     cfg["keep_comments"] = false
+    cfg["hashify_block_comments"] = true
     cfg["execute"] = type === :md ? false : true
     cfg["codefence"] = get(user_config, "documenter", true) && !get(user_config, "execute", cfg["execute"]) ?
         ("```@example $(get(user_config, "name", cfg["name"]))" => "```") : ("```julia" => "```")
@@ -298,6 +299,40 @@ See the manual section about [Configuration](@ref) for more information.
 """
 const DEFAULT_CONFIGURATION=nothing # Dummy const for documentation
 
+
+# Turn block comments starting in the first column into "normal" hash comments
+function hashify_block_comments(input)
+    lines_in = collect(eachline(IOBuffer(input)))
+    lines_out=IOBuffer()
+    line_number=0
+    in_block_comment_region=false
+    for line in lines_in
+        line_number+=1
+        if occursin(r"^#=", line)
+            if in_block_comment_region
+                error("line $(line_number): already in block comment region\n$(line)")
+            end
+            println(lines_out,replace(line,r"^#=" => "#"))
+            in_block_comment_region=true
+        elseif occursin(r"^=#", line)
+            if !in_block_comment_region
+                error("line $(line_number): not in block comment region\n$(line)")
+            end
+            println(lines_out,replace(line,r"^=#" => "#"))
+            in_block_comment_region=false
+        else
+            if in_block_comment_region
+                println(lines_out,"# "*line)
+            else
+                println(lines_out,line)
+            end
+        end
+    end
+    return String(take!(lines_out))
+end
+
+
+
 function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     # Create configuration by merging default and userdefined
     config = create_configuration(inputfile; user_config=user_config,
@@ -323,9 +358,15 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     # read content
     content = read(inputfile, String)
 
+        
     # run custom pre-processing from user
     content = config["preprocess"](content)
-
+        
+    # hashify block comments
+    if config["hashify_block_comments"]
+        content=hashify_block_comments(content)
+    end
+        
     # run some Documenter specific things for markdown output
     if type === :md && config["documenter"]::Bool
         # change the Edit on GitHub link
