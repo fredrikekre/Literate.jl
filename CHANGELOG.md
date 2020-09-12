@@ -1,5 +1,10 @@
 # Literate.jl changelog
 
+## Version `v2.7`
+
+* ![Feature][badge-feature] Multiline-style Julia comments (`#= ... =#`) can now be
+  used for markdown input ([dc409d0][dc409d0]).
+
 ## Version `v2.6`
 
 * ![Feature][badge-feature] New end-of-line token `#hide` which filters out the line
@@ -81,6 +86,7 @@
 [2ba316a]: https://github.com/fredrikekre/Literate.jl/commit/2ba316ac90713cc6bdeaeaefd357bb3d847373cb
 [e08ca0a]: https://github.com/fredrikekre/Literate.jl/commit/e08ca0a19bd5e61dac778ddf4aaf6cef37532e48
 [6d1aec9]: https://github.com/fredrikekre/Literate.jl/commit/6d1aec90b13c6ad888be0fdc77583e9c525b5dc1
+[dc409d0]: https://github.com/fredrikekre/Literate.jl/commit/dc409d0f43a6282bee4e28e8e12bb6309942e5d5
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
 [badge-deprecation]: https://img.shields.io/badge/deprecation-orange.svg

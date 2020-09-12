@@ -47,7 +47,7 @@ end
 makedocs(
     format = Documenter.HTML(
         assets = ["assets/custom.css", "assets/favicon.ico"],
-        prettyurls = haskey(ENV, "GITHUB_ACTIONS"),
+        prettyurls = true, # haskey(ENV, "GITHUB_ACTIONS"),
         canonical = "https://fredrikekre.github.io/Literate.jl/v2",
     ),
     modules = [Literate],
