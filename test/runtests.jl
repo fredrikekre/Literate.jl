@@ -255,6 +255,15 @@ content = """
     #nb #-
     #nb # %% [markdown] {"meta": "data"}
     #nb # # Explicit markdown cell with metadata
+
+    #=
+    First multiline
+    comment
+    =#
+
+    #=======================
+    Second multiline comment
+    =======================#
     """
 
 const TRAVIS_ENV = Dict(
@@ -424,6 +433,8 @@ const GITLAB_ENV = Dict(
             @test occursin("# # Example", script)
             @test occursin("# foo, bar", script)
             @test occursin("# \\int f(x) dx", script)
+            @test occursin("# First multiline", script)
+            @test occursin("# Second multiline comment", script)
 
             # verify that inputfile exists
             @test_throws ArgumentError Literate.script("nonexistent.jl", outdir)
@@ -555,6 +566,11 @@ end end
             hidden2 = 12      #hide
             hidden2 * hidden2
             ```
+
+            First multiline
+            comment
+
+            Second multiline comment
 
             ---
 
@@ -875,6 +891,13 @@ end end
                "metadata": {
                 "meta": "data"
                }
+            """,
+
+            """
+               "source": [
+                "First multiline\\n",
+                "comment"
+               ]
             """,
 
             """
