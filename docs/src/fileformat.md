@@ -45,6 +45,31 @@ For simple use this is all you need to know. The following additional special sy
 There is also some default convenience replacements that will always be performed, see
 [Default Replacements](@ref).
 
+!!! compat "Multiline comments in Literate 2.7"
+    Literate version 2.7 adds support for Julia multiline comments for markdown input.
+    All multiline comments in the input are rewritten to regular comments as part of the
+    preprocessing step, before any other processing is performed. For Literate to recognize
+    multiline comments it is required that the start token (`#=`) and end token (`=#`) are
+    placed on their own lines. Note also that it is allowed to have more than one `=` in the
+    tokens, for example
+    ```juila
+    #=
+    This multiline comment
+    is treated as markdown.
+    =#
+
+    #=====================
+    This is also markdown.
+    =====================#
+    ```
+    is rewritten to
+    ```juila
+    # This multiline comment
+    # is treated as markdown.
+
+    # This is also markdown.
+    ```
+
 
 ## [**2.2.** Filtering Lines](@id Filtering-Lines)
 

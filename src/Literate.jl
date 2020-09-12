@@ -146,6 +146,15 @@ function replace_default(content, sym;
 
     push!(repls, "\r\n" => "\n") # normalize line endings
 
+    # unconditionally rewrite multiline comments to regular comments
+    multiline_r = r"^#=+$\R^(\X*?)\R^=+#$"m
+    while (m = match(multiline_r, content); m !== nothing)
+        newlines = sprint() do io
+            foreach(l -> println(io, "# ", l), eachline(IOBuffer(m[1])))
+        end
+        content = replace(content, multiline_r => chop(newlines); count=1)
+    end
+
     # unconditionally remove #src lines
     push!(repls, r"^#src.*\n?"m => "") # remove leading #src lines
     push!(repls, r".*#src$\n?"m => "") # remove trailing #src lines
