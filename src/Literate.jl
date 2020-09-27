@@ -6,12 +6,10 @@ https://fredrikekre.github.io/Literate.jl/ for documentation.
 """
 module Literate
 
-import JSON, REPL
+import JSON, REPL, IOCapture
 
 include("IJulia.jl")
 import .IJulia
-include("Documenter.jl")
-import .Documenter
 
 # # Some simple rules:
 #
@@ -670,16 +668,12 @@ end
 
 # Execute a code-block in a module and capture stdout/stderr and the result
 function execute_block(sb::Module, block::String)
-    # r is the result
-    # status = (true|false)
-    # _: backtrace
-    # str combined stdout, stderr output
-    r, status, _, str = Documenter.withoutput() do
+    c = IOCapture.iocapture(throwerrors=false) do
         include_string(sb, block)
     end
-    if !status
+    if c.error
         error("""
-             $(sprint(showerror, r))
+             $(sprint(showerror, c.value))
              when executing the following code block
 
              ```julia
@@ -687,7 +681,7 @@ function execute_block(sb::Module, block::String)
              ```
              """)
     end
-    return r, str
+    return c.value, c.output
 end
 
 end # module
