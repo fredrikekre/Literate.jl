@@ -251,6 +251,27 @@ $(document).ready(function() {
     });
   }
 
+  // if the current version is not latest version, show a warning
+  if (typeof DOCUMENTER_CURRENT_VERSION !== 'undefined' && typeof DOCUMENTER_LATEST_VERSION !== 'undefined') {
+    var releaseRegex = /^v\d+\.\d+.\d+$/;
+    var isReleaseCurrent = releaseRegex.test(DOCUMENTER_CURRENT_VERSION);
+    var isReleaseLatest = releaseRegex.test(DOCUMENTER_LATEST_VERSION);
+    if ( isReleaseLatest && isReleaseCurrent  && DOCUMENTER_CURRENT_VERSION != DOCUMENTER_LATEST_VERSION ) {
+      // Create a div
+      var oldNoteDiv = document.createElement('div');
+      oldNoteDiv.setAttribute('class', 'old-doc-warn');
+      oldNoteDiv.setAttribute('style', 'background:#cb3c33');
+      // Create the note
+      var oldNoteP = document.createElement('p');
+      oldNoteP.setAttribute('style', 'margin:1rem;');
+      var latestURL = documenterBaseURL + "/../" + DOCUMENTER_LATEST_VERSION;
+      oldNoteP.innerHTML = '<i><b>Warning!</b> This documents and old version of Literate. Click <a href="' + latestURL + '">here</a> to see the latest release, or select the appropriate version in the drop-down menu below.</i>';
+      oldNoteDiv.appendChild(oldNoteP);
+      // Insert it in the DOM before the version selector
+      version_selector.before(oldNoteDiv);
+    }
+  }
+
   // only show the version selector if the selector has been populated
   if (version_selector_select.children("option").length > 0) {
     version_selector.toggleClass("visible");
