@@ -257,18 +257,36 @@ $(document).ready(function() {
     var isReleaseCurrent = releaseRegex.test(DOCUMENTER_CURRENT_VERSION);
     var isReleaseLatest = releaseRegex.test(DOCUMENTER_LATEST_VERSION);
     if ( isReleaseLatest && isReleaseCurrent  && DOCUMENTER_CURRENT_VERSION != DOCUMENTER_LATEST_VERSION ) {
-      // Create a div
+      // Create a div that spans the entire width
       var oldNoteDiv = document.createElement('div');
       oldNoteDiv.setAttribute('class', 'old-doc-warn');
-      oldNoteDiv.setAttribute('style', 'background:#cb3c33');
+      oldNoteDiv.setAttribute('style', 'background:#d5635c;width:100%;');
       // Create the note
       var oldNoteP = document.createElement('p');
       oldNoteP.setAttribute('style', 'margin:1rem;');
-      var latestURL = documenterBaseURL + "/../" + DOCUMENTER_LATEST_VERSION;
-      oldNoteP.innerHTML = '<i><b>Warning!</b> This documents and old version of Literate. Click <a href="' + latestURL + '">here</a> to see the latest release, or select the appropriate version in the drop-down menu below.</i>';
+      var latestURL = documenterBaseURL + "/../"; //  + DOCUMENTER_LATEST_VERSION;
+      oldNoteP.innerHTML = '<i>This page documents an old release of Literate. Click <a href="' + latestURL + '">here</a> to go to the latest release.</i>'
       oldNoteDiv.appendChild(oldNoteP);
       // Insert it in the DOM before the version selector
       version_selector.before(oldNoteDiv);
+
+      // // Version 2
+      // // Create a div that spans the entire width
+      // var oldNoteDiv2 = document.createElement('div');
+      // oldNoteDiv2.setAttribute('class', 'banner-outdated-docs');
+      // oldNoteDiv2.setAttribute('style', 'background:#d5635c;width:100%;top:0;left:0;text-align:center;position:fixed;padding:5px;z-index:1000;display:inline-flex;border:2px;border-style:solid;border-color:#cb3c33;');
+      // oldNoteDiv2.innerHTML = '<i style="flex:1;">This page documents an old release of Literate. Click <a href="' + latestURL + '">here</a> to go to the latest release.</i>' +
+      //     '<span style="display:inline-block;width:2rem;"></span><button class="close-banner" style="border:0;border-radius:100%;background:#cb3c33;cursor:pointer;font-size:14px;font-weight:bold;height:24px;line-height:20px;margin-top:-12px;right:10px;position:absolute;top:50%;">X</button>'
+      // var sidebar = $("#documenter > .docs-sidebar");
+      // // sidebar.css('padding-top', '30px')
+      // var content = $("#documenter");
+      // content.before(oldNoteDiv2);
+
+      // var button= $(".close-banner");
+      // button.click(function(e){
+      //   var oldNoteDiv3 = $(".banner-outdated-docs");
+      //   oldNoteDiv3.css('display', 'none');
+      // })
     }
   }
 
