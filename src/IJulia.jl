@@ -29,6 +29,7 @@ function display_dict(x)
     elseif showable(image_jpeg, x) # don't send jpeg if we have png
         data[string(image_jpeg)] = limitstringmime(image_jpeg, x)
     end
+    # TODO: IJulia logic has changed? Seems to send both html and latex for DataFrame for example
     if showable(text_markdown, x)
         data[string(text_markdown)] = limitstringmime(text_markdown, x)
     elseif showable(text_html, x)
