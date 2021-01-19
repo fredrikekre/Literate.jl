@@ -475,7 +475,8 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
 end
 
 function execute_markdown!(io::IO, sb::Module, block::String, outputdir)
-    r, str = execute_block(sb, block)
+    # TODO: Deal with explicit display(...) calls
+    r, str, _ = execute_block(sb, block)
     plain_fence = "\n```\n" =>  "\n```" # issue #101: consecutive codefenced blocks need newline
     if r !== nothing && !REPL.ends_with_semicolon(block)
         for (mime, ext) in [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg")]
@@ -621,7 +622,7 @@ function execute_notebook(nb)
         execution_count += 1
         cell["execution_count"] = execution_count
         block = join(cell["source"])
-        r, str = execute_block(sb, block)
+        r, str, display_dicts = execute_block(sb, block)
 
         # str should go into stream
         if !isempty(str)
@@ -630,6 +631,27 @@ function execute_notebook(nb)
             stream["name"] = "stdout"
             stream["text"] = collect(Any, eachline(IOBuffer(String(str)), keep = true))
             push!(cell["outputs"], stream)
+        end
+
+        # Some mimes need to be split into vectors of lines instead of a single string
+        # TODO: Seems like text/plain and text/latex are also split now, but not doing
+        # it seems to work fine. Leave for now.
+        function split_mime(dict)
+            for mime in ("image/svg+xml", "text/html")
+                if haskey(dict, mime)
+                    dict[mime] = collect(Any, eachline(IOBuffer(dict[mime]), keep = true))
+                end
+            end
+            return dict
+        end
+
+        # Any explicit calls to display(...)
+        for dict in display_dicts
+            display_data = Dict{String,Any}()
+            display_data["output_type"] = "display_data"
+            display_data["metadata"] = Dict()
+            display_data["data"] = split_mime(dict)
+            push!(cell["outputs"], display_data)
         end
 
         # check if ; is used to suppress output
@@ -641,18 +663,10 @@ function execute_notebook(nb)
             execute_result["output_type"] = "execute_result"
             execute_result["metadata"] = Dict()
             execute_result["execution_count"] = execution_count
-            dd = Base.invokelatest(IJulia.display_dict, r)
-            # we need to split some mime types into vectors of lines instead of a single string
-            for mime in ("image/svg+xml", "text/html")
-                if haskey(dd, mime)
-                    dd[mime] = collect(Any, eachline(IOBuffer(dd[mime]), keep = true))
-                end
-            end
-            execute_result["data"] = dd
-
+            dict = Base.invokelatest(IJulia.display_dict, r)
+            execute_result["data"] = split_mime(dict)
             push!(cell["outputs"], execute_result)
         end
-
     end
     return nb
 end
@@ -668,8 +682,32 @@ function sandbox()
     return m
 end
 
+# Capture display for notebooks
+struct LiterateDisplay <: AbstractDisplay
+    data::Vector
+    LiterateDisplay() = new([])
+end
+function Base.display(ld::LiterateDisplay, x)
+    push!(ld.data, Base.invokelatest(IJulia.display_dict, x))
+    return nothing
+end
+# TODO: Problematic to accept mime::MIME here?
+function Base.display(ld::LiterateDisplay, mime::MIME, x)
+    r = Base.invokelatest(IJulia.limitstringmime, mime, x)
+    display_dicts = Dict{String,Any}(string(mime) => r)
+    # TODO: IJulia does this part below for unknown mimes
+    # if istextmime(mime)
+    #     display_dicts["text/plain"] = r
+    # end
+    push!(ld.data, display_dicts)
+    return nothing
+end
+
 # Execute a code-block in a module and capture stdout/stderr and the result
 function execute_block(sb::Module, block::String)
+    # Push a capturing display on the displaystack
+    disp = LiterateDisplay()
+    pushdisplay(disp)
     # r is the result
     # status = (true|false)
     # _: backtrace
@@ -677,6 +715,7 @@ function execute_block(sb::Module, block::String)
     r, status, _, str = Documenter.withoutput() do
         include_string(sb, block)
     end
+    popdisplay(disp) # Documenter.withoutput has a try-catch so should always end up here
     if !status
         error("""
              $(sprint(showerror, r))
@@ -687,7 +726,7 @@ function execute_block(sb::Module, block::String)
              ```
              """)
     end
-    return r, str
+    return r, str, disp.data
 end
 
 end # module
