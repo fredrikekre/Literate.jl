@@ -15,5 +15,3 @@ var DOC_VERSIONS = [
   "v0.1",
   "dev",
 ];
-
-var DOCUMENTER_LATEST_VERSION = "v2.7.0";
