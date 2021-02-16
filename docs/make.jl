@@ -4,7 +4,8 @@ if haskey(ENV, "GITHUB_ACTIONS")
     ENV["JULIA_DEBUG"] = "Documenter"
 end
 
-Documenter.post_status(; type="pending", repo="github.com/fredrikekre/Literate.jl.git")
+deployconfig = Documenter.auto_detect_deploy_system()
+Documenter.post_status(deployconfig; type="pending", repo="github.com/fredrikekre/Literate.jl.git")
 using Literate
 using Plots # to not capture precompilation output
 
@@ -31,7 +32,7 @@ Literate.script(joinpath(@__DIR__, "src/outputformats.jl"), OUTPUT; credit = fal
 if haskey(ENV, "GITHUB_ACTIONS")
     folder = Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
         Documenter.deploy_folder(
-            Documenter.auto_detect_deploy_system();
+            deployconfig;
             repo = "github.com/fredrikekre/Literate.jl.git",
             devbranch = "master",
             push_preview = true,
@@ -66,4 +67,5 @@ makedocs(
 deploydocs(
     repo = "github.com/fredrikekre/Literate.jl.git",
     push_preview=true,
+    deploy_config = deployconfig,
 )
