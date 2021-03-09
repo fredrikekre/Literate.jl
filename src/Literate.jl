@@ -705,6 +705,11 @@ end
 
 # Execute a code-block in a module and capture stdout/stderr and the result
 function execute_block(sb::Module, block::String)
+    @debug """execute_block($sb, block)
+    ```
+    $(block)
+    ```
+    """
     # Push a capturing display on the displaystack
     disp = LiterateDisplay()
     pushdisplay(disp)
