@@ -39,3 +39,35 @@ HTML formats.
     img = plot(...)
     img = DisplayAs.Text(DisplayAs.PNG(img))
     ```
+
+### [Debugging code execution](@id debug-execution)
+
+When Literate is executing code (i.e. when `execute = true` is set), it does so quietly.
+All the output gets captured and nothing gets printed into the terminal.
+This can make it tricky to know where things go wrong, e.g. when the execution stalls due
+to an infinite loop.
+
+To help debug this, Literate has an `@debug` statement that prints out each code block that
+is being executed. In general, to enable the printing of Literate's `@debug` statements, you
+can set the `JULIA_DEBUG` environment variable to `"Literate"`.
+
+The easiest way to do that is to set the variable in the Julia session before running
+Literate by doing
+
+```julia
+ENV["JULIA_DEBUG"]="Literate"
+```
+
+Alternatively, you can also set the environment variable before starting the Julia session, e.g.
+
+```sh
+$ JULIA_DEBUG=Literate julia
+```
+
+or by wrapping the Literate calls in an `withenv` block
+
+```julia
+withenv("JULIA_DEBUG" => "Literate") do
+    Literate.notebook("myscript.jl"; execute=true)
+end
+```
