@@ -46,7 +46,7 @@ y = 2//5
 # `#md`, `#nb`, `#jl` and `#src` tags (see [Filtering Lines](@ref)):
 #md # - This line starts with `#md` and is thus only visible in the markdown output.
 #nb # - This line starts with `#nb` and is thus only visible in the notebook output.
-#jl # - This line starts with `#jl` and is thus only visible in the notebook output.
+#jl # - This line starts with `#jl` and is thus only visible in the script output.
 #src # - This line starts with `#src` and is thus only visible in the source file.
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}

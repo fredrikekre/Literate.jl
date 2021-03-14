@@ -1,8 +1,8 @@
 # Literate
 
-| **Documentation**         | **Build Status**                                                                                |
-|:------------------------- |:----------------------------------------------------------------------------------------------- |
-| [![][docs-img]][docs-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
+| **Documentation**         | **Build Status**                                                      |
+|:------------------------- |:--------------------------------------------------------------------- |
+| [![][docs-img]][docs-url] | [![][gh-actions-img]][gh-actions-url] [![][codecov-img]][codecov-url] |
 
 Literate is a package for [Literate Programming](https://en.wikipedia.org/wiki/Literate_programming).
 The main purpose is to facilitate writing Julia examples/tutorials that can be included in
@@ -27,11 +27,8 @@ Literate.markdown("examples/README.jl", "."; documenter=false)
 [docs-img]: https://img.shields.io/badge/docs-latest%20release-blue.svg
 [docs-url]: https://fredrikekre.github.io/Literate.jl/
 
-[travis-img]: https://travis-ci.org/fredrikekre/Literate.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/fredrikekre/Literate.jl
-
-[appveyor-img]: https://ci.appveyor.com/api/projects/status/xe0ghtyas12wv555/branch/master?svg=true
-[appveyor-url]: https://ci.appveyor.com/project/fredrikekre/Literate-jl/branch/master
+[gh-actions-img]: https://github.com/fredrikekre/Literate.jl/workflows/CI/badge.svg
+[gh-actions-url]: https://github.com/fredrikekre/Literate.jl/actions?query=workflow%3ACI
 
 [codecov-img]: https://codecov.io/gh/fredrikekre/Literate.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/fredrikekre/Literate.jl

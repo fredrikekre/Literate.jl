@@ -1,4 +1,4 @@
-import Literate
+import Literate, JSON
 import Literate: Chunk, MDChunk, CodeChunk
 using Test
 
@@ -1110,6 +1110,42 @@ end end
             end
             write(inputfile, script)
             Literate.notebook(inputfile, outdir)
+
+            # Calls to display(x) and display(mime, x)
+            script = """
+            struct DF x end
+            Base.show(io::IO, ::MIME"text/plain", df::DF) = print(io, "DF(\$(df.x)) as text/plain")
+            Base.show(io::IO, ::MIME"text/html", df::DF) = print(io, "DF(\$(df.x)) as text/html")
+            Base.show(io::IO, ::MIME"text/latex", df::DF) = print(io, "DF(\$(df.x)) as text/latex")
+            #-
+            foreach(display, [DF(1), DF(2)])
+            DF(3)
+            #-
+            display(MIME("text/latex"), DF(4))
+            """
+            write(inputfile, script)
+            Literate.notebook(inputfile, outdir)
+            json = JSON.parsefile(joinpath(outdir, "inputfile.ipynb"))
+            cells = json["cells"]
+            @test length(cells) == 4
+            # Cell 2 has 3 outputs: 2 display and one execute result
+            cellout = cells[2]["outputs"]
+            @test length(cellout) == 3
+            for i in 1:3
+                exe_res = i == 3
+                @test cellout[i]["output_type"] == (exe_res ? "execute_result" : "display_data")
+                @test keys(cellout[i]["data"]) == Set(("text/plain", "text/html"))
+                @test cellout[i]["data"]["text/plain"] == "DF($i) as text/plain"
+                @test cellout[i]["data"]["text/html"] == Any["DF($i) as text/html"]
+                @test haskey(cellout[i], "execution_count") == exe_res
+            end
+            # Cell 3 has one output from a single display call
+            cellout = cells[3]["outputs"]
+            @test length(cellout) == 1
+            @test cellout[1]["output_type"] == "display_data"
+            @test keys(cellout[1]["data"]) == Set(("text/latex",))
+            @test cellout[1]["data"]["text/latex"] == "DF(4) as text/latex"
+            @test !haskey(cellout[1], "execution_count")
         end
     end
 end end
