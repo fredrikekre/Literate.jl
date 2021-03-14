@@ -710,7 +710,7 @@ function execute_block(sb::Module, block::String)
     # status = (true|false)
     # _: backtrace
     # str combined stdout, stderr output
-    c = IOCapture.iocapture(throwerrors=false) do
+    c = IOCapture.capture(rethrow = InterruptException) do
         include_string(sb, block)
     end
     popdisplay(disp) # Documenter.withoutput has a try-catch so should always end up here
