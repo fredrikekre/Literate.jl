@@ -6,12 +6,10 @@ https://fredrikekre.github.io/Literate.jl/ for documentation.
 """
 module Literate
 
-import JSON, REPL
+import JSON, REPL, IOCapture
 
 include("IJulia.jl")
 import .IJulia
-include("Documenter.jl")
-import .Documenter
 
 # # Some simple rules:
 #
@@ -708,17 +706,19 @@ function execute_block(sb::Module, block::String)
     # Push a capturing display on the displaystack
     disp = LiterateDisplay()
     pushdisplay(disp)
-    # r is the result
-    # status = (true|false)
-    # _: backtrace
-    # str combined stdout, stderr output
-    r, status, _, str = Documenter.withoutput() do
+    # We use the following fields of the object returned by IOCapture.capture:
+    #  - c.value: return value of the do-block (or the error object, if it throws)
+    #  - c.error: set to `true` if the do-block throws an error
+    #  - c.output: combined stdout and stderr
+    # `rethrow = Union{}` means that we try-catch all the exceptions thrown in the do-block
+    # and return them via the return value (they get handled below).
+    c = IOCapture.capture(rethrow = Union{}) do
         include_string(sb, block)
     end
-    popdisplay(disp) # Documenter.withoutput has a try-catch so should always end up here
-    if !status
+    popdisplay(disp) # IOCapture.capture has a try-catch so should always end up here
+    if c.error
         error("""
-             $(sprint(showerror, r))
+             $(sprint(showerror, c.value))
              when executing the following code block
 
              ```julia
@@ -726,7 +726,7 @@ function execute_block(sb::Module, block::String)
              ```
              """)
     end
-    return r, str, disp.data
+    return c.value, c.output, disp.data
 end
 
 end # module

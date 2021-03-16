@@ -4,10 +4,12 @@ version = "2.8.0"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [compat]
+IOCapture = "0.2"
 JSON = "0.18, 0.19, 0.20, 0.21, 1"
 julia = "1"
 
