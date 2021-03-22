@@ -1,7 +1,8 @@
 # [**1.** Introduction](@id Introduction)
 
-Welcome to the documentation for Literate -- a simplistic package
-for [Literate Programming](https://en.wikipedia.org/wiki/Literate_programming).
+Welcome to the documentation for [Literate](https://github.com/fredrikekre/Literate.jl) 
+-- a simplistic package for
+[Literate Programming](https://en.wikipedia.org/wiki/Literate_programming).
 
 ### What?
 
