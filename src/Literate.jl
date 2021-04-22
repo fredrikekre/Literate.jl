@@ -186,9 +186,9 @@ function replace_default(content, sym;
         nbviewer_root_url = "https://nbviewer.jupyter.org/urls/$(base_url)"
         push!(repls, "@__NBVIEWER_ROOT_URL__" => nbviewer_root_url)
     else
-        push!(repls, "@__REPO_ROOT_URL__" => get(config, "repo_root_url", "<unknown>"))
-        push!(repls, "@__NBVIEWER_ROOT_URL__" => get(config, "nbviewer_root_url", "<unknown>"))
-        push!(repls, "@__BINDER_ROOT_URL__" => get(config, "binder_root_url", "<unknown>"))
+        push!(repls, "@__REPO_ROOT_URL__" => get(config, "repo_root_url", pwd()))
+        push!(repls, "@__NBVIEWER_ROOT_URL__" => get(config, "nbviewer_root_url", pwd()))
+        push!(repls, "@__BINDER_ROOT_URL__" => get(config, "binder_root_url", pwd()))
     end
 
     # run some Documenter specific things
