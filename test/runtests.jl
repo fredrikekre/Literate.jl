@@ -467,66 +467,66 @@ end end
             # [Example](@id example-id)
             [foo](@ref), [bar](@ref bbaarr)
 
-            ```@example inputfile
+            ````@example inputfile
             x = 1
-            ```
+            ````
 
             Only markdown
             Only markdown
 
-            ```@example inputfile
+            ````@example inputfile
             x + 1
             x + 1
-            ```
+            ````
 
             Not notebook
             Not notebook
 
-            ```@example inputfile
+            ````@example inputfile
             x * 2
             x * 2
-            ```
+            ````
 
             Not script
             Not script
 
-            ```@example inputfile
+            ````@example inputfile
             x * 3
             x * 3
             # # Comment
             # another comment
-            ```
+            ````
 
-            ```@example inputfile; continued = true
+            ````@example inputfile; continued = true
             for i in 1:10
                 print(i)
-            ```
+            ````
 
             some markdown in a code block
 
-            ```@example inputfile
+            ````@example inputfile
             end
-            ```
+            ````
 
             name: inputfile
             Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl
             Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/file.jl
             Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=v1.2.0/file.jl
 
-            ```@example inputfile
+            ````@example inputfile
             # name: inputfile
             # Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl
             # Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/file.jl
             # Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=v1.2.0/file.jl
-            ```
+            ````
 
             PLACEHOLDER1
             PLACEHOLDER2
 
-            ```@example inputfile
+            ````@example inputfile
             # PLACEHOLDER3
             # PLACEHOLDER4
-            ```
+            ````
 
             Some math:
             ```math
@@ -535,37 +535,37 @@ end end
 
             Indented markdown
 
-            ```@example inputfile; continued = true
+            ````@example inputfile; continued = true
             for i in 1:10
-            ```
+            ````
 
             Indented markdown
 
-            ```@example inputfile
+            ````@example inputfile
                 # Indented comment
             end
-            ```
+            ````
 
             Semicolon output supression
 
-            ```@example inputfile
+            ````@example inputfile
             1 + 1;
             nothing #hide
-            ```
+            ````
 
             Completely hidden
 
-            ```@example inputfile
+            ````@example inputfile
             hidden = 12     #hide
             hidden * hidden #hide
-            ```
+            ````
 
             Partially hidden
 
-            ```@example inputfile
+            ````@example inputfile
             hidden2 = 12      #hide
             hidden2 * hidden2
-            ```
+            ````
 
             First multiline
             comment
@@ -673,7 +673,7 @@ end end
             Literate.markdown(inputfile, outdir, documenter = false)
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```julia", markdown)
-            @test !occursin("```@example", markdown)
+            @test !occursin(r"`{3,}@example", markdown)
             @test !occursin("continued = true", markdown)
             @test !occursin("EditURL", markdown)
             @test !occursin("#hide", markdown)
@@ -682,14 +682,14 @@ end end
             Literate.markdown(inputfile, outdir, codefence = "```c" => "```")
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```c", markdown)
-            @test !occursin("```@example", markdown)
+            @test !occursin(r"`{3,}@example", markdown)
             @test !occursin("```julia", markdown)
 
             # name
             Literate.markdown(inputfile, outdir, name = "foobar")
             markdown = read(joinpath(outdir, "foobar.md"), String)
-            @test occursin("```@example foobar", markdown)
-            @test !occursin("```@example inputfile", markdown)
+            @test occursin(r"`{3,}@example foobar", markdown)
+            @test !occursin(r"`{3,}@example inputfile", markdown)
             @test occursin("name: foobar", markdown)
             @test !occursin("name: inputfile", markdown)
             @test !occursin("name: @__NAME__", markdown)
@@ -1180,10 +1180,10 @@ end end
             create(; kw...) = Literate.create_configuration(inputfile; user_config=Dict(), user_kwargs=kw)
             cfg = create(; type=:md, execute=true)
             @test cfg["execute"]
-            @test cfg["codefence"] == ("```julia" => "```")
+            @test cfg["codefence"] == ("````julia" => "````")
             cfg = create(; type=:md, execute=false)
             @test !cfg["execute"]
-            @test cfg["codefence"] == ("```@example inputfile" => "```")
+            @test cfg["codefence"] == ("````@example inputfile" => "````")
         end
     end
 end end

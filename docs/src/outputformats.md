@@ -18,7 +18,7 @@ of the source snippet above is as follows:
 ```@eval
 import Markdown
 file = joinpath(@__DIR__, "../src/generated/name.md")
-str = "````markdown\n" * rstrip(read(file, String)) * "\n````"
+str = "`````markdown\n" * rstrip(read(file, String)) * "\n`````"
 rm(file)
 Markdown.parse(str)
 ```
@@ -29,17 +29,29 @@ an `@meta` block have been added, that sets the `EditURL` variable. This is used
 by Documenter to redirect the "Edit on GitHub" link for the page,
 see [Interaction with Documenter](@ref).
 
+The `@example` blocks are wrapped in 4 consecutive backticks so as to allow for docstrings containing triple backticks, for example:
+````julia
+"""
+This function perform the following calculation:
+```math
+    x_1 + x_2
+```
+"""
+f(x) = x[1] + x[2]
+````
+If your Julia code itself contains 4 consecutive backticks, you can use the keyword argument `codefence` to setup 5 backticks for code blocks, see [Configuration](@ref).
+
 It possible to configure `Literate.markdown` to also evaluate code snippets, capture the
 result and include it in the output, by passing `execute=true` as a keyword argument.
 The result of the first code-block in the example above would then become
-````markdown
-```julia
+`````markdown
+````julia
 x = 1//3
-```
-```
-1//3
-```
 ````
+````
+1//3
+````
+`````
 
 In this example the output is just plain text. However, if the resulting value of the code
 block can be displayed as an image (png or jpeg) Literate will include the image
