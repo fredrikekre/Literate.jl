@@ -26,9 +26,9 @@
     closer.addEventListener('click', function () {
         document.body.removeChild(div);
     });
-    let href = '/stable';
+    let href = '/';
     if (window.documenterBaseURL) {
-        href = window.documenterBaseURL + '/../stable';
+        href = window.documenterBaseURL + '/../';
     }
     div.innerHTML = 'This is an old version of the documentation. <br> <a href="' + href + '">Go to the newest version</a>.';
     div.appendChild(closer);
