@@ -66,6 +66,7 @@ makedocs(
 
 deploydocs(
     repo = "github.com/fredrikekre/Literate.jl.git",
-    push_preview=true,
+    push_preview = true,
+    versions = ["v#.#", "dev" => "dev"],
     deploy_config = deployconfig,
 )
