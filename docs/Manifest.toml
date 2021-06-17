@@ -97,11 +97,9 @@ version = "0.8.5"
 
 [[Documenter]]
 deps = ["Base64", "Dates", "DocStringExtensions", "IOCapture", "InteractiveUtils", "JSON", "LibGit2", "Logging", "Markdown", "REPL", "Test", "Unicode"]
-git-tree-sha1 = "1883a5b90ddd22c8527bb9e26260c379ad66f887"
-repo-rev = "master"
-repo-url = "https://github.com/JuliaDocs/Documenter.jl.git"
+git-tree-sha1 = "182d1b454955cd2f2e1d38eab3431cdd8f7e9096"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-version = "0.26.1"
+version = "0.27.1"
 
 [[Downloads]]
 deps = ["ArgTools", "LibCURL", "NetworkOptions"]
@@ -209,10 +207,10 @@ uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 version = "0.9.10"
 
 [[IOCapture]]
-deps = ["Logging"]
-git-tree-sha1 = "1868e4e7ad2f93d8de0904d89368c527b46aa6a1"
+deps = ["Logging", "Random"]
+git-tree-sha1 = "f7be53659ab06ddc986428d3a9dcc95f6fa6705a"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
-version = "0.2.1"
+version = "0.2.2"
 
 [[IniFile]]
 deps = ["Test"]
@@ -326,9 +324,9 @@ version = "1.42.0+0"
 
 [[Libiconv_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "8d22e127ea9a0917bc98ebd3755c8bd31989381e"
+git-tree-sha1 = "42b62845d70a619f063a7da093d995ec8e15e778"
 uuid = "94ce4f54-9a6c-5748-9c1c-f9c7231a4531"
-version = "1.16.1+0"
+version = "1.16.1+1"
 
 [[Libmount_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
