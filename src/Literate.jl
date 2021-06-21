@@ -8,6 +8,9 @@ module Literate
 
 import JSON, REPL, IOCapture
 
+abstract type Flavor end
+struct Franklin <: Flavor end
+
 include("IJulia.jl")
 import .IJulia
 
@@ -458,7 +461,7 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
             write_code = !(all(l -> endswith(l, "#hide"), chunk.lines) && !(config["documenter"]::Bool))
             write_code && write(iomd, seekstart(iocode))
             if config["execute"]::Bool
-                execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir)
+                execute_markdown!(iomd, Franklin(), sb, join(chunk.lines, '\n'), outputdir)
             end
         end
         write(iomd, '\n') # add a newline between each chunk
@@ -486,6 +489,44 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir)
                 write(io, "![](", file, ")\n")
                 return
             end
+        end
+        if showable(MIME("text/markdown"), r)
+            write(io, '\n')
+            Base.invokelatest(show, io, MIME("text/markdown"), r)
+            write(io, '\n')
+            return
+        end
+        # fallback to text/plain
+        write(io, plain_fence.first)
+        Base.invokelatest(show, io, "text/plain", r)
+        write(io, plain_fence.second, '\n')
+        return
+    elseif !isempty(str)
+        write(io, plain_fence.first, str, plain_fence.second, '\n')
+        return
+    end
+end
+
+function execute_markdown!(io::IO, flavor::Franklin, sb::Module, block::String, outputdir)
+    # TODO: Deal with explicit display(...) calls
+    r, str, _ = execute_block(sb, block)
+    plain_fence = "\n```\n" =>  "\n```" # issue #101: consecutive codefenced blocks need newline
+    if r !== nothing && !REPL.ends_with_semicolon(block)
+        for (mime, ext) in [(MIME("image/svg+xml"), ".svg"), (MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg")]
+            if showable(mime, r)
+                file = string(hash(block) % UInt32) * ext
+                open(joinpath(outputdir, file), "w") do io
+                    Base.invokelatest(show, io, mime, r)
+                end
+                write(io, "![](", file, ")\n")
+                return
+            end
+        end
+        if showable(MIME("text/html"), r)
+            write(io, "\n~~~\n")
+            Base.invokelatest(show, io, MIME("text/html"), r)
+            write(io, "\n~~~\n")
+            return
         end
         if showable(MIME("text/markdown"), r)
             write(io, '\n')
