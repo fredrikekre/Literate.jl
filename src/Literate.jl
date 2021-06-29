@@ -458,7 +458,7 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
             write_code = !(all(l -> endswith(l, "#hide"), chunk.lines) && !(config["documenter"]::Bool))
             write_code && write(iomd, seekstart(iocode))
             if config["execute"]::Bool
-                execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir; inputfile=inputfile)
+                execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir; inputfile=config["literate_inputfile"])
             end
         end
         write(iomd, '\n') # add a newline between each chunk
@@ -472,7 +472,7 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     return outputfile
 end
 
-function execute_markdown!(io::IO, sb::Module, block::String, outputdir; inputfile::String="")
+function execute_markdown!(io::IO, sb::Module, block::String, outputdir; inputfile::String="<unknown>")
     # TODO: Deal with explicit display(...) calls
     r, str, _ = execute_block(sb, block; inputfile=inputfile)
     plain_fence = "\n```\n" =>  "\n```" # issue #101: consecutive codefenced blocks need newline
@@ -537,14 +537,14 @@ function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb)
 
     # create the notebook
-    nb = jupyter_notebook(chunks, config; inputfile=inputfile)
+    nb = jupyter_notebook(chunks, config)
 
     # write to file
     outputfile = write_result(nb, config; print = (io, c)->JSON.print(io, c, 1))
     return outputfile
 end
 
-function jupyter_notebook(chunks, config; inputfile::String="")
+function jupyter_notebook(chunks, config)
     nb = Dict()
     nb["nbformat"] = JUPYTER_VERSION.major
     nb["nbformat_minor"] = JUPYTER_VERSION.minor
@@ -601,7 +601,7 @@ function jupyter_notebook(chunks, config; inputfile::String="")
         @info "executing notebook `$(config["name"] * ".ipynb")`"
         try
             cd(config["literate_outputdir"]) do
-                nb = execute_notebook(nb; inputfile=inputfile)
+                nb = execute_notebook(nb; inputfile=config["literate_inputfile"])
             end
         catch err
             @error "error when executing notebook based on input file: " *
@@ -612,7 +612,7 @@ function jupyter_notebook(chunks, config; inputfile::String="")
     return nb
 end
 
-function execute_notebook(nb; inputfile::String="")
+function execute_notebook(nb; inputfile::String="<unknown>")
     sb = sandbox()
     execution_count = 0
     for cell in nb["cells"]
@@ -702,7 +702,7 @@ function Base.display(ld::LiterateDisplay, mime::MIME, x)
 end
 
 # Execute a code-block in a module and capture stdout/stderr and the result
-function execute_block(sb::Module, block::String; inputfile::String="")
+function execute_block(sb::Module, block::String; inputfile::String="<unknown>")
     @debug """execute_block($sb, block)
     ```
     $(block)
@@ -724,7 +724,7 @@ function execute_block(sb::Module, block::String; inputfile::String="")
     if c.error
         error("""
              $(sprint(showerror, c.value))
-             when executing the following code block in file $(repr(inputfile))
+             when executing the following code block in file `$(Base.contractuser(inputfile))`
 
              ```julia
              $block
