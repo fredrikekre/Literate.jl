@@ -436,6 +436,58 @@ const GITLAB_ENV = Dict(
             @test occursin("# First multiline", script)
             @test occursin("# Second multiline comment", script)
 
+            # mdstrings
+            mdstrings_file = "inputfile_mdstrings.jl"
+            write(mdstrings_file, """
+            md\"\"\"
+            # Markdown header
+
+            Content of the multiline markdown
+            string
+            \"\"\"
+            #-
+            #===
+            # Markdown header 2
+
+            Content of the multiline
+            comment
+            ===#
+            2 + 2
+            """)
+            Literate.script(mdstrings_file, outdir,
+                keep_comments = true, credit=false)
+            script = read(joinpath(outdir, mdstrings_file), String)
+            @test strip(script) == """
+            md\"\"\"
+
+            # Markdown header
+
+            Content of the multiline markdown
+            string
+            \"\"\"
+
+            # # Markdown header 2
+            #
+            # Content of the multiline
+            # comment
+
+            2 + 2"""
+            Literate.script(mdstrings_file, outdir,
+                keep_comments = true, mdstrings = true, credit=false)
+            script = read(joinpath(outdir, mdstrings_file), String)
+            @test strip(script) == """
+            # # Markdown header
+            #
+            # Content of the multiline markdown
+            # string
+
+            # # Markdown header 2
+            #
+            # Content of the multiline
+            # comment
+
+            2 + 2"""
+
             # verify that inputfile exists
             @test_throws ArgumentError Literate.script("nonexistent.jl", outdir)
 
@@ -704,6 +756,11 @@ end end
             @test occursin("name: foobar", markdown)
             @test !occursin("name: inputfile", markdown)
             @test !occursin("name: @__NAME__", markdown)
+
+            # mdstrings
+            Literate.markdown(inputfile, outdir, mdstrings = true)
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test !occursin("md\"\"\"", markdown)
 
             # execute
             write(inputfile, """
