@@ -29,8 +29,8 @@ Examples are (probably) the best way to showcase your awesome package, and examp
 are often the best way for a new user to learn how to use it. It is therefore important
 that the documentation of your package contains examples for users to read and study.
 However, people are different, and we all prefer different ways of trying out a new
-package. Some people wants to RTFM, others want to explore the package interactively in,
-for example, a notebook, and some people wants to study the source code. The aim of
+package. Some people want to RTFM, others want to explore the package interactively in,
+for example, a notebook, and some people want to study the source code. The aim of
 Literate is to make it easy to give the user all of these options, while still
 keeping maintenance to a minimum.
 

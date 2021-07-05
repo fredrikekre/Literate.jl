@@ -19,7 +19,7 @@ the generated notebook can become large.
 
 In order to remedy this you can use the clever Julia package
 [`DisplayAs`](https://github.com/tkf/DisplayAs.jl) to limit the output capabilities of
-and object. For example, to "force" an image to be captures as `image/png` only,
+an object. For example, to "force" an image to be captures as `image/png` only,
 you can use
 
 ```julia

@@ -12,7 +12,7 @@ The basic syntax is simple:
 - all other lines are treated as julia code.
 
 Leading whitespace is allowed before `#`, but it will be removed when generating the
-output. Since `#`-lines is treated as markdown we can not use that for regular julia
+output. Since `#`-lines are treated as markdown we can not use that for regular julia
 comments, for this you can instead use `## `, which will render as `# ` in the output.
 
 Lets look at a simple example:
@@ -113,7 +113,7 @@ is a case where we can prepend `#md` to those lines:
 #md # ```
 ````
 The lines in the example above would be filtered out in the preprocessing step, unless we are
-generating a markdown file. When generating a markdown file we would simple remove
+generating a markdown file. When generating a markdown file we would simply remove
 the leading `#md ` from the lines. Beware that the space after the tag is also removed.
 
 The `#src` token can also be placed at the *end* of a line. This is to make it possible
@@ -133,7 +133,7 @@ The following convenience "macros"/source placeholders are always expanded:
 
 - `@__NAME__`:
 
-  expands to the `name` keyword argument to [`Literate.markdown`](@ref),
+  expands the `name` keyword argument to [`Literate.markdown`](@ref),
   [`Literate.notebook`](@ref) and [`Literate.script`](@ref)
   (defaults to the filename of the input file).
 
