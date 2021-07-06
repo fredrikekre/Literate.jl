@@ -133,7 +133,7 @@ The following convenience "macros"/source placeholders are always expanded:
 
 - `@__NAME__`:
 
-  expands the `name` keyword argument to [`Literate.markdown`](@ref),
+  expands to the `name` keyword argument to [`Literate.markdown`](@ref),
   [`Literate.notebook`](@ref) and [`Literate.script`](@ref)
   (defaults to the filename of the input file).
 
