@@ -10,7 +10,7 @@ is done by letting the user supply custom pre- and post-processing functions
 that may do transformation of the content.
 
 All of the generators ([`Literate.markdown`](@ref), [`Literate.notebook`](@ref)
-and [`Literate.script`](@ref)) accepts `preprocess` and `postprocess` keyword
+and [`Literate.script`](@ref)) accept `preprocess` and `postprocess` keyword
 arguments. The default "transformation" is the `identity` function. The input
 to the transformation functions is a `String`, and the output should be the
 transformed `String`.

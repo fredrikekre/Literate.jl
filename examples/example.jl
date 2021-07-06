@@ -8,7 +8,7 @@
 # This is an example generated with Literate based on this
 # source file: [`example.jl`](@__REPO_ROOT_URL__/examples/example.jl).
 # You are seeing the
-#md # HTML-output which Documenter have generated based on a markdown
+#md # HTML-output which Documenter has generated based on a markdown
 #md # file generated with Literate. The corresponding notebook
 #md # can be viewed in [nbviewer](http://nbviewer.jupyter.org/) here:
 #md # [`example.ipynb`](@__NBVIEWER_ROOT_URL__/generated/example.ipynb),
