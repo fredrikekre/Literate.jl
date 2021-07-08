@@ -1,4 +1,4 @@
-# [**2.** File Format](@id File-Format)
+# [**2.** File format](@id File-format)
 
 The source file format for Literate is a regular, commented, julia (`.jl`) scripts.
 The idea is that the scripts also serve as documentation on their own and it is also
@@ -39,39 +39,40 @@ julia code. We note a couple of things:
   thus serve as good documentation on its own.
 
 For simple use this is all you need to know. The following additional special syntax can also be used:
-- `#md`, `#nb`, `#jl`, `#src`: tags to filter lines, see [Filtering Lines](@ref Filtering-Lines),
+- `#md`, `#nb`, `#jl`, `#src`: tags to filter lines, see [Filtering lines](@ref Filtering-lines),
 - `#-` (`#+`): tag to manually control chunk-splits, see [Custom control over chunk splits](@ref).
 
 There is also some default convenience replacements that will always be performed, see
-[Default Replacements](@ref).
+[Default replacements](@ref).
 
-!!! compat "Multiline comments in Literate 2.7"
-    Literate version 2.7 adds support for Julia multiline comments for markdown input.
-    All multiline comments in the input are rewritten to regular comments as part of the
-    preprocessing step, before any other processing is performed. For Literate to recognize
-    multiline comments it is required that the start token (`#=`) and end token (`=#`) are
-    placed on their own lines. Note also that it is allowed to have more than one `=` in the
-    tokens, for example
-    ```juila
-    #=
-    This multiline comment
-    is treated as markdown.
-    =#
+### Multiline comments
 
-    #=====================
-    This is also markdown.
-    =====================#
-    ```
-    is rewritten to
-    ```juila
-    # This multiline comment
-    # is treated as markdown.
+Literate version 2.7 adds support for Julia multiline comments for markdown input.
+All multiline comments in the input are rewritten to regular comments as part of the
+preprocessing step, before any other processing is performed. For Literate to recognize
+multiline comments it is required that the start token (`#=`) and end token (`=#`) are
+placed *on their own lines*. Note also that it is allowed to have more than one `=` in the
+tokens, for example
+```juila
+#=
+This multiline comment
+is treated as markdown.
+=#
 
-    # This is also markdown.
-    ```
+#=====================
+This is also markdown.
+=====================#
+```
+is rewritten to
+```juila
+# This multiline comment
+# is treated as markdown.
+
+# This is also markdown.
+```
 
 
-## [**2.2.** Filtering Lines](@id Filtering-Lines)
+## [**2.2.** Filtering lines](@id Filtering-lines)
 
 It is often useful to filter out lines in the source depending on the output format.
 For this purpose there are a number of "tokens" that can be used to mark the purpose of
@@ -90,12 +91,6 @@ ending with `#hide` are filtered out similar to Documenter.jl.
     `#src` and `#hide` are quite similar. The only difference is that `#src` lines
     are filtered out *before* execution (if `execute=true`) and `#hide` lines
     are filtered out *after* execution.
-
-!!! compat "Literate 2.6"
-    The `#hide` token requires at least Literate version 2.6.
-
-!!! compat "Literate 2.3"
-    Filter tokens at the *end of the line* requires at least Literate version 2.3.
 
 !!! tip
     The tokens can also be negated, for example a line starting with `#!nb` would
@@ -127,7 +122,7 @@ using Test                      #src
 ```
 
 
-## [**2.3.** Default Replacements](@id Default-Replacements)
+## [**2.3.** Default replacements](@id Default-replacements)
 
 The following convenience "macros"/source placeholders are always expanded:
 
@@ -162,9 +157,3 @@ The following convenience "macros"/source placeholders are always expanded:
   ```
   This variable is automatically determined on Travis CI, GitHub Actions and GitLab CI,
   but can be configured, see [Configuration](@ref Configuration).
-
-!!! compat "Literate 2.1"
-    GitHub Actions support for the macros above requires at least Literate version 2.1.
-
-!!! compat "Literate 2.2"
-    GitLab CI support for the macros above requires at least Literate version 2.2.

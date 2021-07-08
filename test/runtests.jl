@@ -696,6 +696,8 @@ end end
 
             # execute
             write(inputfile, """
+                using DisplayAs
+                #-
                 1+1
                 #-
                 [1 2; 3 4]
@@ -712,7 +714,10 @@ end end
                 Base.show(io::IO, mime::MIME"text/markdown", ::MD) = print(io, "# " * "MD")
                 Base.show(io::IO, mime::MIME"text/html", ::MD) =
                     print(io, "<h1>" * "MD" * "</h1>")
-                MD()
+                #-
+                DisplayAs.MD(MD())
+                #-
+                DisplayAs.HTML(MD())
                 #-
                 print("hello"); print(stdout, ", "); print(stderr, "world")
                 #-
@@ -733,7 +738,7 @@ end end
             @test occursin(r"!\[\]\(\d+\.png\)", markdown) # image/png
             @test occursin(r"!\[\]\(\d+\.jpeg\)", markdown) # image/jpeg
             @test occursin("# MD", markdown) # text/markdown
-            @test !occursin("~~~\n<h1>MD</h1>\n~~~", markdown) # text/html
+            @test occursin("```@raw html\n<h1>MD</h1>\n```", markdown) # text/html
             @test occursin("```\nhello, world\n```", markdown) # stdout/stderr
             @test occursin("```\n42\n```", markdown) # result over stdout/stderr
             @test !occursin("246", markdown) # empty output because trailing ;
@@ -742,7 +747,7 @@ end end
             # FranklinFlavor
             Literate.markdown(inputfile, outdir; execute=true, flavor=Literate.FranklinFlavor())
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test !occursin("# MD", markdown) # text/markdown
+            @test occursin("# MD", markdown) # text/markdown
             @test occursin("~~~\n<h1>MD</h1>\n~~~", markdown) # text/html
 
             # verify that inputfile exists

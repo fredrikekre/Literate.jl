@@ -13,6 +13,8 @@ import .IJulia
 
 abstract type AbstractFlavor end
 struct DefaultFlavor <: AbstractFlavor end
+struct DocumenterFlavor <: AbstractFlavor end
+struct FranklinFlavor <: AbstractFlavor end
 
 # # Some simple rules:
 #
@@ -229,7 +231,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["execute"] = type === :md ? false : true
     cfg["codefence"] = get(user_config, "documenter", true) && !get(user_config, "execute", cfg["execute"]) ?
         ("````@example $(get(user_config, "name", cfg["name"]))" => "````") : ("````julia" => "````")
-    cfg["flavor"] = DefaultFlavor()
+    cfg["flavor"] = type === (:md) ? DocumenterFlavor() : DefaultFlavor()
     # Guess the package (or repository) root url
     edit_commit = "master" # TODO: Make this configurable like Documenter?
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
@@ -380,9 +382,6 @@ end
 
 Generate a plain script file from `inputfile` and write the result to `outputdir`.
 
-!!! compat "Literate 2.5"
-    Default output directory `pwd` requires at least Literate version 2.5.
-
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
@@ -416,17 +415,11 @@ function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
 end
 
 
-# struct Documenter <: Flavor end # TODO: Use this instead of documenter=true?
-struct FranklinFlavor <: AbstractFlavor end
-
 """
     Literate.markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
 
 Generate a markdown file from `inputfile` and write the result
 to the directory `outputdir`.
-
-!!! compat "Literate 2.5"
-    Default output directory `pwd` requires at least Literate version 2.5.
 
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
@@ -491,10 +484,12 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
     # issue #144: quadruple backticks allow for triple backticks in the output
     plain_fence = "\n````\n" =>  "\n````"
     if r !== nothing && !REPL.ends_with_semicolon(block)
-        if flavor isa FranklinFlavor && showable(MIME("text/html"), r)
-            write(io, "\n~~~\n")
+        if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
+           showable(MIME("text/html"), r)
+            htmlfence = flavor isa FranklinFlavor ? ("~~~" => "~~~") : ("```@raw html" => "```")
+            write(io, "\n", htmlfence.first, "\n")
             Base.invokelatest(show, io, MIME("text/html"), r)
-            write(io, "\n~~~\n")
+            write(io, "\n", htmlfence.second, "\n")
             return
         end
         for (mime, ext) in [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg")]
@@ -544,9 +539,6 @@ line_is_nbmeta(line) = startswith(line, "%% ")
     Literate.notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
 
 Generate a notebook from `inputfile` and write the result to `outputdir`.
-
-!!! compat "Literate 2.5"
-    Default output directory `pwd` requires at least Literate version 2.5.
 
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
