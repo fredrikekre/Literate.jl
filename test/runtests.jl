@@ -710,6 +710,8 @@ end end
                 #-
                 struct MD end
                 Base.show(io::IO, mime::MIME"text/markdown", ::MD) = print(io, "# " * "MD")
+                Base.show(io::IO, mime::MIME"text/html", ::MD) =
+                    print(io, "<h1>" * "MD" * "</h1>")
                 MD()
                 #-
                 print("hello"); print(stdout, ", "); print(stderr, "world")
@@ -730,12 +732,18 @@ end end
             @test occursin("```\n2×2 $(Matrix{Int}):\n 1  2\n 3  4\n```", markdown) # text/plain
             @test occursin(r"!\[\]\(\d+\.png\)", markdown) # image/png
             @test occursin(r"!\[\]\(\d+\.jpeg\)", markdown) # image/jpeg
-            @test occursin(r"# MD", markdown) # text/markdown
+            @test occursin("# MD", markdown) # text/markdown
+            @test !occursin("~~~\n<h1>MD</h1>\n~~~", markdown) # text/html
             @test occursin("```\nhello, world\n```", markdown) # stdout/stderr
             @test occursin("```\n42\n```", markdown) # result over stdout/stderr
             @test !occursin("246", markdown) # empty output because trailing ;
             @test !occursin("```\nnothing\n```", markdown) # empty output because nothing as return value
             @test occursin("```\nhello there\n```", markdown) # nothing as return value, non-empty stdout
+            # FranklinFlavor
+            Literate.markdown(inputfile, outdir; execute=true, flavor=Literate.FranklinFlavor())
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test !occursin("# MD", markdown) # text/markdown
+            @test occursin("~~~\n<h1>MD</h1>\n~~~", markdown) # text/html
 
             # verify that inputfile exists
             @test_throws ArgumentError Literate.markdown("nonexistent.jl", outdir)

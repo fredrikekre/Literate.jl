@@ -11,6 +11,9 @@ import JSON, REPL, IOCapture
 include("IJulia.jl")
 import .IJulia
 
+abstract type AbstractFlavor end
+struct DefaultFlavor <: AbstractFlavor end
+
 # # Some simple rules:
 #
 # * All lines starting with `# ` are considered markdown, everything else is considered code
@@ -226,6 +229,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["execute"] = type === :md ? false : true
     cfg["codefence"] = get(user_config, "documenter", true) && !get(user_config, "execute", cfg["execute"]) ?
         ("````@example $(get(user_config, "name", cfg["name"]))" => "````") : ("````julia" => "````")
+    cfg["flavor"] = DefaultFlavor()
     # Guess the package (or repository) root url
     edit_commit = "master" # TODO: Make this configurable like Documenter?
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
@@ -297,6 +301,7 @@ See the manual section about [Configuration](@ref) for more information.
 | `keep_comments` | When `true`, keeps markdown lines as comments in the output script. | `false` | Only applicable for `Literate.script`. |
 | `execute` | Whether to execute and capture the output. | `true` (notebook), `false` (markdown) | Only applicable for `Literate.notebook` and `Literate.markdown`. For markdown this requires at least Literate 2.4. |
 | `codefence` | Pair containing opening and closing fence for wrapping code blocks. | `````"````julia" => "````"````` | If `documenter` is `true` the default is `````"````@example"=>"````"`````. |
+| `flavor` | Output flavor for markdown. | `Literate.DefaultFlavor()` | See [Markdown flavors](@ref). |
 | `devurl` | URL for "in-development" docs. | `"dev"` | See [Documenter docs](https://juliadocs.github.io/Documenter.jl/). Unused if `repo_root_url`/`nbviewer_root_url`/`binder_root_url` are set. |
 | `repo_root_url` | URL to the root of the repository. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for `@__REPO_ROOT_URL__`. |
 | `nbviewer_root_url` | URL to the root of the repository as seen on nbviewer. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for `@__NBVIEWER_ROOT_URL__`. |
@@ -410,6 +415,10 @@ function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     return outputfile
 end
 
+
+# struct Documenter <: Flavor end # TODO: Use this instead of documenter=true?
+struct FranklinFlavor <: AbstractFlavor end
+
 """
     Literate.markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
 
@@ -459,7 +468,8 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
             write_code = !(all(l -> endswith(l, "#hide"), chunk.lines) && !(config["documenter"]::Bool))
             write_code && write(iomd, seekstart(iocode))
             if config["execute"]::Bool
-                execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir; inputfile=config["literate_inputfile"])
+                execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
+                                  inputfile=config["literate_inputfile"], flavor=config["flavor"])
             end
         end
         write(iomd, '\n') # add a newline between each chunk
@@ -473,13 +483,20 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     return outputfile
 end
 
-function execute_markdown!(io::IO, sb::Module, block::String, outputdir; inputfile::String="<unknown>")
+function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
+                           inputfile::String="<unknown>", flavor::AbstractFlavor)
     # TODO: Deal with explicit display(...) calls
     r, str, _ = execute_block(sb, block; inputfile=inputfile)
     # issue #101: consecutive codefenced blocks need newline
     # issue #144: quadruple backticks allow for triple backticks in the output
     plain_fence = "\n````\n" =>  "\n````"
     if r !== nothing && !REPL.ends_with_semicolon(block)
+        if flavor isa FranklinFlavor && showable(MIME("text/html"), r)
+            write(io, "\n~~~\n")
+            Base.invokelatest(show, io, MIME("text/html"), r)
+            write(io, "\n~~~\n")
+            return
+        end
         for (mime, ext) in [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg")]
             if showable(mime, r)
                 file = string(hash(block) % UInt32) * ext
