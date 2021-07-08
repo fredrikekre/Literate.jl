@@ -459,7 +459,7 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
             write_code = !(all(l -> endswith(l, "#hide"), chunk.lines) && !(config["documenter"]::Bool))
             write_code && write(iomd, seekstart(iocode))
             if config["execute"]::Bool
-                execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir)
+                execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir; inputfile=config["literate_inputfile"])
             end
         end
         write(iomd, '\n') # add a newline between each chunk
@@ -473,10 +473,12 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     return outputfile
 end
 
-function execute_markdown!(io::IO, sb::Module, block::String, outputdir)
+function execute_markdown!(io::IO, sb::Module, block::String, outputdir; inputfile::String="<unknown>")
     # TODO: Deal with explicit display(...) calls
-    r, str, _ = execute_block(sb, block)
-    plain_fence = "\n````\n" =>  "\n````" # issue #101: consecutive codefenced blocks need newline; issue #144: quadruple backticks allow for tripple backticks in the output - won't probably ever occur, but better safe than sorry
+    r, str, _ = execute_block(sb, block; inputfile=inputfile)
+    # issue #101: consecutive codefenced blocks need newline
+    # issue #144: quadruple backticks allow for triple backticks in the output
+    plain_fence = "\n````\n" =>  "\n````"
     if r !== nothing && !REPL.ends_with_semicolon(block)
         for (mime, ext) in [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg")]
             if showable(mime, r)
@@ -602,7 +604,7 @@ function jupyter_notebook(chunks, config)
         @info "executing notebook `$(config["name"] * ".ipynb")`"
         try
             cd(config["literate_outputdir"]) do
-                nb = execute_notebook(nb)
+                nb = execute_notebook(nb; inputfile=config["literate_inputfile"])
             end
         catch err
             @error "error when executing notebook based on input file: " *
@@ -613,7 +615,7 @@ function jupyter_notebook(chunks, config)
     return nb
 end
 
-function execute_notebook(nb)
+function execute_notebook(nb; inputfile::String="<unknown>")
     sb = sandbox()
     execution_count = 0
     for cell in nb["cells"]
@@ -621,7 +623,7 @@ function execute_notebook(nb)
         execution_count += 1
         cell["execution_count"] = execution_count
         block = join(cell["source"])
-        r, str, display_dicts = execute_block(sb, block)
+        r, str, display_dicts = execute_block(sb, block; inputfile=inputfile)
 
         # str should go into stream
         if !isempty(str)
@@ -703,7 +705,7 @@ function Base.display(ld::LiterateDisplay, mime::MIME, x)
 end
 
 # Execute a code-block in a module and capture stdout/stderr and the result
-function execute_block(sb::Module, block::String)
+function execute_block(sb::Module, block::String; inputfile::String="<unknown>")
     @debug """execute_block($sb, block)
     ```
     $(block)
@@ -725,7 +727,7 @@ function execute_block(sb::Module, block::String)
     if c.error
         error("""
              $(sprint(showerror, c.value))
-             when executing the following code block
+             when executing the following code block in file `$(Base.contractuser(inputfile))`
 
              ```julia
              $block

@@ -1038,14 +1038,15 @@ end end
 
             # test error when executing notebook
             write(inputfile, "for i in 1:10\n    println(i)")
-            r = @test_logs((:error, r"error when executing"), match_mode=:any,
+            r = @test_logs((:error, r"error when executing notebook based on input file: "), match_mode=:any,
                 try
                     Literate.notebook(inputfile, outdir)
                 catch err
                     err
                 end)
             @test isa(r, ErrorException)
-            @test occursin("when executing the following code block", r.msg)
+            @test occursin("when executing the following code block in file ", r.msg)
+            @test occursin(inputfile, r.msg)
 
             # verify that inputfile exists
             @test_throws ArgumentError Literate.notebook("nonexistent.jl", outdir)

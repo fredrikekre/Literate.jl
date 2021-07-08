@@ -1,6 +1,6 @@
 # [**4.** Output Formats](@id Output-Formats)
 
-When the source is parsed, and have been processed it is time to render the output.
+When the source is parsed, and has been processed it is time to render the output.
 We will consider the following source snippet:
 
 ```@eval
@@ -155,10 +155,10 @@ keyword arguments.
     Passing configuration as a dictionary requires at least Literate version 2.2.
 
 !!! note "Configuration precedence"
-    Individual keyword arguments takes precedence over the `config` dictionary, so for e.g.
+    Individual keyword arguments take precedence over the `config` dictionary, so for e.g.
     `Literate.markdown(...; config = Dict("name" => "hello"), name = "world")` the
     resulting configuration for `name` will be `"world"`. Both individual keyword arguments
-    and the `config` dictionary takes precedence over the default.
+    and the `config` dictionary take precedence over the default.
 
 Available configurations with description and default values are given in the reference for
 [`Literate.DEFAULT_CONFIGURATION`](@ref) just below.
