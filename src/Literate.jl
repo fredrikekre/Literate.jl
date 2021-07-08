@@ -291,24 +291,46 @@ end
 
 Default configuration for [`Literate.markdown`](@ref), [`Literate.notebook`](@ref) and
 [`Literate.script`](@ref) which is used for everything not specified by the user.
+Configuration can be passed as individual keyword arguments or as a dictionary passed
+with the `config` keyword argument.
 See the manual section about [Configuration](@ref) for more information.
 
-| Configuration key | Description | Default value | Comment |
-| ----------------- |:----------- |:------------- |:------- |
-| `name` | Name of the output file (excluding file extension). | `filename(inputfile)` |   |
-| `preprocess` | Custom preprocessing function mapping `String` to `String`. | `identity` | See [Custom pre- and post-processing](@ref Custom-pre-and-post-processing). |
-| `postprocess` | Custom preprocessing function mapping `String` to `String`. | `identity` | See [Custom pre- and post-processing](@ref Custom-pre-and-post-processing). |
-| `documenter` | Boolean signaling that the source contains Documenter.jl elements. | `true` | See [Interaction with Documenter](@ref Interaction-with-Documenter). |
-| `credit` | Boolean for controlling the addition of `This file was generated with Literate.jl ...` to the bottom of the page. If you find Literate.jl useful then feel free to keep this. | `true` |    |
-| `keep_comments` | When `true`, keeps markdown lines as comments in the output script. | `false` | Only applicable for `Literate.script`. |
-| `execute` | Whether to execute and capture the output. | `true` (notebook), `false` (markdown) | Only applicable for `Literate.notebook` and `Literate.markdown`. For markdown this requires at least Literate 2.4. |
-| `codefence` | Pair containing opening and closing fence for wrapping code blocks. | `````"````julia" => "````"````` | If `documenter` is `true` the default is `````"````@example"=>"````"`````. |
-| `flavor` | Output flavor for markdown. | `Literate.DefaultFlavor()` | See [Markdown flavors](@ref). |
-| `devurl` | URL for "in-development" docs. | `"dev"` | See [Documenter docs](https://juliadocs.github.io/Documenter.jl/). Unused if `repo_root_url`/`nbviewer_root_url`/`binder_root_url` are set. |
-| `repo_root_url` | URL to the root of the repository. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for `@__REPO_ROOT_URL__`. |
-| `nbviewer_root_url` | URL to the root of the repository as seen on nbviewer. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for `@__NBVIEWER_ROOT_URL__`. |
-| `binder_root_url` | URL to the root of the repository as seen on mybinder. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for `@__BINDER_ROOT_URL__`. |
-| `repo_root_path` | Filepath to the root of the repository. | - | Determined automatically on Travis CI, GitHub Actions and GitLab CI. Used for computing [Documenters `EditURL`](@ref Interaction-with-Documenter). |
+Available options:
+
+- `name` (default: `filename(inputfile)`): Name of the output file (excluding the file
+  extension).
+- `preprocess` (default: `identity`): Custom preprocessing function mapping a `String` to
+  a `String`. See [Custom pre- and post-processing](@ref Custom-pre-and-post-processing).
+- `postprocess` (default: `identity`): Custom preprocessing function mapping a `String` to
+  a `String`. See [Custom pre- and post-processing](@ref Custom-pre-and-post-processing).
+- `documenter` (default: `true`): Boolean signaling that the source contains Documenter.jl
+  elements. See [Interaction with Documenter](@ref Interaction-with-Documenter).
+- `credit` (default: `true`): Boolean for controlling the addition of
+  `This file was generated with Literate.jl ...` to the bottom of the page. If you find
+  Literate.jl useful then feel free to keep this.
+- `keep_comments` (default: `false`): When `true`, keeps markdown lines as comments in the
+  output script. Only applicable for `Literate.script`.
+- `execute` (default: `true` for notebook, `false` for markdown): Whether to execute and
+  capture the output. Only applicable for `Literate.notebook` and `Literate.markdown`.
+- `codefence` (default: `````"````@example \$(name)" => "````"````` for `DocumenterFlavor()`
+  and `````"````julia" => "````"````` otherwise): Pair containing opening and closing
+  code fence for wrapping code blocks.
+- `flavor` (default: `Literate.DocumenterFlavor()`) Output flavor for markdown, see
+  [Markdown flavors](@ref). Only applicable for `Literate.markdown`.
+- `devurl` (default: `"dev"`): URL for "in-development" docs, see [Documenter docs]
+  (https://juliadocs.github.io/Documenter.jl/). Unused if `repo_root_url`/
+  `nbviewer_root_url`/`binder_root_url` are set.
+- `repo_root_url`: URL to the root of the repository. Determined automatically on Travis CI,
+  GitHub Actions and GitLab CI. Used for `@__REPO_ROOT_URL__`.
+- `nbviewer_root_url`: URL to the root of the repository as seen on nbviewer. Determined
+  automatically on Travis CI, GitHub Actions and GitLab CI.
+  Used for `@__NBVIEWER_ROOT_URL__`.
+- `binder_root_url`: URL to the root of the repository as seen on mybinder. Determined
+  automatically on Travis CI, GitHub Actions and GitLab CI.
+  Used for `@__BINDER_ROOT_URL__`.
+- `repo_root_path`: Filepath to the root of the repository. Determined automatically on
+  Travis CI, GitHub Actions and GitLab CI. Used for computing
+  [Documenters `EditURL`](@ref Interaction-with-Documenter).
 """
 const DEFAULT_CONFIGURATION=nothing # Dummy const for documentation
 
