@@ -442,7 +442,7 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
             write(iocode, codefence.first)
             # make sure the code block is finalized if we are printing to ```@example
             # (or ````@example, any number of backticks >= 3 works)
-            if chunk.continued && startswith(codefence.first, r"`{3,}@example") && config["documenter"]::Bool
+            if chunk.continued && occursin(r"^`{3,}@example", codefence.first) && config["documenter"]::Bool
                 write(iocode, "; continued = true")
             end
             write(iocode, '\n')
