@@ -1,4 +1,4 @@
-# [**7.** Tips and Tricks](@id tips-and-tricks)
+# [**7.** Tips and tricks](@id tips-and-tricks)
 
 This section lists some tips and tricks that might be useful for using
 Literate.

@@ -43,7 +43,7 @@ y = 2//5
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "fragment"}}
 # It is possible to filter out lines depending on the output using the
-# `#md`, `#nb`, `#jl` and `#src` tags (see [Filtering Lines](@ref)):
+# `#md`, `#nb`, `#jl` and `#src` tags (see [Filtering lines](@ref)):
 #md # - This line starts with `#md` and is thus only visible in the markdown output.
 #nb # - This line starts with `#nb` and is thus only visible in the notebook output.
 #jl # - This line starts with `#jl` and is thus only visible in the script output.
@@ -65,7 +65,7 @@ x + y
 x * y
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
-# ### Output Capturing
+# ### Output capturing
 # Code chunks are by default placed in Documenter `@example` blocks in the generated
 # markdown. This means that the output will be captured in a block when Documenter is
 # building the docs. In notebooks the output is captured in output cells, if the

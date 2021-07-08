@@ -20,7 +20,7 @@ internal processing. Next, line filtering is performed, see [Filtering Lines](@r
 meaning that lines starting with `#md `, `#nb ` or `#jl ` are handled (either just
 the token itself is removed, or the full line, depending on the output target).
 The last pre-processing step is to expand the convenience "macros" described
-in [Default Replacements](@ref) is expanded.
+in [Default replacements](@ref) is expanded.
 
 
 ## [**3.2.** Parsing](@id Parsing)
