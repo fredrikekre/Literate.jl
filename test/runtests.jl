@@ -669,14 +669,25 @@ end end
             @test occursin("3REDLOHECALP", markdown)
             @test occursin("4REDLOHECALP", markdown)
 
-            # documenter = false
-            Literate.markdown(inputfile, outdir, documenter = false)
+            # flavor = CommonMarkFlavor()
+            Literate.markdown(inputfile, outdir, flavor = Literate.CommonMarkFlavor())
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```julia", markdown)
             @test !occursin(r"`{3,}@example", markdown)
             @test !occursin("continued = true", markdown)
             @test !occursin("EditURL", markdown)
             @test !occursin("#hide", markdown)
+
+            # documenter = false (deprecated)
+            @test_deprecated r"The documenter=true keyword to Literate.markdown is deprecated" begin
+                Literate.markdown(inputfile, outdir, documenter = true)
+            end
+            @test_deprecated r"The documenter=false keyword to Literate.markdown is deprecated" begin
+                Literate.markdown(inputfile, outdir, documenter = false)
+            end
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin("```julia", markdown)
+            @test !occursin(r"`{3,}@example", markdown)
 
             # codefence
             Literate.markdown(inputfile, outdir, codefence = "```c" => "```")
@@ -1001,11 +1012,13 @@ end end
             @test occursin("3REDLOHECALP", notebook)
             @test occursin("4REDLOHECALP", notebook)
 
-            # documenter = false
-            Literate.notebook(inputfile, outdir, documenter = false, execute = false)
+            # documenter = false (deprecated)
+            @test_deprecated r"The documenter=false keyword to Literate.notebook is deprecated." begin
+                Literate.notebook(inputfile, outdir, documenter = false, execute = false)
+            end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
-            @test occursin("# [Example](@id example-id", notebook)
-            @test occursin("[foo](@ref), [bar](@ref bbaarr)", notebook)
+            @test !occursin("# [Example](@id example-id", notebook)
+            @test !occursin("[foo](@ref), [bar](@ref bbaarr)", notebook)
 
             # name
             Literate.notebook(inputfile, outdir, name = "foobar", execute = false)
@@ -1191,7 +1204,7 @@ end end
             @test occursin("Link to binder: www.example3.com/file.jl", script)
 
             # Misc default configs
-            create(; kw...) = Literate.create_configuration(inputfile; user_config=Dict(), user_kwargs=kw)
+            create(; type, kw...) = Literate.create_configuration(inputfile; user_config=Dict(), user_kwargs=kw, type=type)
             cfg = create(; type=:md, execute=true)
             @test cfg["execute"]
             @test cfg["codefence"] == ("````julia" => "````")
