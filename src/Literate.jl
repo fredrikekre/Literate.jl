@@ -150,14 +150,22 @@ function replace_default(content, sym;
 
     push!(repls, "\r\n" => "\n") # normalize line endings
 
-    # unconditionally rewrite multiline comments to regular comments
-    multiline_r = r"^#=+$\R^(\X*?)\R^=+#$"m
-    while (m = match(multiline_r, content); m !== nothing)
-        newlines = sprint() do io
-            foreach(l -> println(io, "# ", l), eachline(IOBuffer(m[1])))
+    # unconditionally rewrite multiline comments and
+    # conditionally multiline markdown strings to regular comments
+    function replace_multiline(multiline_r, str)
+        while (m = match(multiline_r, str); m !== nothing)
+            newlines = sprint() do io
+                foreach(l -> println(io, "# ", l), eachline(IOBuffer(m[1])))
+            end
+            str = replace(str, multiline_r => chop(newlines); count=1)
         end
-        content = replace(content, multiline_r => chop(newlines); count=1)
+        return str
     end
+    content = replace_multiline(r"^#=+$\R^(\X*?)\R^=+#$"m, content)
+    if config["mdstrings"]::Bool
+        content = replace_multiline(r"^md\"\"\"$\R^(\X*?)\R^\"\"\"$"m, content)
+    end
+
 
     # unconditionally remove #src lines
     push!(repls, r"^#src.*\n?"m => "") # remove leading #src lines
@@ -245,6 +253,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["postprocess"] = identity
     cfg["flavor"] = type === (:md) ? DocumenterFlavor() : DefaultFlavor()
     cfg["credit"] = true
+    cfg["mdstrings"] = false
     cfg["keep_comments"] = false
     cfg["execute"] = type === :md ? false : true
     cfg["codefence"] = get(user_config, "flavor", cfg["flavor"]) isa DocumenterFlavor &&
@@ -439,7 +448,7 @@ function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
             write(ioscript, '\n') # add a newline between each chunk
         elseif isa(chunk, MDChunk) && config["keep_comments"]::Bool
             for line in chunk.lines
-                write(ioscript, rstrip(line.first * "# " * line.second * '\n'))
+                write(ioscript, rstrip(line.first * "# " * line.second) * '\n')
             end
             write(ioscript, '\n') # add a newline between each chunk
         end

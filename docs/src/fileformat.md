@@ -45,7 +45,7 @@ For simple use this is all you need to know. The following additional special sy
 There is also some default convenience replacements that will always be performed, see
 [Default replacements](@ref).
 
-### Multiline comments
+### Multiline comments and markdown strings
 
 Literate version 2.7 adds support for Julia multiline comments for markdown input.
 All multiline comments in the input are rewritten to regular comments as part of the
@@ -71,6 +71,22 @@ is rewritten to
 # This is also markdown.
 ```
 
+Similarly, Literate version 2.9 adds support for using literal markdown strings,
+`md""" ... """`, for the markdown sections, for example
+
+```julia
+md"""
+# Title
+blah blah blah
+"""
+```
+is rewritten to
+```julia
+# # Title
+# blah blah blah
+```
+This is not enabled by default -- it requires passing `mdstrings=true`.
+`Literate.markdown`/`Literate.notebook`/`Literate.script`.
 
 ## [**2.2.** Filtering lines](@id Filtering-lines)
 
@@ -104,7 +120,7 @@ is a case where we can prepend `#md` to those lines:
 #md # ```@docs
 #md # Literate.markdown
 #md # Literate.notebook
-#md # Literate.markdown
+#md # Literate.script
 #md # ```
 ````
 The lines in the example above would be filtered out in the preprocessing step, unless we are
