@@ -19,10 +19,10 @@ This README was generated directly from
 [this source file](https://github.com/fredrikekre/Literate.jl/blob/master/examples/README.jl)
 running these commands from the package root of Literate.jl:
 
-```julia
+````julia
 using Literate
-Literate.markdown("examples/README.jl", "."; documenter=false)
-```
+Literate.markdown("examples/README.jl", "."; flavor=Literate.CommonMarkFlavor())
+````
 
 [docs-img]: https://img.shields.io/badge/docs-latest%20release-blue.svg
 [docs-url]: https://fredrikekre.github.io/Literate.jl/

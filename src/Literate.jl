@@ -14,6 +14,7 @@ import .IJulia
 abstract type AbstractFlavor end
 struct DefaultFlavor <: AbstractFlavor end
 struct DocumenterFlavor <: AbstractFlavor end
+struct CommonMarkFlavor <: AbstractFlavor end
 struct FranklinFlavor <: AbstractFlavor end
 
 # # Some simple rules:
@@ -196,8 +197,8 @@ function replace_default(content, sym;
         push!(repls, "@__BINDER_ROOT_URL__" => get(config, "binder_root_url", "<unknown>"))
     end
 
-    # run some Documenter specific things
-    if config["documenter"]::Bool && sym !== :md
+    # Run some Documenter specific things
+    if !isdocumenter(config)
         ## - remove documenter style `@ref`s and `@id`s
         push!(repls, r"\[(.*?)\]\(@ref\)" => s"\1")     # [foo](@ref) => foo
         push!(repls, r"\[(.*?)\]\(@ref .*?\)" => s"\1") # [foo](@ref bar) => foo
@@ -213,6 +214,7 @@ function replace_default(content, sym;
 end
 
 filename(str) = first(splitext(last(splitdir(str))))
+isdocumenter(cfg) = cfg["flavor"]::AbstractFlavor isa DocumenterFlavor
 
 function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     # Combine user config with user kwargs
@@ -220,18 +222,35 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     user_kwargs = Dict{String,Any}(string(k) => v for (k, v) in user_kwargs)
     user_config = merge!(user_config, user_kwargs)
 
+    # deprecation of documenter kwarg
+    if (d = get(user_config, "documenter", nothing); d !== nothing)
+        if type === :md
+            Base.depwarn("The documenter=$(d) keyword to Literate.markdown is deprecated." *
+                " Pass `flavor = Literate.$(d ? "DocumenterFlavor" : "CommonMarkFlavor")()`" *
+                " instead.", Symbol("Literate.markdown"))
+            user_config["flavor"] = d ? DocumenterFlavor() : CommonMarkFlavor()
+        elseif type === :nb
+            Base.depwarn("The documenter=$(d) keyword to Literate.notebook is deprecated." *
+                " It is not used anymore for notebook output.", Symbol("Literate.notebook"))
+        elseif type === :jl
+            Base.depwarn("The documenter=$(d) keyword to Literate.script is deprecated." *
+                " It is not used anymore for script output.", Symbol("Literate.script"))
+        end
+    end
+
     # Add default config
     cfg = Dict{String,Any}()
     cfg["name"] = filename(inputfile)
     cfg["preprocess"] = identity
     cfg["postprocess"] = identity
-    cfg["documenter"] = true
+    cfg["flavor"] = type === (:md) ? DocumenterFlavor() : DefaultFlavor()
     cfg["credit"] = true
     cfg["keep_comments"] = false
     cfg["execute"] = type === :md ? false : true
-    cfg["codefence"] = get(user_config, "documenter", true) && !get(user_config, "execute", cfg["execute"]) ?
-        ("````@example $(get(user_config, "name", cfg["name"]))" => "````") : ("````julia" => "````")
-    cfg["flavor"] = type === (:md) ? DocumenterFlavor() : DefaultFlavor()
+    cfg["codefence"] = get(user_config, "flavor", cfg["flavor"]) isa DocumenterFlavor &&
+                       !get(user_config, "execute", cfg["execute"]) ?
+                       ("````@example $(get(user_config, "name", cfg["name"]))" => "````") :
+                       ("````julia" => "````")
     # Guess the package (or repository) root url
     edit_commit = "master" # TODO: Make this configurable like Documenter?
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
@@ -303,8 +322,6 @@ Available options:
   a `String`. See [Custom pre- and post-processing](@ref Custom-pre-and-post-processing).
 - `postprocess` (default: `identity`): Custom preprocessing function mapping a `String` to
   a `String`. See [Custom pre- and post-processing](@ref Custom-pre-and-post-processing).
-- `documenter` (default: `true`): Boolean signaling that the source contains Documenter.jl
-  elements. See [Interaction with Documenter](@ref Interaction-with-Documenter).
 - `credit` (default: `true`): Boolean for controlling the addition of
   `This file was generated with Literate.jl ...` to the bottom of the page. If you find
   Literate.jl useful then feel free to keep this.
@@ -363,7 +380,7 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     content = config["preprocess"](content)
 
     # run some Documenter specific things for markdown output
-    if type === :md && config["documenter"]::Bool
+    if type === :md && isdocumenter(config)
         # change the Edit on GitHub link
         path = relpath(inputfile, get(config, "repo_root_path", pwd())::String)
         path = replace(path, "\\" => "/")
@@ -466,21 +483,21 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
             write(iocode, codefence.first)
             # make sure the code block is finalized if we are printing to ```@example
             # (or ````@example, any number of backticks >= 3 works)
-            if chunk.continued && occursin(r"^`{3,}@example", codefence.first) && config["documenter"]::Bool
+            if chunk.continued && occursin(r"^`{3,}@example", codefence.first) && isdocumenter(config)
                 write(iocode, "; continued = true")
             end
             write(iocode, '\n')
             for line in chunk.lines
                 # filter out trailing #hide (unless leaving it for Documenter)
-                if !(endswith(line, "#hide") && !(config["documenter"]::Bool))
+                if !(endswith(line, "#hide") && !isdocumenter(config))
                     write(iocode, line, '\n')
                 end
             end
-            if config["documenter"]::Bool && REPL.ends_with_semicolon(chunk.lines[end])
+            if isdocumenter(config) && REPL.ends_with_semicolon(chunk.lines[end])
                 write(iocode, "nothing #hide\n")
             end
             write(iocode, codefence.second, '\n')
-            write_code = !(all(l -> endswith(l, "#hide"), chunk.lines) && !(config["documenter"]::Bool))
+            write_code = !(all(l -> endswith(l, "#hide"), chunk.lines) && !isdocumenter(config))
             write_code && write(iomd, seekstart(iocode))
             if config["execute"]::Bool
                 execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
