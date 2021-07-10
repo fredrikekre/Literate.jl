@@ -812,8 +812,11 @@ end
 
 function Base.showerror(io::IO, e::EvalException)
     println(io, "Literate.EvalException: $(typeof(e.error)) when executing code in: $(e.file)")
+    println(io, "While executing the following code block:")
+    println(io, "```")
+    println(io, e.codeblock)
+    println(io, "```")
     showerror(io, e.error, e.backtrace)
-    println(io)
 end
 
 # Stolen from Documenter
