@@ -108,6 +108,14 @@ end
         ## Line 77
         ##
         ## Line 79
+    #-
+    #~ Line 81
+    #~
+    #~ Line 83
+    #-
+        #~ Line 85
+        #~
+        #~ Line 87
     """
     expected_chunks = Chunk[
         MDChunk(["" => "Line 1"]),
@@ -145,6 +153,8 @@ end
         CodeChunk(["Line 64", "    # Line 65", "    Line 66", "Line 67"], false),
         CodeChunk(["# Line 73", "#", "# Line 75"], false),
         CodeChunk(["    # Line 77", "    #", "    # Line 79"], false),
+        CodeChunk(["# Line 81", "#", "# Line 83"], false),
+        CodeChunk(["    # Line 85", "    #", "    # Line 87"], false),
         ]
     parsed_chunks = Literate.parse(content)
     compare_chunks(parsed_chunks, expected_chunks)
@@ -201,6 +211,8 @@ content = """
     Source code only          #src
     ## # Comment
     ## another comment
+    #~ yet another comment and ...
+    #~... an ugly comment
     #-
     for i in 1:10
         print(i)
@@ -315,6 +327,8 @@ const GITLAB_ENV = Dict(
             x + 3
             # # Comment
             # another comment
+            # yet another comment and ...
+            #... an ugly comment
 
             for i in 1:10
                 print(i)
@@ -547,6 +561,8 @@ end end
             x * 3
             # # Comment
             # another comment
+            # yet another comment and ...
+            #... an ugly comment
             ````
 
             ````@example inputfile; continued = true
@@ -899,7 +915,9 @@ end end
                 "x * 3\\n",
                 "x * 3\\n",
                 "# # Comment\\n",
-                "# another comment"
+                "# another comment\\n",
+                "# yet another comment and ...\\n",
+                "#... an ugly comment"
                ],
             """,
 
