@@ -263,11 +263,24 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     # Guess the package (or repository) root url
     edit_commit = "master" # TODO: Make this configurable like Documenter?
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
+    # Strip build version from a tag (cf. JuliaDocs/Documenter.jl#1298, Literate.jl#162)
+    function version_tag_strip_build(tag)
+        m = match(Base.VERSION_REGEX, tag)
+        m === nothing && return tag
+        s0 = startswith(tag, 'v') ? "v" : ""
+        s1 = m[1] # major
+        s2 = m[2] === nothing ? "" : ".$(m[2])" # minor
+        s3 = m[3] === nothing ? "" : ".$(m[3])" # patch
+        s4 = m[5] === nothing ? "" : m[5] # pre-release (starting with -)
+        # m[7] is the build, which we want to discard
+        return "$s0$s1$s2$s3$s4"
+    end
+
     if haskey(ENV, "HAS_JOSH_K_SEAL_OF_APPROVAL") # Travis CI
         repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "unknown-repository")
         deploy_folder = if get(ENV, "TRAVIS_PULL_REQUEST", nothing) == "false"
             t = get(ENV, "TRAVIS_TAG", "")
-            isempty(t) ? get(user_config, "devurl", "dev") : t
+            isempty(t) ? get(user_config, "devurl", "dev") : version_tag_strip_build(t)
         else
             "previews/PR$(get(ENV, "TRAVIS_PULL_REQUEST", "##"))"
         end
@@ -281,7 +294,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
         repo_slug = get(ENV, "GITHUB_REPOSITORY", "unknown-repository")
         deploy_folder = if get(ENV, "GITHUB_EVENT_NAME", nothing) == "push"
             if (m = match(r"^refs\/tags\/(.*)$", get(ENV, "GITHUB_REF", ""))) !== nothing
-                String(m.captures[1])
+                version_tag_strip_build(String(m.captures[1]))
             else
                 get(user_config, "devurl", "dev")
             end

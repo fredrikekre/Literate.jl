@@ -268,7 +268,7 @@ content = """
 
 const TRAVIS_ENV = Dict(
     "TRAVIS_REPO_SLUG" => "fredrikekre/Literate.jl",
-    "TRAVIS_TAG" => "v1.2.0",
+    "TRAVIS_TAG" => "v1.2.0+docs",
     "TRAVIS_PULL_REQUEST" => "false",
     "HAS_JOSH_K_SEAL_OF_APPROVAL" => "true",
     "TRAVIS_BUILD_DIR" => normpath(joinpath(@__DIR__, "..")),
@@ -278,7 +278,7 @@ const ACTIONS_ENV = Dict(
     "GITHUB_ACTION" => "Build docs",
     "GITHUB_REPOSITORY" => "fredrikekre/Literate.jl",
     "GITHUB_EVENT_NAME" => "push",
-    "GITHUB_REF" => "refs/tags/v1.2.0",
+    "GITHUB_REF" => "refs/tags/v1.2.0+docs",
     "GITHUB_WORKSPACE" => normpath(joinpath(@__DIR__, "..")),
     (k => nothing for k in keys(TRAVIS_ENV))...,
 )
