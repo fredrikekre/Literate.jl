@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Automatic URLs from `@__NBVIEWER_ROOT_URL__` and `@__BINDER_ROOT_URL__` now follow the
+  convention [used in Documenter.jl](https://github.com/JuliaDocs/Documenter.jl/pull/1298)
+  to ignore build version information. ([#162][github-162], [#163][github-163])
 
 ## [2.9.0] - 2021-07-09
 ### Added
@@ -128,6 +132,8 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-152]: https://github.com/fredrikekre/Literate.jl/pull/152
 [github-156]: https://github.com/fredrikekre/Literate.jl/pull/156
 [github-159]: https://github.com/fredrikekre/Literate.jl/pull/159
+[github-162]: https://github.com/fredrikekre/Literate.jl/issues/162
+[github-163]: https://github.com/fredrikekre/Literate.jl/pull/163
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.0...HEAD
 [2.9.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.8.1...v2.9.0
