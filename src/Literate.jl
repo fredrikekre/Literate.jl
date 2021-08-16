@@ -161,9 +161,9 @@ function replace_default(content, sym;
         end
         return str
     end
-    content = replace_multiline(r"^#=+$\R^(\X*?)\R^=+#$"m, content)
+    content = replace_multiline(r"^#=+\R^(\X*?)\R=+#$"m, content)
     if config["mdstrings"]::Bool
-        content = replace_multiline(r"^md\"\"\"$\R^(\X*?)\R^\"\"\"$"m, content)
+        content = replace_multiline(r"^md\"\"\"\R^(\X*?)\R\"\"\"$"m, content)
     end
 
 
