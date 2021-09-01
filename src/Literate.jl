@@ -258,7 +258,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["execute"] = type === :md ? false : true
     cfg["codefence"] = get(user_config, "flavor", cfg["flavor"]) isa DocumenterFlavor &&
                        !get(user_config, "execute", cfg["execute"]) ?
-                       ("````@example $(get(user_config, "name", cfg["name"]))" => "````") :
+                       ("````@example $(get(user_config, "name", replace(cfg["name"], r"\s" => "_")))" => "````") :
                        ("````julia" => "````")
     # Guess the package (or repository) root url
     edit_commit = "master" # TODO: Make this configurable like Documenter?

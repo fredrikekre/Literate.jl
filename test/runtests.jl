@@ -834,6 +834,12 @@ end end
             chunks, _ = Literate.preprocessor(inputfile, outdir; user_kwargs=pairs((; mdstrings=true)),
                                               user_config=(), type=:md)
             @test chunks[2].lines == ["" => "hello world", "" => "hej världen"]
+
+            # fredrikekre/Literate.jl#168
+            f = "file with space.jl"
+            write(f, "1 + 1")
+            Literate.markdown(f, outdir)
+            @test occursin("file_with_space", read(joinpath(outdir, "file with space.md"), String))
         end
     end
 end end
