@@ -16,7 +16,7 @@ see [Custom pre- and post-processing](@ref Custom-pre-and-post-processing).
 
 The next step is to perform all of the built-in default replacements.
 CRLF style line endings (`"\r\n"`) are replaced with LF line endings (`"\n"`) to simplify
-internal processing. Next, line filtering is performed, see [Filtering Lines](@ref),
+internal processing. Next, line filtering is performed, see [Filtering lines](@ref),
 meaning that lines starting with `#md `, `#nb ` or `#jl ` are handled (either just
 the token itself is removed, or the full line, depending on the output target).
 The last pre-processing step is to expand the convenience "macros" described
@@ -118,8 +118,8 @@ is that `#+` enables Documenter's "continued"-blocks, see the
 
 After the parsing it is time to generate the output. What is done in this step is
 very different depending on the output target, and it is described in more detail in
-the Output format sections: [Markdown Output](@ref), [Notebook Output](@ref) and
-[Script Output](@ref). Using the default settings, the following is happening:
+the Output format sections: [Markdown output](@ref), [Notebook output](@ref) and
+[Script output](@ref). Using the default settings, the following is happening:
 
 * Markdown output: markdown chunks are printed as-is, code chunks are put inside
   a code fence (defaults to `@example`-blocks),
