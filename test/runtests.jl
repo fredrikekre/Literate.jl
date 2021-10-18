@@ -827,10 +827,10 @@ end end
             @test isfile("inputfile.md")
 
             # fredrikekre/Literate.jl#165: \r\n line endings with multiline comments/mdstrings
-            write(inputfile, "#=\r\nhello world\r\nhej världen\r\n=#")
+            write(inputfile, "#=\r\nhello world\r\nhej världen\r\n=#\r\n")
             chunks, _ = Literate.preprocessor(inputfile, outdir; user_kwargs=(), user_config=(), type=:md)
             @test chunks[2].lines == ["" => "hello world", "" => "hej världen"]
-            write(inputfile, "md\"\"\"\r\nhello world\r\nhej världen\r\n\"\"\"")
+            write(inputfile, "md\"\"\"\r\nhello world\r\nhej världen\r\n\"\"\"\r\n")
             chunks, _ = Literate.preprocessor(inputfile, outdir; user_kwargs=pairs((; mdstrings=true)),
                                               user_config=(), type=:md)
             @test chunks[2].lines == ["" => "hello world", "" => "hej världen"]
