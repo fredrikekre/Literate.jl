@@ -610,7 +610,7 @@ Generate a notebook from `inputfile` and write the result to `outputdir`.
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
-function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), flavor=JupyterFlavor(), kwargs...)
+function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     # preprocessing and parsing
     chunks, config =
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb)
@@ -754,9 +754,10 @@ function create_notebook(::PlutoFlavor, chunks, config)
     # Print header
     write(ionb, """
         ### A Pluto.jl notebook ###
-        # v0.11.0
+        # v0.16.0
 
         using Markdown
+        using InteractiveUtils
 
         """)
 
