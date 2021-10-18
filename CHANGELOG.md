@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.9.4] - 2021-10-18
 ### Fixed
 - Fix multiline comment support for `\r\n` line endings. ([#171][github-171], [#172][github-172])
 
@@ -154,7 +156,8 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-171]: https://github.com/fredrikekre/Literate.jl/issues/171
 [github-172]: https://github.com/fredrikekre/Literate.jl/pull/172
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.3...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.4...HEAD
+[2.9.4]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.3...v2.9.4
 [2.9.3]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.2...v2.9.3
 [2.9.2]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.1...v2.9.2
 [2.9.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.0...v2.9.1
