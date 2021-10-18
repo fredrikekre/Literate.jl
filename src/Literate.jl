@@ -16,6 +16,8 @@ struct DefaultFlavor <: AbstractFlavor end
 struct DocumenterFlavor <: AbstractFlavor end
 struct CommonMarkFlavor <: AbstractFlavor end
 struct FranklinFlavor <: AbstractFlavor end
+struct JupyterFlavor <: AbstractFlavor end
+struct PlutoFlavor <: AbstractFlavor end
 
 # # Some simple rules:
 #
@@ -251,7 +253,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["name"] = filename(inputfile)
     cfg["preprocess"] = identity
     cfg["postprocess"] = identity
-    cfg["flavor"] = type === (:md) ? DocumenterFlavor() : DefaultFlavor()
+    cfg["flavor"] = type === (:md) ? DocumenterFlavor() : type === (:nb) ? JupyterFlavor() : DefaultFlavor()
     cfg["credit"] = true
     cfg["mdstrings"] = false
     cfg["keep_comments"] = false
@@ -354,8 +356,10 @@ Available options:
 - `codefence` (default: `````"````@example \$(name)" => "````"````` for `DocumenterFlavor()`
   and `````"````julia" => "````"````` otherwise): Pair containing opening and closing
   code fence for wrapping code blocks.
-- `flavor` (default: `Literate.DocumenterFlavor()`) Output flavor for markdown, see
-  [Markdown flavors](@ref). Only applicable for `Literate.markdown`.
+- `flavor` (default: `Literate.DocumenterFlavor()` for `Literate.markdown` and
+  `Literate.JupyterFlavor()` for `Literate.notebook`) Output flavor for markdown and
+  notebook output, see [Markdown flavors](@ref) and [Notebook flavors](@ref).
+  Not used for `Literate.script`.
 - `devurl` (default: `"dev"`): URL for "in-development" docs, see [Documenter docs]
   (https://juliadocs.github.io/Documenter.jl/). Unused if `repo_root_url`/
   `nbviewer_root_url`/`binder_root_url` are set.
@@ -373,7 +377,7 @@ Available options:
 """
 const DEFAULT_CONFIGURATION=nothing # Dummy const for documentation
 
-function preprocessor(inputfile, outputdir; user_config, user_kwargs, type, flavor)
+function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     # Create configuration by merging default and userdefined
     config = create_configuration(inputfile; user_config=user_config,
         user_kwargs=user_kwargs, type=type)
@@ -393,7 +397,9 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type, flav
     # Add some information for passing around Literate methods
     config["literate_inputfile"] = inputfile
     config["literate_outputdir"] = outputdir
-    config["literate_ext"] = type === (:nb) ? (flavor === :pluto ? ".jl" : ".ipynb") : ".$(type)"
+    config["literate_ext"] = type === (:nb) ? (
+        config["flavor"]::AbstractFlavor isa JupyterFlavor ? ".ipynb" : ".jl") :
+        ".$(type)"
 
     # read content
     content = read(inputfile, String)
@@ -604,21 +610,21 @@ Generate a notebook from `inputfile` and write the result to `outputdir`.
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
-function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), flavor=:jupyter, kwargs...)
+function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), flavor=JupyterFlavor(), kwargs...)
     # preprocessing and parsing
     chunks, config =
-        preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb, flavor=flavor)
+        preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb)
 
     # create the notebook
-    nb = flavor == :jupyter ? jupyter_notebook(chunks, config) : pluto_notebook(chunks, config)
+    nb = create_notebook(config["flavor"]::AbstractFlavor, chunks, config)
 
     # write to file
-    print = flavor == :jupyter ? (io, c)->JSON.print(io, c, 1) : Base.print
+    print = config["flavor"]::AbstractFlavor isa JupyterFlavor ? (io, c) -> JSON.print(io, c, 1) : Base.print
     outputfile = write_result(nb, config; print = print)
     return outputfile
 end
 
-function jupyter_notebook(chunks, config)
+function create_notebook(::JupyterFlavor, chunks, config)
     nb = Dict()
     nb["nbformat"] = JUPYTER_VERSION.major
     nb["nbformat_minor"] = JUPYTER_VERSION.minor
@@ -743,7 +749,7 @@ function execute_notebook(nb; inputfile::String="<unknown>")
     return nb
 end
 
-function pluto_notebook(chunks, config)
+function create_notebook(::PlutoFlavor, chunks, config)
     ionb = IOBuffer()
     # Print header
     write(ionb, """
