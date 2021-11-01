@@ -8,12 +8,13 @@
 # The main purpose is to facilitate writing Julia examples/tutorials that can be included in
 # your package documentation.
 
-# Literate can generate markdown pages
-# (for e.g. [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)), and
-# [Jupyter notebooks](http://jupyter.org/), from the same source file. There is also
-# an option to "clean" the source from all metadata, and produce a pure Julia script.
-# Using a single source file for multiple purposes reduces maintenance, and makes sure
-# your different output formats are synced with each other.
+# Literate can generate multiple outputs from a single source file: Markdown pages
+# (for e.g. [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)),
+# [Jupyter notebooks](http://jupyter.org/), and
+# [Pluto notebooks](https://github.com/fonsp/Pluto.jl).
+# There is also an option to "clean" the source from all metadata, and produce a
+# pure Julia script. Using a single source file for multiple purposes reduces maintenance,
+# and makes sure your different output formats are synced with each other.
 #
 # This README was generated directly from
 # [this source file](https://github.com/fredrikekre/Literate.jl/blob/master/examples/README.jl)

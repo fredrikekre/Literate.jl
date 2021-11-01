@@ -16,6 +16,8 @@ struct DefaultFlavor <: AbstractFlavor end
 struct DocumenterFlavor <: AbstractFlavor end
 struct CommonMarkFlavor <: AbstractFlavor end
 struct FranklinFlavor <: AbstractFlavor end
+struct JupyterFlavor <: AbstractFlavor end
+struct PlutoFlavor <: AbstractFlavor end
 
 # # Some simple rules:
 #
@@ -251,7 +253,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["name"] = filename(inputfile)
     cfg["preprocess"] = identity
     cfg["postprocess"] = identity
-    cfg["flavor"] = type === (:md) ? DocumenterFlavor() : DefaultFlavor()
+    cfg["flavor"] = type === (:md) ? DocumenterFlavor() : type === (:nb) ? JupyterFlavor() : DefaultFlavor()
     cfg["credit"] = true
     cfg["mdstrings"] = false
     cfg["keep_comments"] = false
@@ -348,14 +350,17 @@ Available options:
   `This file was generated with Literate.jl ...` to the bottom of the page. If you find
   Literate.jl useful then feel free to keep this.
 - `keep_comments` (default: `false`): When `true`, keeps markdown lines as comments in the
-  output script. Only applicable for `Literate.script`.
+  output script. Only applicable for [`Literate.script`](@ref)
 - `execute` (default: `true` for notebook, `false` for markdown): Whether to execute and
-  capture the output. Only applicable for `Literate.notebook` and `Literate.markdown`.
+  capture the output. Only applicable for [`Literate.notebook`](@ref) and
+  [`Literate.markdown`](@ref).
 - `codefence` (default: `````"````@example \$(name)" => "````"````` for `DocumenterFlavor()`
   and `````"````julia" => "````"````` otherwise): Pair containing opening and closing
   code fence for wrapping code blocks.
-- `flavor` (default: `Literate.DocumenterFlavor()`) Output flavor for markdown, see
-  [Markdown flavors](@ref). Only applicable for `Literate.markdown`.
+- `flavor` (default: `Literate.DocumenterFlavor()` for `Literate.markdown` and
+  `Literate.JupyterFlavor()` for `Literate.notebook`) Output flavor for markdown and
+  notebook output, see [Markdown flavors](@ref) and [Notebook flavors](@ref).
+  Not used for `Literate.script`.
 - `devurl` (default: `"dev"`): URL for "in-development" docs, see [Documenter docs]
   (https://juliadocs.github.io/Documenter.jl/). Unused if `repo_root_url`/
   `nbviewer_root_url`/`binder_root_url` are set.
@@ -393,7 +398,9 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     # Add some information for passing around Literate methods
     config["literate_inputfile"] = inputfile
     config["literate_outputdir"] = outputdir
-    config["literate_ext"] = type === (:nb) ? ".ipynb" : ".$(type)"
+    config["literate_ext"] = type === (:nb) ? (
+        config["flavor"]::AbstractFlavor isa JupyterFlavor ? ".ipynb" : ".jl") :
+        ".$(type)"
 
     # read content
     content = read(inputfile, String)
@@ -610,14 +617,15 @@ function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb)
 
     # create the notebook
-    nb = jupyter_notebook(chunks, config)
+    nb = create_notebook(config["flavor"]::AbstractFlavor, chunks, config)
 
     # write to file
-    outputfile = write_result(nb, config; print = (io, c)->JSON.print(io, c, 1))
+    print = config["flavor"]::AbstractFlavor isa JupyterFlavor ? (io, c) -> JSON.print(io, c, 1) : Base.print
+    outputfile = write_result(nb, config; print = print)
     return outputfile
 end
 
-function jupyter_notebook(chunks, config)
+function create_notebook(::JupyterFlavor, chunks, config)
     nb = Dict()
     nb["nbformat"] = JUPYTER_VERSION.major
     nb["nbformat_minor"] = JUPYTER_VERSION.minor
@@ -740,6 +748,93 @@ function execute_notebook(nb; inputfile::String="<unknown>")
         end
     end
     return nb
+end
+
+function create_notebook(::PlutoFlavor, chunks, config)
+    ionb = IOBuffer()
+    # Print header
+    write(ionb, """
+        ### A Pluto.jl notebook ###
+        # v0.16.0
+
+        using Markdown
+        using InteractiveUtils
+
+        """)
+
+    # Print cells
+    uuids = Base.UUID[]
+    folds = Bool[]
+    default_fold = Dict{String,Bool}("markdown"=>true, "code"=>false) # toggleable ???
+    for (i, chunk) in enumerate(chunks)
+        io = IOBuffer()
+
+        # Jupyter style metadata # TODO: factor out, identical to jupyter notebook
+        chunktype = isa(chunk, MDChunk) ? "markdown" : "code"
+        fold = default_fold[chunktype]
+        if !isempty(chunk.lines) && line_is_nbmeta(chunk.lines[1])
+            @show chunk.lines
+            metatype, metadata = parse_nbmeta(chunk.lines[1])
+            metatype !== nothing && metatype != chunktype && error("specifying a different cell type is not supported")
+            popfirst!(chunk.lines)
+            fold = get(metadata, "fold", fold)
+        end
+
+        if isa(chunk, MDChunk)
+            if length(chunk.lines) == 1
+                line = escape_string(chunk.lines[1].second, '"')
+                write(io, "md\"", line, "\"\n")
+            else
+                write(io, "md\"\"\"\n")
+                for line in chunk.lines
+                    write(io, line.second, '\n') # Skip indent
+                end
+                write(io, "\"\"\"\n")
+            end
+            content = String(take!(io))
+        else # isa(chunk, CodeChunk)
+            for line in chunk.lines
+                write(io, line, '\n')
+            end
+            content = String(take!(io))
+            # Compute number of expressions in the code block and perhaps wrap in begin/end
+            nexprs, idx = 0, 1
+            while true
+                ex, idx = Meta.parse(content, idx)
+                ex === nothing && break
+                nexprs += 1
+            end
+            if nexprs > 1
+                io = IOBuffer()
+                print(io, "begin\n")
+                foreach(l -> print(io, "  ", l, '\n'), eachline(IOBuffer(content)))
+                print(io, "end\n")
+                content = String(take!(io))
+            end
+        end
+        uuid = uuid4(content, i)
+        push!(uuids, uuid)
+        push!(folds, fold)
+        print(ionb, "# ╔═╡ ", uuid, '\n')
+        write(ionb, content, '\n')
+    end
+
+    # Print cell order
+    print(ionb, "# ╔═╡ Cell order:\n")
+    foreach(((x, f),) -> print(ionb, "# $(f ? "╟─" : "╠═")", x, '\n'), zip(uuids, folds))
+
+    # custom post-processing from user
+    nb = config["postprocess"](String(take!(ionb)))
+    return nb
+end
+
+# UUID v4 from cell content and cell number (to keep it somewhat stable)
+function uuid4(c, n)
+    c, n = hash(c), hash(n)
+    u = (convert(UInt128, c) << 64) ⊻ convert(UInt128, n)
+    u &= 0xffffffffffff0fff3fffffffffffffff
+    u |= 0x00000000000040008000000000000000
+    return Base.UUID(u)
 end
 
 # Create a sandbox module for evaluation
