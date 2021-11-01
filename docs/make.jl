@@ -37,7 +37,7 @@ if haskey(ENV, "GITHUB_ACTIONS")
             devbranch = "master",
             push_preview = true,
             devurl = "dev",
-        )
+        ).subfolder
     end
     url = "https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/$(folder)/"
     str = read(joinpath(@__DIR__, "src/outputformats.md"), String)
