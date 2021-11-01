@@ -350,9 +350,10 @@ Available options:
   `This file was generated with Literate.jl ...` to the bottom of the page. If you find
   Literate.jl useful then feel free to keep this.
 - `keep_comments` (default: `false`): When `true`, keeps markdown lines as comments in the
-  output script. Only applicable for `Literate.script`.
+  output script. Only applicable for [`Literate.script`](@ref)
 - `execute` (default: `true` for notebook, `false` for markdown): Whether to execute and
-  capture the output. Only applicable for `Literate.notebook` and `Literate.markdown`.
+  capture the output. Only applicable for [`Literate.notebook`](@ref) and
+  [`Literate.markdown`](@ref).
 - `codefence` (default: `````"````@example \$(name)" => "````"````` for `DocumenterFlavor()`
   and `````"````julia" => "````"````` otherwise): Pair containing opening and closing
   code fence for wrapping code blocks.
