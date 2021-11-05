@@ -80,9 +80,11 @@ Literate.markdown
 Literate can output markdown in different flavors. The flavor is specified using the
 `flavor` keyword argument. The following flavors are currently supported:
 
- - `flavor = Literate.DocumenterFlavor()` this is the default flavor and the output is
+ - `flavor = Literate.DocumenterFlavor()`: this is the default flavor and the output is
    meant to be used as input to [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl).
- - `flavor = Literate.FranklinFlavor()` this outputs markdown meant to be used as input
+ - `flavor = Literate.CommonMarkFlavor()`: this outputs markdown that has the flavor of the
+   [CommonMark](https://commonmark.org/) specification.
+ - `flavor = Literate.FranklinFlavor()`: this outputs markdown meant to be used as input
    to [Franklin.jl](https://franklinjl.org/).
 
 
