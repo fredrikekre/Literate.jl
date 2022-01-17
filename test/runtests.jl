@@ -840,6 +840,17 @@ end end
             write(f, "1 + 1")
             Literate.markdown(f, outdir)
             @test occursin("file_with_space", read(joinpath(outdir, "file with space.md"), String))
+
+            # fredrikekre/Literate.jl#182
+            write(inputfile, """
+                struct SVG end
+                Base.show(io::IO, mime::MIME"image/svg", ::SVG) = print(io, "SVG")
+                SVG()
+            """)
+            Literate.markdown(inputfile, outdir; execute=true,
+                              config = Dict("mime_extensions" => [(MIME("image/svg"), ".svg")]))
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin(r"!\[\]\(\d+\.svg\)", markdown) # image/svg
         end
     end
 end end
