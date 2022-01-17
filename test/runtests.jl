@@ -844,11 +844,11 @@ end end
             # fredrikekre/Literate.jl#182
             write(inputfile, """
                 struct SVG end
-                Base.show(io::IO, mime::MIME"image/svg", ::SVG) = print(io, "SVG")
+                Base.show(io::IO, mime::MIME"image/svg+xml", ::SVG) = print(io, "SVG")
                 SVG()
             """)
             Literate.markdown(inputfile, outdir; execute=true,
-                              config = Dict("mime_extensions" => [(MIME("image/svg"), ".svg")]))
+                              config = Dict("mime_extensions" => [(MIME("image/svg+xml"), ".svg")]))
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin(r"!\[\]\(\d+\.svg\)", markdown) # image/svg
         end
