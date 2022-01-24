@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.0] - 2022-01-24
+### Added
+- Markdown execution now also support `image/svg+xml`. ([#182][github-182], [#183][github-183])
+
 ## [2.9.4] - 2021-10-18
 ### Fixed
 - Fix multiline comment support for `\r\n` line endings. ([#171][github-171], [#172][github-172])
@@ -155,6 +159,8 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-169]: https://github.com/fredrikekre/Literate.jl/pull/169
 [github-171]: https://github.com/fredrikekre/Literate.jl/issues/171
 [github-172]: https://github.com/fredrikekre/Literate.jl/pull/172
+[github-182]: https://github.com/fredrikekre/Literate.jl/issues/182
+[github-183]: https://github.com/fredrikekre/Literate.jl/pull/183
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.4...HEAD
 [2.9.4]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.3...v2.9.4
