@@ -809,7 +809,7 @@ end end
             @test occursin("```\n2×2 $(Matrix{Int}):\n 1  2\n 3  4\n```", markdown) # text/plain
             @test occursin(r"!\[\]\(\d+\.png\)", markdown) # image/png
             @test occursin(r"!\[\]\(\d+\.jpeg\)", markdown) # image/jpeg
-e            @test occursin(r"!\[\]\(\d+\.svg\)", markdown) # image/svg+xml, fredrikekre/Literate.jl#182
+            @test occursin(r"!\[\]\(\d+\.svg\)", markdown) # image/svg+xml, fredrikekre/Literate.jl#182
             @test occursin("# MD", markdown) # text/markdown
             @test occursin("```@raw html\n<h1>MD</h1>\n```", markdown) # text/html
             @test occursin("```\nhello, world\n```", markdown) # stdout/stderr
