@@ -845,7 +845,6 @@ e            @test occursin(r"!\[\]\(\d+\.svg\)", markdown) # image/svg+xml, fre
             write(f, "1 + 1")
             Literate.markdown(f, outdir)
             @test occursin("file_with_space", read(joinpath(outdir, "file with space.md"), String))
-
         end
     end
 end end
