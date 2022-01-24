@@ -224,6 +224,9 @@ end
 filename(str) = first(splitext(last(splitdir(str))))
 isdocumenter(cfg) = cfg["flavor"]::AbstractFlavor isa DocumenterFlavor
 
+_DEFAULT_IMAGE_FORMATS = [(MIME("image/svg+xml"), ".svg"), (MIME("image/png"), ".png"),
+                          (MIME("image/jpeg"), ".jpeg")]
+
 function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     # Combine user config with user kwargs
     user_config = Dict{String,Any}(string(k) => v for (k, v) in user_config)
@@ -260,8 +263,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
                        !get(user_config, "execute", cfg["execute"]) ?
                        ("````@example $(get(user_config, "name", replace(cfg["name"], r"\s" => "_")))" => "````") :
                        ("````julia" => "````")
-    cfg["image_formats"] = [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg"),
-                            (MIME("image/svg+xml"), ".svg")]
+    cfg["image_formats"] = _DEFAULT_IMAGE_FORMATS
     # Guess the package (or repository) root url
     edit_commit = "master" # TODO: Make this configurable like Documenter?
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
@@ -373,9 +375,8 @@ Available options:
   Travis CI, GitHub Actions and GitLab CI. Used for computing
   [Documenters `EditURL`](@ref Interaction-with-Documenter).
 - `image_formats`: A vector of `(mime, ext)` tuples, with the default
-  `[(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg"), (MIME("image/svg+xml"), ".svg")]`.
-  Results which are `showable` with a MIME type are saved with the first match, with the
-  corresponding extension.
+  `$(_DEFAULT_IMAGE_FORMATS)`. Results which are `showable` with a MIME type are saved with
+  the first match, with the corresponding extension.
 """
 const DEFAULT_CONFIGURATION=nothing # Dummy const for documentation
 
