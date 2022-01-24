@@ -260,7 +260,8 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
                        !get(user_config, "execute", cfg["execute"]) ?
                        ("````@example $(get(user_config, "name", replace(cfg["name"], r"\s" => "_")))" => "````") :
                        ("````julia" => "````")
-    cfg["mime_extensions"] = [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg")]
+    cfg["mime_extensions"] = [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg"),
+                              (MIME("image/svg+xml"), ".svg")]
     # Guess the package (or repository) root url
     edit_commit = "master" # TODO: Make this configurable like Documenter?
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?

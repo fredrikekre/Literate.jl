@@ -778,6 +778,10 @@ end end
                 Base.show(io::IO, mime::MIME"image/jpeg", ::JPEG) = print(io, "JPEG")
                 JPEG()
                 #-
+                struct SVG end
+                Base.show(io::IO, mime::MIME"image/svg+xml", ::SVG) = print(io, "SVG")
+                SVG()
+                #-
                 struct MD end
                 Base.show(io::IO, mime::MIME"text/markdown", ::MD) = print(io, "# " * "MD")
                 Base.show(io::IO, mime::MIME"text/html", ::MD) =
@@ -805,6 +809,7 @@ end end
             @test occursin("```\n2×2 $(Matrix{Int}):\n 1  2\n 3  4\n```", markdown) # text/plain
             @test occursin(r"!\[\]\(\d+\.png\)", markdown) # image/png
             @test occursin(r"!\[\]\(\d+\.jpeg\)", markdown) # image/jpeg
+e            @test occursin(r"!\[\]\(\d+\.svg\)", markdown) # image/svg+xml, fredrikekre/Literate.jl#182
             @test occursin("# MD", markdown) # text/markdown
             @test occursin("```@raw html\n<h1>MD</h1>\n```", markdown) # text/html
             @test occursin("```\nhello, world\n```", markdown) # stdout/stderr
@@ -841,16 +846,6 @@ end end
             Literate.markdown(f, outdir)
             @test occursin("file_with_space", read(joinpath(outdir, "file with space.md"), String))
 
-            # fredrikekre/Literate.jl#182
-            write(inputfile, """
-                struct SVG end
-                Base.show(io::IO, mime::MIME"image/svg+xml", ::SVG) = print(io, "SVG")
-                SVG()
-            """)
-            Literate.markdown(inputfile, outdir; execute=true,
-                              config = Dict("mime_extensions" => [(MIME("image/svg+xml"), ".svg")]))
-            markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test occursin(r"!\[\]\(\d+\.svg\)", markdown) # image/svg
         end
     end
 end end
