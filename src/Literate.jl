@@ -260,8 +260,8 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
                        !get(user_config, "execute", cfg["execute"]) ?
                        ("````@example $(get(user_config, "name", replace(cfg["name"], r"\s" => "_")))" => "````") :
                        ("````julia" => "````")
-    cfg["mime_extensions"] = [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg"),
-                              (MIME("image/svg+xml"), ".svg")]
+    cfg["image_formats"] = [(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg"),
+                            (MIME("image/svg+xml"), ".svg")]
     # Guess the package (or repository) root url
     edit_commit = "master" # TODO: Make this configurable like Documenter?
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
@@ -372,10 +372,10 @@ Available options:
 - `repo_root_path`: Filepath to the root of the repository. Determined automatically on
   Travis CI, GitHub Actions and GitLab CI. Used for computing
   [Documenters `EditURL`](@ref Interaction-with-Documenter).
-- `mime_extensions`: A vector of `(mime, ext)` tuples, with the default
-  `[(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg")]`. Results which are
-  `showable` with a MIME type are saved with the first match, with the corresponding
-  extension.
+- `image_formats`: A vector of `(mime, ext)` tuples, with the default
+  `[(MIME("image/png"), ".png"), (MIME("image/jpeg"), ".jpeg"), (MIME("image/svg+xml"), ".svg")]`.
+  Results which are `showable` with a MIME type are saved with the first match, with the
+  corresponding extension.
 """
 const DEFAULT_CONFIGURATION=nothing # Dummy const for documentation
 
@@ -531,7 +531,7 @@ function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
                 execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
                                   inputfile=config["literate_inputfile"],
                                   flavor=config["flavor"],
-                                  mime_extensions=config["mime_extensions"])
+                                  image_formats=config["image_formats"])
             end
         end
         write(iomd, '\n') # add a newline between each chunk
@@ -547,7 +547,7 @@ end
 
 function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
                            inputfile::String="<unknown>", flavor::AbstractFlavor,
-                           mime_extensions::Vector)
+                           image_formats::Vector)
     # TODO: Deal with explicit display(...) calls
     r, str, _ = execute_block(sb, block; inputfile=inputfile)
     # issue #101: consecutive codefenced blocks need newline
@@ -562,7 +562,7 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
             write(io, "\n", htmlfence.second, "\n")
             return
         end
-        for (mime, ext) in mime_extensions
+        for (mime, ext) in image_formats
             if showable(mime, r)
                 file = string(hash(block) % UInt32) * ext
                 open(joinpath(outputdir, file), "w") do io
