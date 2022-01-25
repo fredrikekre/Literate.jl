@@ -762,6 +762,14 @@ end end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test !occursin("md\"\"\"", markdown)
 
+            # edit_commit
+            withenv(ACTIONS_ENV...) do
+                Literate.markdown(inputfile, outdir; edit_commit="retsam")
+            end
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin("blob/retsam/", markdown)
+            @test !occursin("blob/master/", markdown)
+
             # execute
             write(inputfile, """
                 using DisplayAs

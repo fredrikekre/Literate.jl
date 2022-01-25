@@ -264,8 +264,21 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
                        ("````@example $(get(user_config, "name", replace(cfg["name"], r"\s" => "_")))" => "````") :
                        ("````julia" => "````")
     cfg["image_formats"] = _DEFAULT_IMAGE_FORMATS
-    # Guess the package (or repository) root url
-    edit_commit = "master" # TODO: Make this configurable like Documenter?
+    # Guess the package (or repository) root url with "master" as fallback
+    # see JuliaDocs/Documenter.jl#1751
+    fallback_edit_commit = "master"
+    if (git = Sys.which("git"); git !== nothing)
+        try
+            str = read(pipeline(ignorestatus(
+                setenv(`$(git) remote show origin`; dir=dirname(inputfile))
+            ), stderr=devnull), String)
+            if (m = match(r"^\s*HEAD branch:\s*(.*)$"m, str); m !== nothing)
+                fallback_edit_commit = String(m[1])
+            end
+        catch
+        end
+    end
+    cfg["edit_commit"] = get(user_config, "edit_commit", fallback_edit_commit)
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
     # Strip build version from a tag (cf. JuliaDocs/Documenter.jl#1298, Literate.jl#162)
     function version_tag_strip_build(tag)
@@ -288,7 +301,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
         else
             "previews/PR$(get(ENV, "TRAVIS_PULL_REQUEST", "##"))"
         end
-        cfg["repo_root_url"] = "https://github.com/$(repo_slug)/blob/$(edit_commit)"
+        cfg["repo_root_url"] = "https://github.com/$(repo_slug)/blob/$(cfg["edit_commit"])"
         cfg["nbviewer_root_url"] = "https://nbviewer.jupyter.org/github/$(repo_slug)/blob/$(deploy_branch)/$(deploy_folder)"
         cfg["binder_root_url"] = "https://mybinder.org/v2/gh/$(repo_slug)/$(deploy_branch)?filepath=$(deploy_folder)"
         if (dir = get(ENV, "TRAVIS_BUILD_DIR", nothing)) !== nothing
@@ -307,7 +320,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
         else
             "dev"
         end
-        cfg["repo_root_url"] = "https://github.com/$(repo_slug)/blob/$(edit_commit)"
+        cfg["repo_root_url"] = "https://github.com/$(repo_slug)/blob/$(cfg["edit_commit"])"
         cfg["nbviewer_root_url"] = "https://nbviewer.jupyter.org/github/$(repo_slug)/blob/$(deploy_branch)/$(deploy_folder)"
         cfg["binder_root_url"] = "https://mybinder.org/v2/gh/$(repo_slug)/$(deploy_branch)?filepath=$(deploy_folder)"
         if (dir = get(ENV, "GITHUB_WORKSPACE", nothing)) !== nothing
@@ -315,7 +328,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
         end
     elseif haskey(ENV, "GITLAB_CI")
         if (url = get(ENV, "CI_PROJECT_URL", nothing)) !== nothing
-            cfg["repo_root_url"] = "$(url)/blob/$(edit_commit)"
+            cfg["repo_root_url"] = "$(url)/blob/$(cfg["edit_commit"])"
         end
         if (url = get(ENV, "CI_PAGES_URL", nothing)) !== nothing &&
            (m = match(r"https://(.+)", url)) !== nothing

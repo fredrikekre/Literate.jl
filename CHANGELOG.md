@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Literate now tries to figure out the branch/commit that `EditURL` should point to
+  automatically instead of always defaulting to `"master"`. For typical setups the
+  auto-detection should be sufficient, but you can also set it explicitly by passing
+  `edit_commit`, for example `edit_commit = "main"`. ([#179][github-179], [#184][github-184])
 
 ## [2.10.0] - 2022-01-24
 ### Added
@@ -159,8 +164,10 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-169]: https://github.com/fredrikekre/Literate.jl/pull/169
 [github-171]: https://github.com/fredrikekre/Literate.jl/issues/171
 [github-172]: https://github.com/fredrikekre/Literate.jl/pull/172
+[github-179]: https://github.com/fredrikekre/Literate.jl/issues/179
 [github-182]: https://github.com/fredrikekre/Literate.jl/issues/182
 [github-183]: https://github.com/fredrikekre/Literate.jl/pull/183
+[github-184]: https://github.com/fredrikekre/Literate.jl/pull/184
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.4...HEAD
 [2.9.4]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.3...v2.9.4
