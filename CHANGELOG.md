@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.11.0] - 2022-01-25
 ### Added
 - Literate now tries to figure out the branch/commit that `EditURL` should point to
   automatically instead of always defaulting to `"master"`. For typical setups the
@@ -169,7 +171,9 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-183]: https://github.com/fredrikekre/Literate.jl/pull/183
 [github-184]: https://github.com/fredrikekre/Literate.jl/pull/184
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.4...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.11.0...HEAD
+[2.11.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.10.0...v2.11.0
+[2.10.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.4...v2.10.0
 [2.9.4]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.3...v2.9.4
 [2.9.3]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.2...v2.9.3
 [2.9.2]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.1...v2.9.2
