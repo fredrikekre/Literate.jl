@@ -459,14 +459,14 @@ function write_result(content, config; print=print)
 end
 
 """
-    Literate.script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
+    Literate.script(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
 
 Generate a plain script file from `inputfile` and write the result to `outputdir`.
 
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
-function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
+function script(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
     # preprocessing and parsing
     chunks, config =
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:jl)
@@ -497,7 +497,7 @@ end
 
 
 """
-    Literate.markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
+    Literate.markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
 
 Generate a markdown file from `inputfile` and write the result
 to the directory `outputdir`.
@@ -505,7 +505,7 @@ to the directory `outputdir`.
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
-function markdown(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
+function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
     # preprocessing and parsing
     chunks, config =
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:md)
@@ -620,14 +620,14 @@ line_is_nbmeta(line::Pair) = line_is_nbmeta(line.second)
 line_is_nbmeta(line) = startswith(line, "%% ")
 
 """
-    Literate.notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
+    Literate.notebook(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
 
 Generate a notebook from `inputfile` and write the result to `outputdir`.
 
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
 """
-function notebook(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
+function notebook(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
     # preprocessing and parsing
     chunks, config =
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:nb)
