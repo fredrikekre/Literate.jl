@@ -123,7 +123,7 @@ function parse(content; allow_continued = true)
 end
 
 function replace_default(content, sym;
-                         config::AbstractDict,
+                         config::Dict,
                          branch = "gh-pages",
                          commit = "master"
                          )
