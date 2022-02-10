@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.12.1] - 2022-02-10
+### Fixed
+- Make sure Markdown execution picks up new definitions of display methods (by running
+  in the latest "world age"). ([#187][github-187])
+
 ## [2.12.0] - 2022-02-01
 ### Changed
 - User input configurations can now be `AbstractDict`s instead of just `Dict`s.
@@ -177,8 +182,10 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-184]: https://github.com/fredrikekre/Literate.jl/pull/184
 [github-185]: https://github.com/fredrikekre/Literate.jl/issues/185
 [github-186]: https://github.com/fredrikekre/Literate.jl/pull/186
+[github-187]: https://github.com/fredrikekre/Literate.jl/pull/187
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.0...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.1...HEAD
+[2.12.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.0...v2.12.1
 [2.12.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.11.0...v2.12.0
 [2.11.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.10.0...v2.11.0
 [2.10.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.9.4...v2.10.0
