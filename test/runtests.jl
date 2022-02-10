@@ -810,6 +810,11 @@ end end
                 #-
                 print("hello there")
                 nothing
+                #-
+                a = 2 + 2
+                print("a: ", a); nothing #hide
+                #-
+                47 #hide
                 """)
             Literate.markdown(inputfile, outdir; execute=true)
             markdown = read(joinpath(outdir, "inputfile.md"), String)
@@ -825,6 +830,12 @@ end end
             @test !occursin("246", markdown) # empty output because trailing ;
             @test !occursin("```\nnothing\n```", markdown) # empty output because nothing as return value
             @test occursin("```\nhello there\n```", markdown) # nothing as return value, non-empty stdout
+            @test occursin("```julia\na = 2 + 2\n```", markdown) # line with `#hide` removed
+            @test occursin("```\na: 4\n```", markdown) # nothing as return value, non-empty stdout
+            @test !occursin("```julia\n47 #hide\n```", markdown) # line with `#hide` removed
+            @test !occursin("```julia\n```", markdown) # no empty code block
+            @test occursin("```\n47\n```", markdown) # return value (even though line/block removed)
+
             # FranklinFlavor
             Literate.markdown(inputfile, outdir; execute=true, flavor=Literate.FranklinFlavor())
             markdown = read(joinpath(outdir, "inputfile.md"), String)

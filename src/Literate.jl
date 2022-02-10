@@ -522,6 +522,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
         else # isa(chunk, CodeChunk)
             iocode = IOBuffer()
             codefence = config["codefence"]::Pair
+            execute = config["execute"]::Bool
             write(iocode, codefence.first)
             # make sure the code block is finalized if we are printing to ```@example
             # (or ````@example, any number of backticks >= 3 works)
@@ -531,17 +532,17 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
             write(iocode, '\n')
             for line in chunk.lines
                 # filter out trailing #hide (unless leaving it for Documenter)
-                if !(endswith(line, "#hide") && !isdocumenter(config))
+                if !endswith(line, "#hide") || (isdocumenter(config) && !execute)
                     write(iocode, line, '\n')
                 end
             end
-            if isdocumenter(config) && REPL.ends_with_semicolon(chunk.lines[end])
+            if isdocumenter(config) && !execute && REPL.ends_with_semicolon(chunk.lines[end])
                 write(iocode, "nothing #hide\n")
             end
             write(iocode, codefence.second, '\n')
-            write_code = !(all(l -> endswith(l, "#hide"), chunk.lines) && !isdocumenter(config))
+            write_code = !all(l -> endswith(l, "#hide"), chunk.lines) || (isdocumenter(config) && !execute)
             write_code && write(iomd, seekstart(iocode))
-            if config["execute"]::Bool
+            if execute
                 execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
                                   inputfile=config["literate_inputfile"],
                                   flavor=config["flavor"],
