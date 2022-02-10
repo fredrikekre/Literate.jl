@@ -799,6 +799,13 @@ end end
                 #-
                 DisplayAs.HTML(MD())
                 #-
+                struct Plain end
+                Base.showable(::MIME, ::Plain) = false
+                Base.showable(::MIME"text/plain", ::Plain) = true
+                Base.show(::IO, ::MIME, ::Plain) = error("only plain output supported")
+                Base.show(io::IO, ::MIME"text/plain", ::Plain) = print(io, "Plain")
+                Plain()
+                #-
                 print("hello"); print(stdout, ", "); print(stderr, "world")
                 #-
                 print("hej, världen")
@@ -820,6 +827,7 @@ end end
             @test occursin(r"!\[\]\(\d+\.svg\)", markdown) # image/svg+xml, fredrikekre/Literate.jl#182
             @test occursin("# MD", markdown) # text/markdown
             @test occursin("```@raw html\n<h1>MD</h1>\n```", markdown) # text/html
+            @test occursin("```\nPlain\n```", markdown) # text/plain, fredrikekre/Literate#187
             @test occursin("```\nhello, world\n```", markdown) # stdout/stderr
             @test occursin("```\n42\n```", markdown) # result over stdout/stderr
             @test !occursin("246", markdown) # empty output because trailing ;
