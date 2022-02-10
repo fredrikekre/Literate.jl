@@ -569,7 +569,7 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
     plain_fence = "\n````\n" =>  "\n````"
     if r !== nothing && !REPL.ends_with_semicolon(block)
         if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
-           showable(MIME("text/html"), r)
+           Base.invokelatest(showable, MIME("text/html"), r)
             htmlfence = flavor isa FranklinFlavor ? ("~~~" => "~~~") : ("```@raw html" => "```")
             write(io, "\n", htmlfence.first, "\n")
             Base.invokelatest(show, io, MIME("text/html"), r)
@@ -577,7 +577,7 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
             return
         end
         for (mime, ext) in image_formats
-            if showable(mime, r)
+            if Base.invokelatest(showable, mime, r)
                 file = string(hash(block) % UInt32) * ext
                 open(joinpath(outputdir, file), "w") do io
                     Base.invokelatest(show, io, mime, r)
@@ -586,7 +586,7 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
                 return
             end
         end
-        if showable(MIME("text/markdown"), r)
+        if Base.invokelatest(showable, MIME("text/markdown"), r)
             write(io, '\n')
             Base.invokelatest(show, io, MIME("text/markdown"), r)
             write(io, '\n')
