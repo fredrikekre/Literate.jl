@@ -827,6 +827,7 @@ end end
             @test occursin("```@raw html\n<h1>MD</h1>\n```", markdown) # text/html
             @test occursin("```\nhello, world\n```", markdown) # stdout/stderr
             @test occursin("```\n42\n```", markdown) # result over stdout/stderr
+            @test occursin("```julia\n123+123;\n```", markdown) # no additional `nothing #hide`, fredrikekre/Literate.jl/issues/166#issuecomment-979987878
             @test !occursin("246", markdown) # empty output because trailing ;
             @test !occursin("```\nnothing\n```", markdown) # empty output because nothing as return value
             @test occursin("```\nhello there\n```", markdown) # nothing as return value, non-empty stdout
