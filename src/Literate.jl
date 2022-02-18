@@ -173,7 +173,7 @@ function replace_default(content, sym;
 
     if sym === :md
         push!(repls, r"^#(md|!nb|!jl) "m => "")    # remove leading #md, #!nb, and #!jl
-        push!(repls, r" #(md|!nb|!jl)$"m => "")     # remove trailing #md, #!nb, and #!jl
+        push!(repls, r" #(md|!nb|!jl)$"m => "")    # remove trailing #md, #!nb, and #!jl
         push!(repls, r"^#(!md|nb|jl).*\n?"m => "") # remove leading #!md, #nb and #jl lines
         push!(repls, r".*#(!md|nb|jl)$\n?"m => "") # remove trailing #!md, #nb, and #jl lines
     elseif sym === :nb
@@ -181,7 +181,9 @@ function replace_default(content, sym;
         push!(repls, r" #(!md|nb|!jl)$"m => "")    # remove trailing #!md, #nb, and #!jl
         push!(repls, r"^#(md|!nb|jl).*\n?"m => "") # remove leading #md, #!nb and #jl lines
         push!(repls, r".*#(md|!nb|jl)$\n?"m => "") # remove trailing #md, #!nb, and #jl lines
+        # Replace Markdown stdlib math environments
         push!(repls, r"```math(.*?)```"s => s"$$\1$$")
+        push!(repls, r"(?<!`)``([^`]+?)``(?!`)" => s"$\1$")
     else # sym === :jl
         push!(repls, r"^#(!md|!nb|jl) "m => "")    # remove leading #!md, #!nb, and #jl
         push!(repls, r" #(!md|!nb|jl)$"m => "")    # remove trailing #!md, #!nb, and #jl
@@ -193,7 +195,6 @@ function replace_default(content, sym;
     push!(repls, "@__NAME__" => config["name"]::String)
 
     # fix links
-
     if get(ENV, "DOCUMENTATIONGENERATOR", "") == "true"
         ## DocumentationGenerator.jl
         base_url = get(ENV, "DOCUMENTATIONGENERATOR_BASE_URL", "DOCUMENTATIONGENERATOR_BASE_URL")

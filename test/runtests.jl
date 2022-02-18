@@ -221,7 +221,8 @@ content = """
     ## PLACEHOLDER3
     ## PLACEHOLDER4
 
-    # Some math:
+    # Some inline math: ``\\frac{df}{dx}``, some multiline inline math: ``y =
+    # kx + m``, and some display math:
     # ```math
     # \\int f(x) dx
     # ```
@@ -580,7 +581,8 @@ end end
             # PLACEHOLDER4
             ````
 
-            Some math:
+            Some inline math: ``\\frac{df}{dx}``, some multiline inline math: ``y =
+            kx + m``, and some display math:
             ```math
             \\int f(x) dx
             ```
@@ -994,7 +996,8 @@ end end
 
             """
                "source": [
-                "Some math:\\n",
+                "Some inline math: \$\\\\frac{df}{dx}\$, some multiline inline math: \$y =\\n",
+                "kx + m\$, and some display math:\\n",
                 "\$\$\\n",
                 "\\\\int f(x) dx\\n",
                 "\$\$"

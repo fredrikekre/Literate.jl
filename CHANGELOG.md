@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- "Markdown stdlib-style" inline math (e.g. ``` ``f(x) = x^2`` ```) is now replaced with
+  "notebook style" math (`$f(x) = x^2$`) for notebook output. This is already the case for
+  display math (```` ```math ````). ([#116][github-116], [#190][github-190])
 ### Fixed
 - Lines with trailing `#hide` are not shown in output of Markdown execution with Documenter
   flavour. ([#188][github-188])
@@ -163,6 +167,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [dc409d0]: https://github.com/fredrikekre/Literate.jl/commit/dc409d0f43a6282bee4e28e8e12bb6309942e5d5
 [ceff7a3]: https://github.com/fredrikekre/Literate.jl/commit/ceff7a36be2a9152d853257bac97be00d915ba8e
 
+[github-116]: https://github.com/fredrikekre/Literate.jl/issues/116
 [github-144]: https://github.com/fredrikekre/Literate.jl/issues/144
 [github-145]: https://github.com/fredrikekre/Literate.jl/pull/145
 [github-146]: https://github.com/fredrikekre/Literate.jl/pull/146
@@ -186,6 +191,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-185]: https://github.com/fredrikekre/Literate.jl/issues/185
 [github-186]: https://github.com/fredrikekre/Literate.jl/pull/186
 [github-187]: https://github.com/fredrikekre/Literate.jl/pull/187
+[github-190]: https://github.com/fredrikekre/Literate.jl/pull/190
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.1...HEAD
 [2.12.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.0...v2.12.1
