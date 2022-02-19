@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   display math (```` ```math ````). ([#116][github-116], [#190][github-190])
 ### Fixed
 - Lines with trailing `#hide` are not shown in output of Markdown execution with Documenter
-  flavour. ([#188][github-188])
+  flavor. ([#166][github-166], [#188][github-188])
 
 ## [2.12.1] - 2022-02-10
 ### Fixed
@@ -179,6 +179,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-162]: https://github.com/fredrikekre/Literate.jl/issues/162
 [github-163]: https://github.com/fredrikekre/Literate.jl/pull/163
 [github-165]: https://github.com/fredrikekre/Literate.jl/issues/165
+[github-166]: https://github.com/fredrikekre/Literate.jl/issues/166
 [github-167]: https://github.com/fredrikekre/Literate.jl/pull/167
 [github-168]: https://github.com/fredrikekre/Literate.jl/issues/168
 [github-169]: https://github.com/fredrikekre/Literate.jl/pull/169
@@ -191,6 +192,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-185]: https://github.com/fredrikekre/Literate.jl/issues/185
 [github-186]: https://github.com/fredrikekre/Literate.jl/pull/186
 [github-187]: https://github.com/fredrikekre/Literate.jl/pull/187
+[github-188]: https://github.com/fredrikekre/Literate.jl/pull/188
 [github-190]: https://github.com/fredrikekre/Literate.jl/pull/190
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.1...HEAD
