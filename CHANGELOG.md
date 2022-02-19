@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.13.0] - 2022-02-18
 ### Changed
 - "Markdown stdlib-style" inline math (e.g. ``` ``f(x) = x^2`` ```) is now replaced with
   "notebook style" math (`$f(x) = x^2$`) for notebook output. This is already the case for
@@ -195,7 +197,8 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-188]: https://github.com/fredrikekre/Literate.jl/pull/188
 [github-190]: https://github.com/fredrikekre/Literate.jl/pull/190
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.1...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.0...HEAD
+[2.13.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.1...v2.13.0
 [2.12.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.0...v2.12.1
 [2.12.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.11.0...v2.12.0
 [2.11.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.10.0...v2.11.0
