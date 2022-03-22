@@ -819,16 +819,58 @@ function execute_block(sb::Module, block::String; inputfile::String="<unknown>")
     end
     popdisplay(disp) # IOCapture.capture has a try-catch so should always end up here
     if c.error
-        error("""
-             $(sprint(showerror, c.value))
-             when executing the following code block in file `$(Base.contractuser(inputfile))`
-
-             ```julia
-             $block
-             ```
-             """)
+        # if c.value isa LoadError
+        #     @info "..." c.value.file c.value.line
+        #     bt = remove_common_backtrace(c.backtrace, backtrace())
+        #     st = stacktrace(bt)
+        #     @assert length(bt) >= length(st)
+        #     idx = findlast(sf -> sf.func === :eval, st)
+        #     display(st)
+        #     @show idx st[idx]
+        #     bt_ptr = Ptr{Nothing}(st[idx-1].pointer)
+        #     idx = findfirst(isequal(bt_ptr), bt)
+        #     @show idx
+        #     display(stacktrace(bt[1:idx]))
+        #     throw(EvalException(Base.contractuser(inputfile), block, c.value.error, bt[1:idx]))
+        # else
+        #     throw(EvalException(Base.contractuser(inputfile), block, c.value, remove_common_backtrace(c.backtrace, backtrace())))
+        # end
+        throw(EvalException(Base.contractuser(inputfile), block, c.value, remove_common_backtrace(c.backtrace, backtrace())))
     end
     return c.value, c.output, disp.data
+end
+
+struct EvalException <: Exception
+    file :: AbstractString
+    codeblock :: AbstractString
+    error :: Any
+    backtrace :: Any
+end
+
+function Base.showerror(io::IO, e::EvalException)
+    println(io, "Literate.EvalException: $(typeof(e.error)) when executing code in: $(e.file)")
+    println(io, "While executing the following code block:")
+    println(io, "```")
+    println(io, e.codeblock)
+    println(io, "```")
+    showerror(io, e.error, e.backtrace)
+end
+
+# Stolen from Documenter
+function remove_common_backtrace(bt, reference_bt)
+    cutoff = nothing
+    # We'll start from the top of the backtrace (end of the array) and go down, checking
+    # if the backtraces agree
+    for ridx in 1:length(bt)
+        # Cancel search if we run out the reference BT or find a non-matching one frames:
+        if ridx > length(reference_bt) || bt[length(bt) - ridx + 1] != reference_bt[length(reference_bt) - ridx + 1]
+            cutoff = length(bt) - ridx + 1
+            break
+        end
+    end
+    # It's possible that the loop does not find anything, i.e. that all BT elements are in
+    # the reference_BT too. In that case we'll just return an empty BT.
+    bt[1:(cutoff === nothing ? 0 : cutoff)]
 end
 
 end # module
