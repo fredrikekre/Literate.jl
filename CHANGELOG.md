@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Disable git terminal prompt when detecting remote HEAD branch. ([#194][github-194])
 
 ## [2.13.0] - 2022-02-18
 ### Changed
@@ -196,6 +198,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-187]: https://github.com/fredrikekre/Literate.jl/pull/187
 [github-188]: https://github.com/fredrikekre/Literate.jl/pull/188
 [github-190]: https://github.com/fredrikekre/Literate.jl/pull/190
+[github-194]: https://github.com/fredrikekre/Literate.jl/pull/194
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.0...HEAD
 [2.13.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.1...v2.13.0
