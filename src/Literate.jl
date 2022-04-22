@@ -405,6 +405,12 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     inputfile = realpath(abspath(inputfile))
     mkpath(outputdir)
     outputdir = realpath(abspath(outputdir))
+    isdir(outputdir) || error("not a directory: $(outputdir)")
+    ext = type === (:nb) ? ".ipynb" : ".$(type)"
+    outputfile = joinpath(outputdir, config["name"]::String * ext)
+    if inputfile == outputfile
+        throw(ArgumentError("outputfile (`$outputfile`) is identical to inputfile (`$inputfile`)"))
+    end
 
     output_thing = type === (:md) ? "markdown page" :
                    type === (:nb) ? "notebook" :
@@ -414,7 +420,8 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     # Add some information for passing around Literate methods
     config["literate_inputfile"] = inputfile
     config["literate_outputdir"] = outputdir
-    config["literate_ext"] = type === (:nb) ? ".ipynb" : ".$(type)"
+    config["literate_ext"] = ext
+    config["literate_outputfile"] = outputfile
 
     # read content
     content = read(inputfile, String)
@@ -445,13 +452,7 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
 end
 
 function write_result(content, config; print=print)
-    inputfile = config["literate_inputfile"]
-    outputdir = config["literate_outputdir"]
-    isdir(outputdir) || error("not a directory: $(outputdir)")
-    outputfile = joinpath(outputdir, config["name"]::String * config["literate_ext"])
-    if inputfile == outputfile
-        throw(ArgumentError("outputfile (`$outputfile`) is identical to inputfile (`$inputfile`)"))
-    end
+    outputfile = config["literate_outputfile"]
     @info "writing result to `$(Base.contractuser(outputfile))`"
     open(outputfile, "w") do io
         print(io, content)
@@ -543,10 +544,13 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
             write(iocode, codefence.second, '\n')
             any(write_line, chunk.lines) && write(iomd, seekstart(iocode))
             if execute
-                execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
-                                  inputfile=config["literate_inputfile"],
-                                  flavor=config["flavor"],
-                                  image_formats=config["image_formats"])
+                cd(config["literate_outputdir"]) do
+                    execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
+                                      inputfile=config["literate_inputfile"],
+                                      fake_source=config["literate_outputfile"],
+                                      flavor=config["flavor"],
+                                      image_formats=config["image_formats"])
+                end
             end
         end
         write(iomd, '\n') # add a newline between each chunk
@@ -561,10 +565,10 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
 end
 
 function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
-                           inputfile::String="<unknown>", flavor::AbstractFlavor,
-                           image_formats::Vector)
+                           inputfile::String, fake_source::String,
+                           flavor::AbstractFlavor, image_formats::Vector)
     # TODO: Deal with explicit display(...) calls
-    r, str, _ = execute_block(sb, block; inputfile=inputfile)
+    r, str, _ = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source)
     # issue #101: consecutive codefenced blocks need newline
     # issue #144: quadruple backticks allow for triple backticks in the output
     plain_fence = "\n````\n" =>  "\n````"
@@ -698,7 +702,8 @@ function jupyter_notebook(chunks, config)
         @info "executing notebook `$(config["name"] * ".ipynb")`"
         try
             cd(config["literate_outputdir"]) do
-                nb = execute_notebook(nb; inputfile=config["literate_inputfile"])
+                nb = execute_notebook(nb; inputfile=config["literate_inputfile"],
+                                          fake_source=config["literate_outputfile"])
             end
         catch err
             @error "error when executing notebook based on input file: " *
@@ -709,7 +714,7 @@ function jupyter_notebook(chunks, config)
     return nb
 end
 
-function execute_notebook(nb; inputfile::String="<unknown>")
+function execute_notebook(nb; inputfile::String, fake_source::String)
     sb = sandbox()
     execution_count = 0
     for cell in nb["cells"]
@@ -717,7 +722,7 @@ function execute_notebook(nb; inputfile::String="<unknown>")
         execution_count += 1
         cell["execution_count"] = execution_count
         block = join(cell["source"])
-        r, str, display_dicts = execute_block(sb, block; inputfile=inputfile)
+        r, str, display_dicts = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source)
 
         # str should go into stream
         if !isempty(str)
@@ -799,7 +804,7 @@ function Base.display(ld::LiterateDisplay, mime::MIME, x)
 end
 
 # Execute a code-block in a module and capture stdout/stderr and the result
-function execute_block(sb::Module, block::String; inputfile::String="<unknown>")
+function execute_block(sb::Module, block::String; inputfile::String, fake_source::String)
     @debug """execute_block($sb, block)
     ```
     $(block)
@@ -815,13 +820,13 @@ function execute_block(sb::Module, block::String; inputfile::String="<unknown>")
     # `rethrow = Union{}` means that we try-catch all the exceptions thrown in the do-block
     # and return them via the return value (they get handled below).
     c = IOCapture.capture(rethrow = Union{}) do
-        include_string(sb, block)
+        include_string(sb, block, fake_source)
     end
     popdisplay(disp) # IOCapture.capture has a try-catch so should always end up here
     if c.error
         error("""
              $(sprint(showerror, c.value))
-             when executing the following code block in file `$(Base.contractuser(inputfile))`
+             when executing the following code block from inputfile `$(Base.contractuser(inputfile))`
 
              ```julia
              $block
