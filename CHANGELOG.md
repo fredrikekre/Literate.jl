@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.13.2] - 2022-04-22
 ### Fixed
 - Set current working directory for markdown execution to the output directory, just like
   notebook execution. ([#195][github-195])
@@ -206,8 +208,10 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-188]: https://github.com/fredrikekre/Literate.jl/pull/188
 [github-190]: https://github.com/fredrikekre/Literate.jl/pull/190
 [github-194]: https://github.com/fredrikekre/Literate.jl/pull/194
+[github-195]: https://github.com/fredrikekre/Literate.jl/pull/195
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.1...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.2...HEAD
+[2.13.2]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.1...v2.13.2
 [2.13.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.0...v2.13.1
 [2.13.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.1...v2.13.0
 [2.12.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.12.0...v2.12.1
