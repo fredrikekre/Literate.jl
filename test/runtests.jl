@@ -824,6 +824,10 @@ end end
                 print("a: ", a); nothing #hide
                 #-
                 47 #hide
+                #-
+                (@__DIR__) == pwd() ? "cwd correct" : "cwd incorrect"
+                #-
+                basename(@__FILE__)
                 """)
             Literate.markdown(inputfile, outdir; execute=true)
             markdown = read(joinpath(outdir, "inputfile.md"), String)
@@ -846,6 +850,8 @@ end end
             @test !occursin("```julia\n47 #hide\n```", markdown) # line with `#hide` removed
             @test !occursin("```julia\n```", markdown) # no empty code block
             @test occursin("```\n47\n```", markdown) # return value (even though line/block removed)
+            @test occursin("```\n\"cwd correct\"\n```", markdown) # Correct cwd (@__DIR__)
+            @test occursin("```\n\"inputfile.md\"\n```", markdown) # Correct source file (@__FILE__)
 
             # FranklinFlavor
             Literate.markdown(inputfile, outdir; execute=true, flavor=Literate.FranklinFlavor())
@@ -1179,7 +1185,7 @@ end end
                     err
                 end)
             @test isa(r, ErrorException)
-            @test occursin("when executing the following code block in file ", r.msg)
+            @test occursin("when executing the following code block from inputfile ", r.msg)
             @test occursin(inputfile, r.msg)
 
             # verify that inputfile exists

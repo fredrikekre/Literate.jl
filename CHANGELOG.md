@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Set current working directory for markdown execution to the output directory, just like
+  notebook execution. ([#195][github-195])
+- Set the apparent source file to the output file for markdown and notebook execution.
+  ([#195][github-195])
 
 ## [2.13.1] - 2022-04-12
 ### Fixed
