@@ -271,7 +271,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     if (git = Sys.which("git"); git !== nothing)
         try
             str = read(pipeline(ignorestatus(
-                setenv(`$(git) remote show origin`, ["GIT_TERMINAL_PROMPT=0"]; dir=dirname(inputfile))
+                addenv(`$(git) remote show origin`, ["GIT_TERMINAL_PROMPT=0"]; dir=dirname(inputfile))
             ), stderr=devnull), String)
             if (m = match(r"^\s*HEAD branch:\s*(.*)$"m, str); m !== nothing)
                 fallback_edit_commit = String(m[1])

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Update remote HEAD branch detection to use `addenv` instead of `setenv` such that e.g.
+  ssh-agent variables are still available to the git command. ([#197][github-197])
 
 ## [2.13.2] - 2022-04-22
 ### Fixed
@@ -209,6 +212,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-190]: https://github.com/fredrikekre/Literate.jl/pull/190
 [github-194]: https://github.com/fredrikekre/Literate.jl/pull/194
 [github-195]: https://github.com/fredrikekre/Literate.jl/pull/195
+[github-197]: https://github.com/fredrikekre/Literate.jl/issues/197
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.2...HEAD
 [2.13.2]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.1...v2.13.2
