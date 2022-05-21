@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Update remote HEAD branch detection to use `addenv` instead of `setenv` such that e.g.
-  ssh-agent variables are still available to the git command. ([#197][github-197])
+  ssh-agent variables are available to the git command. Also set
+  `GIT_SSH_COMMAND='ssh -o "BatchMode yes"'` to supress prompts when using ssh.
+  ([#197][github-197])
+
 
 ## [2.13.2] - 2022-04-22
 ### Fixed
