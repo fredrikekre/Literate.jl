@@ -228,6 +228,58 @@ isdocumenter(cfg) = cfg["flavor"]::AbstractFlavor isa DocumenterFlavor
 _DEFAULT_IMAGE_FORMATS = [(MIME("image/svg+xml"), ".svg"), (MIME("image/png"), ".png"),
                           (MIME("image/jpeg"), ".jpeg")]
 
+# Cache of inputfile => head branch
+const HEAD_BRANCH_CACHE = Dict{String,String}()
+
+# Guess the package (or repository) root url with "master" as fallback
+# see JuliaDocs/Documenter.jl#1751
+function edit_commit(inputfile, user_config)
+    fallback_edit_commit = "master"
+    if (c = get(user_config, "edit_commit", nothing); c !== nothing)
+        return c
+    end
+    if (git = Sys.which("git"); git !== nothing)
+        # Check the cache for the git root
+        git_root = try
+            readchomp(
+                pipeline(
+                    setenv(`$(git) rev-parse --show-toplevel`; dir=dirname(inputfile));
+                    stderr=devnull,
+                )
+            )
+        catch
+        end
+        if (c = get(HEAD_BRANCH_CACHE, git_root, nothing); c !== nothing)
+            return c
+        end
+        # Check the cache for the file
+        if (c = get(HEAD_BRANCH_CACHE, inputfile, nothing); c !== nothing)
+            return c
+        end
+        # Fallback to git remote show
+        env = copy(ENV)
+        # Set environment variables to block interactive prompt
+        env["GIT_TERMINAL_PROMPT"] = "0"
+        env["GIT_SSH_COMMAND"] = get(ENV, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\"")
+        str = try
+            read(
+                pipeline(
+                    setenv(`$(git) remote show origin`, env; dir=dirname(inputfile)),
+                    stderr=devnull,
+                ),
+                String,
+            )
+        catch
+        end
+        if str !== nothing && (m = match(r"^\s*HEAD branch:\s*(.*)$"m, str); m !== nothing)
+            head = String(m[1])
+            HEAD_BRANCH_CACHE[something(git_root, inputfile)] = head
+            return head
+        end
+    end
+    return fallback_edit_commit
+end
+
 function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     # Combine user config with user kwargs
     user_config = Dict{String,Any}(string(k) => v for (k, v) in user_config)
@@ -265,25 +317,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
                        ("````@example $(get(user_config, "name", replace(cfg["name"], r"\s" => "_")))" => "````") :
                        ("````julia" => "````")
     cfg["image_formats"] = _DEFAULT_IMAGE_FORMATS
-    # Guess the package (or repository) root url with "master" as fallback
-    # see JuliaDocs/Documenter.jl#1751
-    fallback_edit_commit = "master"
-    if (git = Sys.which("git"); git !== nothing)
-        try
-            env = copy(ENV)
-            # Set environment variables to block interactive prompt
-            env["GIT_TERMINAL_PROMPT"] = "0"
-            env["GIT_SSH_COMMAND"] = get(ENV, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\"")
-            str = read(pipeline(ignorestatus(
-                setenv(`$(git) remote show origin`, env; dir=dirname(inputfile))
-            ), stderr=devnull), String)
-            if (m = match(r"^\s*HEAD branch:\s*(.*)$"m, str); m !== nothing)
-                fallback_edit_commit = String(m[1])
-            end
-        catch
-        end
-    end
-    cfg["edit_commit"] = get(user_config, "edit_commit", fallback_edit_commit)
+    cfg["edit_commit"] = edit_commit(inputfile, user_config)
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
     # Strip build version from a tag (cf. JuliaDocs/Documenter.jl#1298, Literate.jl#162)
     function version_tag_strip_build(tag)

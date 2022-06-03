@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Automatic head branch detection (introduced in version 2.11.0) caused a performance
+  regression since the `git remote show` command takes ~1 second. For documentation builds
+  with many literate files this caused significant slowdowns, which is particularly annoying
+  when doing iterative buils with eg.
+  [LiveServer.jl](https://github.com/tlienart/LiveServer.jl). Literate now caches the remote
+  head branch on a per-repo basis, so the 1 second delay should only be noticed on the first
+  run of the first file in a repo. As noted in the changelog entry for 2.11.0 it is also
+  possible to specify the head branch by passing the `edit_commit` keyword argument. Doing
+  so will now completely skip the slow `git` command. ([#198][github-198])
 
 ## [2.13.3] - 2022-05-21
 ### Fixed
@@ -13,7 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ssh-agent variables are available to the git command. Also set
   `GIT_SSH_COMMAND='ssh -o "BatchMode yes"'` to supress prompts when using ssh.
   ([#197][github-197])
-
 
 ## [2.13.2] - 2022-04-22
 ### Fixed
@@ -218,6 +227,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-194]: https://github.com/fredrikekre/Literate.jl/pull/194
 [github-195]: https://github.com/fredrikekre/Literate.jl/pull/195
 [github-197]: https://github.com/fredrikekre/Literate.jl/issues/197
+[github-198]: https://github.com/fredrikekre/Literate.jl/pull/198
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.3...HEAD
 [2.13.3]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.2...v2.13.3
