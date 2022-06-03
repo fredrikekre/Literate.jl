@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.13.4] - 2022-06-03
 ### Fixed
 - Automatic head branch detection (introduced in version 2.11.0) caused a performance
   regression since the `git remote show` command takes ~1 second. For documentation builds
@@ -15,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   head branch on a per-repo basis, so the 1 second delay should only be noticed on the first
   run of the first file in a repo. As noted in the changelog entry for 2.11.0 it is also
   possible to specify the head branch by passing the `edit_commit` keyword argument. Doing
-  so will now completely skip the slow `git` command. ([#198][github-198])
+  so will now completely skip the slow `git` command. ([8054d26][8054d26])
 
 ## [2.13.3] - 2022-05-21
 ### Fixed
@@ -196,6 +198,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [6d1aec9]: https://github.com/fredrikekre/Literate.jl/commit/6d1aec90b13c6ad888be0fdc77583e9c525b5dc1
 [dc409d0]: https://github.com/fredrikekre/Literate.jl/commit/dc409d0f43a6282bee4e28e8e12bb6309942e5d5
 [ceff7a3]: https://github.com/fredrikekre/Literate.jl/commit/ceff7a36be2a9152d853257bac97be00d915ba8e
+[8054d26]: https://github.com/fredrikekre/Literate.jl/commit/8054d2630b72bc190913b9b92cdb16e367b1ea51
 
 [github-116]: https://github.com/fredrikekre/Literate.jl/issues/116
 [github-144]: https://github.com/fredrikekre/Literate.jl/issues/144
@@ -227,9 +230,9 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-194]: https://github.com/fredrikekre/Literate.jl/pull/194
 [github-195]: https://github.com/fredrikekre/Literate.jl/pull/195
 [github-197]: https://github.com/fredrikekre/Literate.jl/issues/197
-[github-198]: https://github.com/fredrikekre/Literate.jl/pull/198
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.3...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.4...HEAD
+[2.13.4]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.3...v2.13.4
 [2.13.3]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.2...v2.13.3
 [2.13.2]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.1...v2.13.2
 [2.13.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.0...v2.13.1
