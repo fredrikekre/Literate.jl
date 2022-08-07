@@ -1,5 +1,6 @@
 import Literate, JSON
 import Literate: Chunk, MDChunk, CodeChunk
+import Literate: pick_codefence
 using Test
 
 # compare content of two parsed chunk vectors
@@ -201,6 +202,7 @@ content = """
     Source code only          #src
     ## # Comment
     ## another comment
+    ##| echo: false Quarto parameters
     #-
     for i in 1:10
         print(i)
@@ -316,6 +318,7 @@ const GITLAB_ENV = Dict(
             x + 3
             # # Comment
             # another comment
+            #| echo: false Quarto parameters
 
             for i in 1:10
                 print(i)
@@ -548,6 +551,7 @@ end end
             x * 3
             # # Comment
             # another comment
+            #| echo: false Quarto parameters
             ````
 
             ````@example inputfile; continued = true
@@ -732,6 +736,19 @@ end end
             @test !occursin("EditURL", markdown)
             @test !occursin("#hide", markdown)
 
+            # flavor = QuartoFlavor()
+            # execution of Quarto markdown is not allowed
+            let expected_error = ErrorException("QuartoFlavor does not support argument execute=true!")
+                @test_throws expected_error Literate.markdown("quarto.jl",flavor=Literate.QuartoFlavor(),execute=true)
+            end
+            Literate.markdown(inputfile, outdir, flavor = Literate.QuartoFlavor(),execute=false)
+            markdown = read(joinpath(outdir, "inputfile.qmd"), String)
+            @test occursin("```{julia}", markdown)
+            @test !occursin(r"`{3,}@example", markdown)
+            @test !occursin("continued = true", markdown)
+            @test !occursin("EditURL", markdown)
+            @test !occursin("#hide", markdown)
+
             # documenter = false (deprecated)
             @test_deprecated r"The documenter=true keyword to Literate.markdown is deprecated" begin
                 Literate.markdown(inputfile, outdir, documenter = true)
@@ -859,6 +876,11 @@ end end
             @test occursin("# MD", markdown) # text/markdown
             @test occursin("~~~\n<h1>MD</h1>\n~~~", markdown) # text/html
 
+            # QuartoFlavor file extension
+            write(inputfile, "#=\r\nhello world\n=#\r\n")
+            _, config = Literate.preprocessor(inputfile, outdir; user_kwargs=(), user_config=Dict("flavor"=>Literate.QuartoFlavor()), type=:md)
+            @test config["literate_ext"] == ".qmd"
+
             # verify that inputfile exists
             @test_throws ArgumentError Literate.markdown("nonexistent.jl", outdir)
 
@@ -955,7 +977,8 @@ end end
                 "x * 3\\n",
                 "x * 3\\n",
                 "# # Comment\\n",
-                "# another comment"
+                "# another comment\\n",
+                "#| echo: false Quarto parameters"
                ],
             """,
 
@@ -1316,6 +1339,18 @@ end end
             @test occursin("Link to repo root: www.example1.com/file.jl", script)
             @test occursin("Link to nbviewer: www.example2.com/file.jl", script)
             @test occursin("Link to binder: www.example3.com/file.jl", script)
+
+            # Test pick_codefence function
+            default_codefence=pick_codefence(Literate.DefaultFlavor(),true,"testname")
+            @test default_codefence == ("````julia" => "````")
+            @test default_codefence == pick_codefence(Literate.FranklinFlavor(),true,"testname")
+            @test default_codefence == pick_codefence(Literate.DocumenterFlavor(),true,"testname")
+            documenter_codefence = ("````@example testname" => "````")
+            @test documenter_codefence == pick_codefence(Literate.DocumenterFlavor(),false,"testname")
+            let expected_exception=ErrorException("QuartoFlavor does not support argument execute=true!")
+                @test_throws expected_exception pick_codefence(Literate.QuartoFlavor(),true,"testname")
+            end
+            @test ("```{julia}" => "```") == pick_codefence(Literate.QuartoFlavor(),false,"testname")
 
             # Misc default configs
             create(; type, kw...) = Literate.create_configuration(inputfile; user_config=Dict(), user_kwargs=kw, type=type)

@@ -86,6 +86,7 @@ Literate can output markdown in different flavors. The flavor is specified using
    [CommonMark](https://commonmark.org/) specification.
  - `flavor = Literate.FranklinFlavor()`: this outputs markdown meant to be used as input
    to [Franklin.jl](https://franklinjl.org/).
+ - `flavor = Literate.QuartoFlavor()` : this outputs markdown file (with file extension ".qmd") meant to be used with [Quarto CLI](https://quarto.org).
 
 
 ## [**4.2.** Notebook output](@id Notebook-output)

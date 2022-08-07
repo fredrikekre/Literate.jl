@@ -1,5 +1,5 @@
 """
-    Literate
+Literate
 
 Julia package for Literate Programming. See
 https://fredrikekre.github.io/Literate.jl/ for documentation.
@@ -16,6 +16,7 @@ struct DefaultFlavor <: AbstractFlavor end
 struct DocumenterFlavor <: AbstractFlavor end
 struct CommonMarkFlavor <: AbstractFlavor end
 struct FranklinFlavor <: AbstractFlavor end
+struct QuartoFlavor <: AbstractFlavor end
 
 # # Some simple rules:
 #
@@ -75,8 +76,9 @@ function parse(content; allow_continued = true)
             if !(chunks[end] isa CodeChunk)
                 push!(chunks, CodeChunk())
             end
-            # remove "## " and "##\n"
-            line = replace(replace(line, r"^(\h*)#(# .*)$" => s"\1\2"), r"^(\h*#)#$" => s"\1")
+            # remove "## " and "##\n", strip the leading "#" from "## xyz" and "##| xyz"
+            # Note: accepts only standard space character (not no-break space U+00A0)
+            line = replace(replace(line, r"^(\h*)#(#(:? |\|).*)$" => s"\1\2"), r"^(\h*#)#$" => s"\1")
             push!(chunks[end].lines, line)
         end
     end
@@ -280,6 +282,16 @@ function edit_commit(inputfile, user_config)
     return fallback_edit_commit
 end
 
+# Default to DefaultFlavor() setting
+pick_codefence(flavor::AbstractFlavor,execute::Bool,name::AbstractString)=pick_codefence(DefaultFlavor(),execute,name)
+pick_codefence(flavor::DefaultFlavor,execute::Bool,name::AbstractString)=("````julia" => "````")
+pick_codefence(flavor::DocumenterFlavor,execute::Bool,name::AbstractString)=(execute ?
+    pick_codefence(DefaultFlavor(),execute,name) : ("````@example $(name)" => "````")
+)
+pick_codefence(flavor::QuartoFlavor,execute::Bool,name::AbstractString)=(execute ?
+    error("QuartoFlavor does not support argument execute=true!") : ("```{julia}" => "```")
+)
+
 function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     # Combine user config with user kwargs
     user_config = Dict{String,Any}(string(k) => v for (k, v) in user_config)
@@ -312,10 +324,11 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["mdstrings"] = false
     cfg["keep_comments"] = false
     cfg["execute"] = type === :md ? false : true
-    cfg["codefence"] = get(user_config, "flavor", cfg["flavor"]) isa DocumenterFlavor &&
-                       !get(user_config, "execute", cfg["execute"]) ?
-                       ("````@example $(get(user_config, "name", replace(cfg["name"], r"\s" => "_")))" => "````") :
-                       ("````julia" => "````")
+    cfg["codefence"] = pick_codefence(
+        get(user_config, "flavor", cfg["flavor"]),
+        get(user_config, "execute", cfg["execute"]),
+        get(user_config, "name", replace(cfg["name"], r"\s" => "_"))
+    )
     cfg["image_formats"] = _DEFAULT_IMAGE_FORMATS
     cfg["edit_commit"] = edit_commit(inputfile, user_config)
     deploy_branch = "gh-pages" # TODO: Make this configurable like Documenter?
@@ -444,7 +457,7 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     mkpath(outputdir)
     outputdir = realpath(abspath(outputdir))
     isdir(outputdir) || error("not a directory: $(outputdir)")
-    ext = type === (:nb) ? ".ipynb" : ".$(type)"
+    ext = type === (:nb) ? ".ipynb" : (type === (:md) && config["flavor"] isa QuartoFlavor) ? ".qmd" : ".$(type)"
     outputfile = joinpath(outputdir, config["name"]::String * ext)
     if inputfile == outputfile
         throw(ArgumentError("outputfile (`$outputfile`) is identical to inputfile (`$inputfile`)"))
