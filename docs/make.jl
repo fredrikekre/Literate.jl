@@ -5,11 +5,7 @@ if haskey(ENV, "GITHUB_ACTIONS")
 end
 
 deployconfig = Documenter.auto_detect_deploy_system()
-Documenter.post_status(
-    deployconfig;
-    type = "pending",
-    repo = "github.com/fredrikekre/Literate.jl.git",
-)
+Documenter.post_status(deployconfig; type="pending", repo="github.com/fredrikekre/Literate.jl.git")
 using Literate
 using Plots # to not capture precompilation output
 
@@ -18,7 +14,7 @@ EXAMPLE = joinpath(@__DIR__, "..", "examples", "example.jl")
 OUTPUT = joinpath(@__DIR__, "src/generated")
 
 function preprocess(str)
-    str = replace(str, "x = 123" => "y = 321"; count = 1)
+    str = replace(str, "x = 123" => "y = 321"; count=1)
     return str
 end
 
@@ -27,12 +23,7 @@ Literate.notebook(EXAMPLE, OUTPUT, preprocess = preprocess)
 Literate.script(EXAMPLE, OUTPUT, preprocess = preprocess)
 
 # generate the example notebook for the documentation, keep in sync with outputformats.md
-Literate.markdown(
-    joinpath(@__DIR__, "src/outputformats.jl"),
-    OUTPUT;
-    credit = false,
-    name = "name",
-)
+Literate.markdown(joinpath(@__DIR__, "src/outputformats.jl"), OUTPUT; credit = false, name = "name")
 Literate.notebook(joinpath(@__DIR__, "src/outputformats.jl"), OUTPUT; name = "notebook")
 Literate.script(joinpath(@__DIR__, "src/outputformats.jl"), OUTPUT; credit = false)
 
@@ -50,10 +41,7 @@ if haskey(ENV, "GITHUB_ACTIONS")
     end
     url = "https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/$(folder)/"
     str = read(joinpath(@__DIR__, "src/outputformats.md"), String)
-    str = replace(
-        str,
-        "[notebook.ipynb](generated/notebook.ipynb)." => "[notebook.ipynb]($(url)generated/notebook.ipynb).",
-    )
+    str = replace(str, "[notebook.ipynb](generated/notebook.ipynb)." => "[notebook.ipynb]($(url)generated/notebook.ipynb).")
     write(joinpath(@__DIR__, "src/outputformats.md"), str)
 end
 
@@ -73,8 +61,7 @@ makedocs(
         "customprocessing.md",
         "documenter.md",
         "tips.md",
-        "generated/example.md",
-    ],
+        "generated/example.md"]
 )
 
 deploydocs(

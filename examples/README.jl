@@ -20,7 +20,7 @@
 # running these commands from the package root of Literate.jl:
 
 using Literate
-Literate.markdown("examples/README.jl", "."; flavor = Literate.CommonMarkFlavor())
+Literate.markdown("examples/README.jl", "."; flavor=Literate.CommonMarkFlavor())
 
 # [docs-img]: https://img.shields.io/badge/docs-latest%20release-blue.svg
 # [docs-url]: https://fredrikekre.github.io/Literate.jl/
