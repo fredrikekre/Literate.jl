@@ -3,7 +3,7 @@
 The source file format for Literate is a regular, commented, julia (`.jl`) scripts.
 The idea is that the scripts also serve as documentation on their own and it is also
 simple to include them in the test-suite, with e.g. `include`, to make sure the examples
-stay up do date with other changes in your package.
+stay up to date with other changes in your package.
 
 ## [**2.1.** Syntax](@id Syntax)
 
