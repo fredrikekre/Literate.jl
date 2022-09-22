@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Image filenames resulting from executing markdown files
+  (`Literate.markdown(...; execute=true)`) have changed from a number based on
+  the hash of the source block to the format
+  `{name}-{blocknumber}.(svg|png|...)`. ([#204][github-204],
+  [#205][github-205])
 
 ## [2.13.4] - 2022-06-03
 ### Fixed
@@ -230,6 +236,8 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-194]: https://github.com/fredrikekre/Literate.jl/pull/194
 [github-195]: https://github.com/fredrikekre/Literate.jl/pull/195
 [github-197]: https://github.com/fredrikekre/Literate.jl/issues/197
+[github-204]: https://github.com/fredrikekre/Literate.jl/issues/204
+[github-205]: https://github.com/fredrikekre/Literate.jl/pull/205
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.4...HEAD
 [2.13.4]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.3...v2.13.4
