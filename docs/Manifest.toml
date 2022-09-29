@@ -421,6 +421,12 @@ git-tree-sha1 = "2444ff682d19291efd5944578258fc9657f1450f"
 uuid = "d0879d2d-cac2-40c8-9cee-1863dc0c7391"
 version = "0.0.2"
 
+[[MarkdownTables]]
+deps = ["ArgCheck", "DisplayAs", "DocStringExtensions", "Tables"]
+git-tree-sha1 = "65dff26519116033543e644fb8cf2e5869469c0b"
+uuid = "1862ce21-31c7-451e-824c-f20fa3f90fa2"
+version = "1.1.0"
+
 [[MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "Random", "Sockets"]
 git-tree-sha1 = "6872f9594ff273da6d13c7c1a1545d5a8c7d0c1c"
