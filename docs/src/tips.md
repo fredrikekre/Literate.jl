@@ -44,7 +44,7 @@ HTML formats.
 
 Tables that support the [Tables.jl](https://tables.juliadata.org/) interface can be included in the output with the lightweight package [MarkdownTables.jl](https://github.com/tpapp/MarkdownTables.jl).
 
-```@eval
+```julia
 using MarkdownTables
 table = [(a = 1, b = 2), (a = 3, b = 4)]
 table |> markdown_table()
