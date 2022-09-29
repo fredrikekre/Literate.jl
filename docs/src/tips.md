@@ -40,9 +40,9 @@ HTML formats.
     img = DisplayAs.Text(DisplayAs.PNG(img))
     ```
 
-### [Printing tables](@id printing-tables)
+### [Printing tables in Markdown](@id printing-tables-in-markdown)
 
-Tables that support the [Tables.jl](https://tables.juliadata.org/) interface can be included in the output with the lightweight package [MarkdownTables.jl](https://github.com/tpapp/MarkdownTables.jl).
+Tables that support the [Tables.jl](https://tables.juliadata.org/) interface can be included in Markdown output with the lightweight package [MarkdownTables.jl](https://github.com/tpapp/MarkdownTables.jl).
 
 ```julia
 using MarkdownTables
