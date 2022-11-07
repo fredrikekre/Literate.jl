@@ -17,8 +17,9 @@ struct DocumenterFlavor <: AbstractFlavor end
 struct CommonMarkFlavor <: AbstractFlavor end
 struct FranklinFlavor <: AbstractFlavor end
 struct JupyterFlavor <: AbstractFlavor end
-struct PlutoFlavor <: AbstractFlavor end
-
+Base.@kwdef struct PlutoFlavor <: AbstractFlavor 
+    use_cm::Bool = false
+end
 # # Some simple rules:
 #
 # * All lines starting with `# ` are considered markdown, everything else is considered code
@@ -750,15 +751,14 @@ function execute_notebook(nb; inputfile::String="<unknown>")
     return nb
 end
 
-function create_notebook(::PlutoFlavor, chunks, config)
+function create_notebook(flavor::PlutoFlavor, chunks, config)
     ionb = IOBuffer()
     # Print header
     write(ionb, """
         ### A Pluto.jl notebook ###
         # v0.16.0
-
-        using Markdown
-        using InteractiveUtils
+        # ╔═╡ a0000000-0000-0000-0000-000000000000
+        using $(flavor.use_cm ? "CommonMark" : "Markdown")
 
         """)
 
@@ -783,9 +783,9 @@ function create_notebook(::PlutoFlavor, chunks, config)
         if isa(chunk, MDChunk)
             if length(chunk.lines) == 1
                 line = escape_string(chunk.lines[1].second, '"')
-                write(io, "md\"", line, "\"\n")
+                write(io, "$(flavor.use_cm ? "cm" : "md")\"", line, "\"\n")
             else
-                write(io, "md\"\"\"\n")
+                write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
                 for line in chunk.lines
                     write(io, line.second, '\n') # Skip indent
                 end
@@ -820,7 +820,7 @@ function create_notebook(::PlutoFlavor, chunks, config)
     end
 
     # Print cell order
-    print(ionb, "# ╔═╡ Cell order:\n")
+    print(ionb, "# ╔═╡ Cell order:\n# ╟─a0000000-0000-0000-0000-000000000000\n")
     foreach(((x, f),) -> print(ionb, "# $(f ? "╟─" : "╠═")", x, '\n'), zip(uuids, folds))
 
     # custom post-processing from user
