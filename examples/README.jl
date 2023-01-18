@@ -22,6 +22,12 @@
 using Literate
 Literate.markdown("examples/README.jl", "."; flavor=Literate.CommonMarkFlavor())
 
+
+# ### Related packages
+#
+# - [Weave.jl](https://github.com/JunoLab/Weave.jl)
+
+
 # [docs-img]: https://img.shields.io/badge/docs-latest%20release-blue.svg
 # [docs-url]: https://fredrikekre.github.io/Literate.jl/
 #
