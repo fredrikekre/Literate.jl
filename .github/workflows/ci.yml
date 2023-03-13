@@ -36,7 +36,7 @@ jobs:
             ~/.julia/artifacts
             ~/.julia/packages
             ~/.julia/registries
-          key: .julia-test-${{ hashFiles('Project.toml') }}
+          key: .julia-test-${{ matrix.version }}-${{ hashFiles('Project.toml') }}
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1
