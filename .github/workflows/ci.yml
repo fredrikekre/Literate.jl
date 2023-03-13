@@ -30,4 +30,4 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
-      - uses: fredrikekre/julia-runtest@fe/eager
+      - uses: fredrikekre/julia-runtest@fe/env-export
