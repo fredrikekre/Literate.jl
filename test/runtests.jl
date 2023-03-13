@@ -1,4 +1,4 @@
-@show get(ENV, "JULIA_PKG_SERVER_REGISTRY_PREFEREN", nothing)
+@show get(ENV, "JULIA_PKG_SERVER_REGISTRY_PREFERENCE", nothing)
 exit()
 import Literate, JSON
 import Literate: Chunk, MDChunk, CodeChunk
