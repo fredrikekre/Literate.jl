@@ -924,7 +924,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     seek(buffer, 0)
                     str = Markdown.parse(read(buffer, String))
                     admonition = filter(x -> x isa Markdown.Admonition, str.content)
-                    questionName = admonition[1].title
+                    questionName = "$(admonition[1].title)" * "$(replace(string(gensym()), "#" => ""))"
                     str = string(Markdown.MD(admonition[1]))
 
                     answers = []
