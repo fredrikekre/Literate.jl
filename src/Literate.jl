@@ -953,8 +953,8 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                             answer = string(answer)
                             push!(answers, answer)
                         else 
-                            if line != ""
-                                write(qBuf, line, "\n\n") # why 2 \n
+                            if line != "" && !startswith(line, "!!!")
+                                write(qBuf, lstrip(line), "\n") # why 2 \n
                             end
                         end
                     end
@@ -962,24 +962,23 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     radioBind = writeBind(questionName, answers)
                     logicBind = writeLogic(questionName, questionDict)
 
-                    name = "$(questionName)Check"
-                    
-                    #toWrite = "    "*"\$("*"$name"*")"*"\n"
                     # toWrite = "    " * "\$(eval(md\"\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
-                    toWrite = "    " * "\\\$(eval(md\"\\\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
                     
-                    write(qBuf, toWrite)
+                    name = "$(questionName)Check"
+                    toWrite = "\$(" * "$name" * ")" 
+                    
                     seek(qBuf, 0)
-                    result = read(qBuf, String)
-                    
-                    correctAdmo = Markdown.parse(result)
-                    correctAdmo[1].category = "correct"
-                    dangerAdmo = Markdown.parse(result)
-                    dangerAdmo[1].category = "danger"                  
-                    
+                    qStr = read(qBuf, String)
+                    qStr = rstrip(qStr)
+
                     result = """
-                    $(correctAdmo)
-                    $(dangerAdmo)
+                    \$(
+                    if $(questionName)Test($(questionName)Answer)
+                        Markdown.MD(Markdown.Admonition("correct", "$(questionName)", [md"$(qStr)", md"$(toWrite)"]))
+                    else
+                        Markdown.MD(Markdown.Admonition("danger", "$(questionName)", [md"$(qStr)", md"$(toWrite)"]))
+                    end
+                    )
                     """
                     
 
