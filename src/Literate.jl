@@ -965,34 +965,22 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     name = "$(questionName)Check"
                     
                     #toWrite = "    "*"\$("*"$name"*")"*"\n"
-                    toWrite = "    " * "\$(eval(md\"\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
-                    # toWrite = "    " * "\\\$(eval(md\"\\\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
+                    # toWrite = "    " * "\$(eval(md\"\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
+                    toWrite = "    " * "\\\$(eval(md\"\\\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
                     
                     write(qBuf, toWrite)
                     seek(qBuf, 0)
                     result = read(qBuf, String)
                     
-                    # correctAdmo = Markdown.parse(result)
-                    # correctAdmo[1].category = "correct"
-                    # dangerAdmo = Markdown.parse(result)
-                    # dangerAdmo[1].category = "danger"
+                    correctAdmo = Markdown.parse(result)
+                    correctAdmo[1].category = "correct"
+                    dangerAdmo = Markdown.parse(result)
+                    dangerAdmo[1].category = "danger"                  
                     
-                    # println(string(correctAdmo))
-
-                    # correctBuffer = IOBuffer()
-                    # dangerBuffer = IOBuffer()
-                    # for line in split(string(correctAdmo), "\n")
-                    #     write(correctBuffer, line, '\n')
-                    # end
-                    # for line in split(string(dangerAdmo), "\n")
-                    #     write(dangerBuffer, line, '\n')
-                    # end
-                    # seek(correctBuffer, 0)
-                    # seek(dangerBuffer, 0)
-
-                    
-                    
-
+                    result = """
+                    $(correctAdmo)
+                    $(dangerAdmo)
+                    """
                     
 
                     write(io, result, '\n')
