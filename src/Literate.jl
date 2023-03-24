@@ -6,7 +6,7 @@ https://fredrikekre.github.io/Literate.jl/ for documentation.
 """
 module Literate
 
-import JSON, REPL, IOCapture
+import JSON, REPL, IOCapture, Markdown
 
 include("IJulia.jl")
 import .IJulia
@@ -124,6 +124,27 @@ function parse(content; allow_continued = true)
 
     return chunks
 end
+
+text = """
+# This is not inside the admonition
+# !!! danger "Question"
+#     This is the question
+#     
+#     1. `] install ForwardDiff`
+#     2. `add ForwardDiff`
+#     3. `] add ForwardDiff.jl`
+#     4. `] add ForwardDiff` <!---correct-->
+# 
+# This is not inside the admonition.
+"""
+
+text2 = """
+# !!! danger "Question"
+#     This is the Question 
+#     1. Hello 
+#     2. World <!---correct-->
+"""
+parse(text2)
 
 function replace_default(content, sym;
                          config::Dict,
@@ -468,9 +489,53 @@ function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
             end
             write(ioscript, '\n') # add a newline between each chunk
         elseif isa(chunk, MDChunk) && config["keep_comments"]::Bool
+            write(ioscript, "# hello")
+            buffer = IOBuffer()
             for line in chunk.lines
-                write(ioscript, rstrip(line.first * "# " * line.second) * '\n')
+                write(buffer, line.first * line.second, '\n')
             end
+            seek(buffer, 0)
+            str = Markdown.parse(read(buffer, String))
+            admonition = filter(x -> x isa Markdown.Admonition, str.content)
+            questionName = admonition[1].title
+            str = string(Markdown.MD(admonition[1]))
+
+            io = IOBuffer()
+            answers = []
+            questionDict = Dict("correct" => "")
+                    
+            for line in split(str, "\n")
+                if startswith(lstrip(line), r"[1-9]\.")
+                    answer = lstrip(line)
+                
+                    if occursin("<!---correct-->", answer)
+                        questionDict["correct"] = string(answer[1])
+                    end
+                
+                    answer = replace(answer, r"[1-9]\.?\s" => "")
+                    answer = replace(answer, "<!---correct-->" => "")
+                    answer = replace(answer, "<!–-correct–>" => "")
+                    answer = replace(answer, "`" => "")
+                    answer = rstrip(answer)
+                    push!(answers, answer)
+                else 
+                    if line != ""
+                        write(io, line, "\n\n")
+                    end
+                end
+            end
+
+            admoBind = writeBind(questionName, answers)
+
+            name = "$(questionName)Check"
+            toWrite = "    "*"md\"\$("*"$name"*")\""*"\n"
+                    
+            write(io, toWrite)
+            seek(io, 0)
+            result = read(io, String)
+            write(ioscript, result, '\n')
+            write(ioscript, "# " * "hello im here" * "\n")
+
             write(ioscript, '\n') # add a newline between each chunk
         end
     end
@@ -482,6 +547,36 @@ function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
     outputfile = write_result(content, config)
     return outputfile
 end
+
+
+# function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
+#     # preprocessing and parsing
+#     chunks, config =
+#         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:jl)
+
+#     # create the script file
+#     ioscript = IOBuffer()
+#     for chunk in chunks
+#         if isa(chunk, CodeChunk)
+#             for line in chunk.lines
+#                 write(ioscript, line, '\n')
+#             end
+#             write(ioscript, '\n') # add a newline between each chunk
+#         elseif isa(chunk, MDChunk) && config["keep_comments"]::Bool
+#             for line in chunk.lines
+#                 write(ioscript, rstrip(line.first * "# " * line.second) * '\n')
+#             end
+#             write(ioscript, '\n') # add a newline between each chunk
+#         end
+#     end
+
+#     # custom post-processing from user
+#     content = config["postprocess"](String(take!(ioscript)))
+
+#     # write to file
+#     outputfile = write_result(content, config)
+#     return outputfile
+# end
 
 
 """
@@ -751,6 +846,34 @@ function execute_notebook(nb; inputfile::String="<unknown>")
     return nb
 end
 
+
+function containsAdmonition(chunk)
+    for line in chunk.lines
+        if startswith(strip(line.first * line.second), "!!!")
+            return true
+        end
+    end
+    return false
+end
+
+function writeBind(questionName, answers)
+    questionName = replace(questionName, r"[^\d\w]+" => "")
+    radios = [String(answer) for answer in answers]
+    return """$(questionName)Check = @bind $(questionName)Answer Radio($(radios));"""
+end
+
+function writeLogic(questionName, questionDict)
+    questionName = replace(questionName, r"[^\d\w]+" => "")
+    logic = 
+    """
+    function $(questionName)Test($(questionName)Answer)
+        return $(questionName)Answer == "$(questionDict["correct"])"
+    end;
+    """
+    return logic
+end
+
+
 function create_notebook(flavor::PlutoFlavor, chunks, config)
     ionb = IOBuffer()
     # Print header
@@ -758,7 +881,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
         ### A Pluto.jl notebook ###
         # v0.16.0
         # ╔═╡ a0000000-0000-0000-0000-000000000000
-        using $(flavor.use_cm ? "CommonMark" : "Markdown")
+        using $(flavor.use_cm ? "CommonMark, PlutoUI" : "Markdown")
 
         """)
 
@@ -766,7 +889,8 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
     uuids = Base.UUID[]
     folds = Bool[]
     default_fold = Dict{String,Bool}("markdown"=>true, "code"=>false) # toggleable ???
-    for (i, chunk) in enumerate(chunks)
+    cellCounter = 1
+    for chunk in chunks
         io = IOBuffer()
 
         # Jupyter style metadata # TODO: factor out, identical to jupyter notebook
@@ -785,11 +909,127 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 line = escape_string(chunk.lines[1].second, '"')
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"", line, "\"\n")
             else
-                write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
-                for line in chunk.lines
-                    write(io, line.second, '\n') # Skip indent
+                
+                # for line in chunk.lines
+                #     write(io, line.second, '\n') # Skip indent
+                # end
+                # write(io, "\"\"\"\n")
+                if containsAdmonition(chunk)
+                    write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
+                    buffer = IOBuffer()
+                    for line in chunk.lines
+                        write(buffer, line.first * line.second, '\n')
+                        #println("$(line.first)" * "$(line.second)")
+                    end
+                    seek(buffer, 0)
+                    str = Markdown.parse(read(buffer, String))
+                    admonition = filter(x -> x isa Markdown.Admonition, str.content)
+                    questionName = admonition[1].title
+                    str = string(Markdown.MD(admonition[1]))
+
+                    answers = []
+                    questionDict = Dict("correct" => "")
+                    qBuf = IOBuffer()
+                            
+                    for line in split(str, "\n")
+                        if startswith(lstrip(line), r"[1-9]\.")
+                            answer = lstrip(line)
+                            
+                            correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
+                            if correct
+                                answer = replace(answer, r"[1-9]\.?\s" => "")
+                                answer = replace(answer, "<!---correct-->" => "")
+                                answer = replace(answer, "<!–-correct–>" => "")
+                                answer = replace(answer, "`" => "")
+                                answer = rstrip(answer)
+                                questionDict["correct"] = escape_string(string(answer))
+                            end
+                        
+                            answer = replace(answer, r"[1-9]\.?\s" => "")
+                            answer = replace(answer, "<!---correct-->" => "")
+                            answer = replace(answer, "<!–-correct–>" => "")
+                            answer = replace(answer, "`" => "")
+                            answer = rstrip(answer)
+                            answer = string(answer)
+                            push!(answers, answer)
+                        else 
+                            if line != ""
+                                write(qBuf, line, "\n\n") # why 2 \n
+                            end
+                        end
+                    end
+
+                    radioBind = writeBind(questionName, answers)
+                    logicBind = writeLogic(questionName, questionDict)
+
+                    name = "$(questionName)Check"
+                    
+                    #toWrite = "    "*"\$("*"$name"*")"*"\n"
+                    toWrite = "    " * "\$(eval(md\"\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
+                    # toWrite = "    " * "\\\$(eval(md\"\\\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
+                    
+                    write(qBuf, toWrite)
+                    seek(qBuf, 0)
+                    result = read(qBuf, String)
+                    
+                    # correctAdmo = Markdown.parse(result)
+                    # correctAdmo[1].category = "correct"
+                    # dangerAdmo = Markdown.parse(result)
+                    # dangerAdmo[1].category = "danger"
+                    
+                    # println(string(correctAdmo))
+
+                    # correctBuffer = IOBuffer()
+                    # dangerBuffer = IOBuffer()
+                    # for line in split(string(correctAdmo), "\n")
+                    #     write(correctBuffer, line, '\n')
+                    # end
+                    # for line in split(string(dangerAdmo), "\n")
+                    #     write(dangerBuffer, line, '\n')
+                    # end
+                    # seek(correctBuffer, 0)
+                    # seek(dangerBuffer, 0)
+
+                    
+                    
+
+                    
+
+                    write(io, result, '\n')
+                    write(io, "\"\"\"\n")
+                    write(io, '\n')
+
+                    content = String(take!(io))
+                    uuid = uuid4(content, cellCounter)
+                    cellCounter += 1
+                    push!(uuids, uuid)
+                    push!(folds, fold)
+                    print(ionb, "# ╔═╡ ", uuid, '\n')
+                    write(ionb, content, '\n')
+
+                    write(io, radioBind, '\n')
+                    write(io, '\n')
+                    content = String(take!(io))
+                    uuid = uuid4(content, cellCounter)
+                    cellCounter += 1
+                    push!(uuids, uuid)
+                    push!(folds, fold)
+                    print(ionb, "# ╔═╡ ", uuid, '\n')
+                    write(ionb, content, '\n')
+
+                    write(io, logicBind, '\n')
+                    write(io, '\n')
+                    content = String(take!(io))
+                    uuid = uuid4(content, cellCounter)
+                    cellCounter += 1
+                    push!(uuids, uuid)
+                    push!(folds, fold)
+                    print(ionb, "# ╔═╡ ", uuid, '\n')
+                    write(ionb, content, '\n')
                 end
-                write(io, "\"\"\"\n")
+                
+                write(io, '\n')
+
             end
             content = String(take!(io))
         else # isa(chunk, CodeChunk)
@@ -812,7 +1052,8 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 content = String(take!(io))
             end
         end
-        uuid = uuid4(content, i)
+        uuid = uuid4(content, cellCounter)
+        cellCounter += 1
         push!(uuids, uuid)
         push!(folds, fold)
         print(ionb, "# ╔═╡ ", uuid, '\n')
