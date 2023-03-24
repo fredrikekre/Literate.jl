@@ -914,15 +914,52 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 #     write(io, line.second, '\n') # Skip indent
                 # end
                 # write(io, "\"\"\"\n")
+
                 if containsAdmonition(chunk)
                     write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
+
                     buffer = IOBuffer()
                     for line in chunk.lines
                         write(buffer, line.first * line.second, '\n')
-                        #println("$(line.first)" * "$(line.second)")
                     end
                     seek(buffer, 0)
                     str = Markdown.parse(read(buffer, String))
+                    
+                    ############################################################
+                    #Content before the Admonition
+                    ############################################################
+
+                    mdContent = str.content
+                    admoIndex = 1
+                    for (i, item) in enumerate(mdContent)
+                        if isa(item, Markdown.Admonition)
+                            admoIndex = i
+                        end
+                    end
+                    
+                    if admoIndex > 1
+                        index = 1
+                        while index < admoIndex
+                            para = string(Markdown.MD(mdContent[index]))
+                            write(io, para, '\n')
+                            index += 1
+                        end
+                        # write(io, "\"\"\"\n")
+                        # write(io, '\n')
+
+                        # content = String(take!(io))
+                        # uuid = uuid4(content, cellCounter)
+                        # cellCounter += 1
+                        # push!(uuids, uuid)
+                        # push!(folds, fold)
+                        # print(ionb, "# ╔═╡ ", uuid, '\n')
+                        # write(ionb, content, '\n')
+                    end
+                    
+                    ############################################################
+                    #The Admonition
+                    ############################################################
+                    
                     admonition = filter(x -> x isa Markdown.Admonition, str.content)
                     questionName = "$(admonition[1].title)" * "$(replace(string(gensym()), "#" => ""))"
                     str = string(Markdown.MD(admonition[1]))
