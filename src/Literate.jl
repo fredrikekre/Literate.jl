@@ -125,27 +125,6 @@ function parse(content; allow_continued = true)
     return chunks
 end
 
-text = """
-# This is not inside the admonition
-# !!! danger "Question"
-#     This is the question
-#     
-#     1. `] install ForwardDiff`
-#     2. `add ForwardDiff`
-#     3. `] add ForwardDiff.jl`
-#     4. `] add ForwardDiff` <!---correct-->
-# 
-# This is not inside the admonition.
-"""
-
-text2 = """
-# !!! danger "Question"
-#     This is the Question 
-#     1. Hello 
-#     2. World <!---correct-->
-"""
-parse(text2)
-
 function replace_default(content, sym;
                          config::Dict,
                          branch = "gh-pages",
@@ -872,6 +851,19 @@ function writeLogic(questionName, questionDict)
     return logic
 end
 
+function writeControlFlow(questionName, qStr, toWrite)
+    controlFlow = """
+    \$(
+    if $(questionName)Test($(questionName)Answer)
+        Markdown.MD(Markdown.Admonition("correct", "$(questionName)", [md"$(qStr)", md"$(toWrite)"]))
+    else
+        Markdown.MD(Markdown.Admonition("danger", "$(questionName)", [md"$(qStr)", md"$(toWrite)"]))
+    end
+    )
+    """
+    return controlFlow 
+end
+
 
 function create_notebook(flavor::PlutoFlavor, chunks, config)
     ionb = IOBuffer()
@@ -910,148 +902,136 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
             if length(chunk.lines) == 1
                 line = escape_string(chunk.lines[1].second, '"')
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"", line, "\"\n")
-            else
+            elseif containsAdmonition(chunk)
+                write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
+
+                buffer = IOBuffer()
+                for line in chunk.lines
+                    write(buffer, line.first * line.second, '\n')
+                end
+                seek(buffer, 0)
+                str = Markdown.parse(read(buffer, String))
                 
-                # for line in chunk.lines
-                #     write(io, line.second, '\n') # Skip indent
-                # end
-                # write(io, "\"\"\"\n")
+                ############################################################
+                #Content before the Admonition
+                ############################################################
 
-                if containsAdmonition(chunk)
-                    write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
-
-                    buffer = IOBuffer()
-                    for line in chunk.lines
-                        write(buffer, line.first * line.second, '\n')
+                mdContent = str.content
+                admoIndex = 1
+                for (i, item) in enumerate(mdContent)
+                    if isa(item, Markdown.Admonition)
+                        admoIndex = i
                     end
-                    seek(buffer, 0)
-                    str = Markdown.parse(read(buffer, String))
-                    
-                    ############################################################
-                    #Content before the Admonition
-                    ############################################################
-
-                    mdContent = str.content
-                    admoIndex = 1
-                    for (i, item) in enumerate(mdContent)
-                        if isa(item, Markdown.Admonition)
-                            admoIndex = i
-                        end
+                end
+                
+                if admoIndex > 1
+                    index = 1
+                    while index < admoIndex
+                        para = string(Markdown.MD(mdContent[index]))
+                        write(io, para, '\n')
+                        index += 1
                     end
-                    
-                    if admoIndex > 1
-                        index = 1
-                        while index < admoIndex
-                            para = string(Markdown.MD(mdContent[index]))
-                            write(io, para, '\n')
-                            index += 1
-                        end
-                    end
-                    
-                    ############################################################
-                    #The Admonition
-                    ############################################################
-                    
-                    admonition = filter(x -> x isa Markdown.Admonition, str.content)
-                    questionName = "$(admonition[1].title)" * "$(replace(string(gensym()), "#" => ""))"
-                    str = string(Markdown.MD(admonition[1]))
+                end
+                
+                ############################################################
+                #The Admonition
+                ############################################################
+                
+                admonition = filter(x -> x isa Markdown.Admonition, str.content)
+                questionName = "$(admonition[1].title)" * "$(replace(string(gensym()), "#" => ""))"
+                str = string(Markdown.MD(admonition[1]))
 
-                    answers = []
-                    questionDict = Dict("correct" => "")
-                    qBuf = IOBuffer()
-                            
-                    for line in split(str, "\n")
-                        if startswith(lstrip(line), r"[1-9]\.")
-                            answer = lstrip(line)
-                            
-                            correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
-                            if correct
-                                answer = replace(answer, r"[1-9]\.?\s" => "")
-                                answer = replace(answer, "<!---correct-->" => "")
-                                answer = replace(answer, "<!–-correct–>" => "")
-                                answer = replace(answer, "`" => "")
-                                answer = rstrip(answer)
-                                questionDict["correct"] = escape_string(string(answer))
-                            end
+                answers = []
+                questionDict = Dict("correct" => "")
+                qBuf = IOBuffer()
                         
+                for line in split(str, "\n")
+                    if startswith(lstrip(line), r"[1-9]\.")
+                        answer = lstrip(line)
+                        
+                        correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
+                        if correct
                             answer = replace(answer, r"[1-9]\.?\s" => "")
                             answer = replace(answer, "<!---correct-->" => "")
                             answer = replace(answer, "<!–-correct–>" => "")
                             answer = replace(answer, "`" => "")
                             answer = rstrip(answer)
-                            answer = string(answer)
-                            push!(answers, answer)
-                        else 
-                            if line != "" && !startswith(line, "!!!")
-                                write(qBuf, lstrip(line), "\n") # why 2 \n
-                            end
+                            questionDict["correct"] = escape_string(string(answer))
+                        end
+                    
+                        answer = replace(answer, r"[1-9]\.?\s" => "")
+                        answer = replace(answer, "<!---correct-->" => "")
+                        answer = replace(answer, "<!–-correct–>" => "")
+                        answer = replace(answer, "`" => "")
+                        answer = rstrip(answer)
+                        answer = string(answer)
+                        push!(answers, answer)
+                    else 
+                        if line != "" && !startswith(line, "!!!")
+                            write(qBuf, lstrip(line), "\n") # why 2 \n
                         end
                     end
-
-                    radioBind = writeBind(questionName, answers)
-                    logicBind = writeLogic(questionName, questionDict)
-
-                    # toWrite = "    " * "\$(eval(md\"\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
-                    
-                    name = "$(questionName)Check"
-                    toWrite = "\$(" * "$name" * ")" 
-                    
-                    seek(qBuf, 0)
-                    qStr = read(qBuf, String)
-                    qStr = rstrip(qStr)
-
-                    result = """
-                    \$(
-                    if $(questionName)Test($(questionName)Answer)
-                        Markdown.MD(Markdown.Admonition("correct", "$(questionName)", [md"$(qStr)", md"$(toWrite)"]))
-                    else
-                        Markdown.MD(Markdown.Admonition("danger", "$(questionName)", [md"$(qStr)", md"$(toWrite)"]))
-                    end
-                    )
-                    """
-                    
-
-                    write(io, result, '\n')
-
-                    if admoIndex < length(mdContent)
-                        index = admoIndex + 1
-                        while index <= length(mdContent)
-                            para = string(Markdown.MD(mdContent[index]))
-                            write(io, para, '\n')
-                            index += 1
-                        end
-                    end
-
-                    write(io, "\"\"\"\n")
-                    write(io, '\n')
-
-                    content = String(take!(io))
-                    uuid = uuid4(content, cellCounter)
-                    cellCounter += 1
-                    push!(uuids, uuid)
-                    push!(folds, fold)
-                    print(ionb, "# ╔═╡ ", uuid, '\n')
-                    write(ionb, content, '\n')
-
-                    write(io, radioBind, '\n')
-                    write(io, '\n')
-                    content = String(take!(io))
-                    uuid = uuid4(content, cellCounter)
-                    cellCounter += 1
-                    push!(singleChoiceUuids, uuid)
-                    push!(singleChoiceFolds, fold)
-                    push!(singleChoiceContent, content)
-
-                    write(io, logicBind, '\n')
-                    write(io, '\n')
-                    content = String(take!(io))
-                    uuid = uuid4(content, cellCounter)
-                    cellCounter += 1
-                    push!(singleChoiceUuids, uuid)
-                    push!(singleChoiceFolds, fold)
-                    push!(singleChoiceContent, content)
                 end
 
+                radioBind = writeBind(questionName, answers)
+                logicBind = writeLogic(questionName, questionDict)
+
+                # toWrite = "    " * "\$(eval(md\"\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
+                
+                name = "$(questionName)Check"
+                toWrite = "\$($name)" 
+                
+                seek(qBuf, 0)
+                qStr = read(qBuf, String)
+                qStr = rstrip(qStr)
+
+                result = writeControlFlow(questionName, qStr, toWrite)
+
+                write(io, result, '\n')
+
+                if admoIndex < length(mdContent)
+                    index = admoIndex + 1
+                    while index <= length(mdContent)
+                        para = string(Markdown.MD(mdContent[index]))
+                        write(io, para, '\n')
+                        index += 1
+                    end
+                end
+
+                write(io, "\"\"\"\n")
+                write(io, '\n')
+
+                content = String(take!(io))
+                uuid = uuid4(content, cellCounter)
+                cellCounter += 1
+                push!(uuids, uuid)
+                push!(folds, fold)
+                print(ionb, "# ╔═╡ ", uuid, '\n')
+                write(ionb, content, '\n')
+
+                write(io, radioBind, '\n')
+                write(io, '\n')
+                content = String(take!(io))
+                uuid = uuid4(content, cellCounter)
+                cellCounter += 1
+                push!(singleChoiceUuids, uuid)
+                push!(singleChoiceFolds, fold)
+                push!(singleChoiceContent, content)
+
+                write(io, logicBind, '\n')
+                write(io, '\n')
+                content = String(take!(io))
+                uuid = uuid4(content, cellCounter)
+                cellCounter += 1
+                push!(singleChoiceUuids, uuid)
+                push!(singleChoiceFolds, fold)
+                push!(singleChoiceContent, content)
+            else
+                write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
+                for line in chunk.lines
+                    write(io, line.second, '\n') # Skip indent
+                end
+                write(io, "\"\"\"\n")
             end
             content = String(take!(io))
         else # isa(chunk, CodeChunk)
