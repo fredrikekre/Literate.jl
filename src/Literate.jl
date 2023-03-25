@@ -864,6 +864,24 @@ function writeControlFlow(questionName, qStr, toWrite)
     return controlFlow 
 end
 
+function chunkToMD(chunk)
+    buffer = IOBuffer()
+    for line in chunk.lines
+        write(buffer, line.first * line.second, '\n')
+    end
+    seek(buffer, 0)
+    str = Markdown.parse(read(buffer, String))
+    return str
+end
+
+function formatAnswer(answer)
+    answer = replace(answer, r"[1-9]\.?\s" => "")
+    answer = replace(answer, "<!---correct-->" => "")
+    answer = replace(answer, "<!–-correct–>" => "")
+    answer = replace(answer, "`" => "")
+    answer = rstrip(answer)
+    return answer
+end
 
 function create_notebook(flavor::PlutoFlavor, chunks, config)
     ionb = IOBuffer()
@@ -904,13 +922,8 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"", line, "\"\n")
             elseif containsAdmonition(chunk)
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
-
-                buffer = IOBuffer()
-                for line in chunk.lines
-                    write(buffer, line.first * line.second, '\n')
-                end
-                seek(buffer, 0)
-                str = Markdown.parse(read(buffer, String))
+                
+                str = chunkToMD(chunk)
                 
                 ############################################################
                 #Content before the Admonition
@@ -951,19 +964,10 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                         
                         correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
                         if correct
-                            answer = replace(answer, r"[1-9]\.?\s" => "")
-                            answer = replace(answer, "<!---correct-->" => "")
-                            answer = replace(answer, "<!–-correct–>" => "")
-                            answer = replace(answer, "`" => "")
-                            answer = rstrip(answer)
+                            answer = formatAnswer(answer)
                             questionDict["correct"] = escape_string(string(answer))
                         end
-                    
-                        answer = replace(answer, r"[1-9]\.?\s" => "")
-                        answer = replace(answer, "<!---correct-->" => "")
-                        answer = replace(answer, "<!–-correct–>" => "")
-                        answer = replace(answer, "`" => "")
-                        answer = rstrip(answer)
+                        answer = formatAnswer(answer)
                         answer = string(answer)
                         push!(answers, answer)
                     else 
