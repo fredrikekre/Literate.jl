@@ -883,6 +883,30 @@ function formatAnswer(answer)
     return answer
 end
 
+function formatCells(io, ionb, cellCounter, uuids, folds, fold)
+    content = String(take!(io))
+    uuid = uuid4(content, cellCounter)
+    cellCounter += 1
+    
+    push!(uuids, uuid)
+    push!(folds, fold) 
+    print(ionb, "# ╔═╡ ", uuid, '\n')
+    write(ionb, content, '\n')
+
+    return cellCounter
+end
+
+function formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
+    content = String(take!(io))
+    uuid = uuid4(content, cellCounter)
+    cellCounter += 1
+    push!(singleChoiceUuids, uuid)
+    push!(singleChoiceFolds, fold)
+    push!(singleChoiceContent, content)
+
+    return cellCounter
+end
+
 function create_notebook(flavor::PlutoFlavor, chunks, config)
     ionb = IOBuffer()
     # Print header
@@ -979,8 +1003,6 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
 
                 radioBind = writeBind(questionName, answers)
                 logicBind = writeLogic(questionName, questionDict)
-
-                # toWrite = "    " * "\$(eval(md\"\$(" * "$name" * ")\"))" * "\n" # for interactivity in the notebook (else it isn't reactive)
                 
                 name = "$(questionName)Check"
                 toWrite = "\$($name)" 
@@ -1003,46 +1025,21 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 end
 
                 write(io, "\"\"\"\n")
-                write(io, '\n')
-
-                content = String(take!(io))
-                uuid = uuid4(content, cellCounter)
-                cellCounter += 1
-                push!(uuids, uuid)
-                push!(folds, fold)
-                print(ionb, "# ╔═╡ ", uuid, '\n')
-                write(ionb, content, '\n')
+                cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
 
                 write(io, radioBind, '\n')
-                write(io, '\n')
-                content = String(take!(io))
-                uuid = uuid4(content, cellCounter)
-                cellCounter += 1
-                push!(singleChoiceUuids, uuid)
-                push!(singleChoiceFolds, fold)
-                push!(singleChoiceContent, content)
+                cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
 
                 write(io, logicBind, '\n')
-                write(io, '\n')
-                content = String(take!(io))
-                uuid = uuid4(content, cellCounter)
-                cellCounter += 1
-                push!(singleChoiceUuids, uuid)
-                push!(singleChoiceFolds, fold)
-                push!(singleChoiceContent, content)
+                cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
+                
             else
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
                 for line in chunk.lines
                     write(io, line.second, '\n') # Skip indent
                 end
                 write(io, "\"\"\"\n")
-                content = String(take!(io))
-                uuid = uuid4(content, cellCounter)
-                cellCounter += 1
-                push!(uuids, uuid)
-                push!(folds, fold)
-                print(ionb, "# ╔═╡ ", uuid, '\n')
-                write(ionb, content, '\n')
+                cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
             end
             
         else # isa(chunk, CodeChunk)
@@ -1062,13 +1059,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 print(io, "begin\n")
                 foreach(l -> print(io, "  ", l, '\n'), eachline(IOBuffer(content)))
                 print(io, "end\n")
-                content = String(take!(io))
-                uuid = uuid4(content, cellCounter)
-                cellCounter += 1
-                push!(uuids, uuid)
-                push!(folds, fold)
-                print(ionb, "# ╔═╡ ", uuid, '\n')
-                write(ionb, content, '\n')
+                cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
             end
         end
         
