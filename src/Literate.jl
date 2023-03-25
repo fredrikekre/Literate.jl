@@ -1049,7 +1049,8 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
             for line in chunk.lines
                 write(io, line, '\n')
             end
-            content = String(take!(io))
+            seek(io, 0)
+            content = read(io, String)
             # Compute number of expressions in the code block and perhaps wrap in begin/end
             nexprs, idx = 0, 1
             while true
@@ -1062,6 +1063,8 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 print(io, "begin\n")
                 foreach(l -> print(io, "  ", l, '\n'), eachline(IOBuffer(content)))
                 print(io, "end\n")
+                cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
+            else
                 cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
             end
         end
