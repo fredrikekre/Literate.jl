@@ -851,13 +851,13 @@ function writeLogic(questionName, questionDict)
     return logic
 end
 
-function writeControlFlow(questionName, qStr, toWrite)
+function writeControlFlow(questionName, qStr)
     controlFlow = """
     \$(
     if $(questionName)Test($(questionName)Answer)
-        Markdown.MD(Markdown.Admonition("correct", "$(questionName)", [md"$(qStr)", md"$(toWrite)"]))
+        Markdown.MD(Markdown.Admonition("correct", "$(questionName)", [md"$(qStr)", md"\$($(questionName)Check)"]))
     else
-        Markdown.MD(Markdown.Admonition("danger", "$(questionName)", [md"$(qStr)", md"$(toWrite)"]))
+        Markdown.MD(Markdown.Admonition("danger", "$(questionName)", [md"$(qStr)", md"\$($(questionName)Check)"]))
     end
     )
     """
@@ -949,9 +949,9 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 
                 str = chunkToMD(chunk)
                 
-                ############################################################
-                #Content before the Admonition
-                ############################################################
+                ################################################################
+                # Content before the Admonition
+                ################################################################
 
                 mdContent = str.content
                 admoIndex = 1
@@ -970,9 +970,9 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     end
                 end
                 
-                ############################################################
-                #The Admonition
-                ############################################################
+                ################################################################
+                # The Admonition
+                ################################################################
                 
                 admonition = filter(x -> x isa Markdown.Admonition, str.content)
                 questionName = "$(admonition[1].title)" * "$(replace(string(gensym()), "#" => ""))"
@@ -996,7 +996,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                         push!(answers, answer)
                     else 
                         if line != "" && !startswith(line, "!!!")
-                            write(qBuf, lstrip(line), "\n") # why 2 \n
+                            write(qBuf, lstrip(line), "\n")
                         end
                     end
                 end
@@ -1004,16 +1004,15 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 radioBind = writeBind(questionName, answers)
                 logicBind = writeLogic(questionName, questionDict)
                 
-                name = "$(questionName)Check"
-                toWrite = "\$($name)" 
-                
                 seek(qBuf, 0)
-                qStr = read(qBuf, String)
-                qStr = rstrip(qStr)
+                qStr = rstrip(read(qBuf, String))
 
-                result = writeControlFlow(questionName, qStr, toWrite)
-
+                result = writeControlFlow(questionName, qStr)
                 write(io, result, '\n')
+
+                ################################################################
+                # Content after the Admonition
+                ################################################################
 
                 if admoIndex < length(mdContent)
                     index = admoIndex + 1
@@ -1023,8 +1022,9 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                         index += 1
                     end
                 end
-
                 write(io, "\"\"\"\n")
+
+                # Pluto nb helper functions 
                 cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
 
                 write(io, radioBind, '\n')
@@ -1032,8 +1032,11 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
 
                 write(io, logicBind, '\n')
                 cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
-                
             else
+                ################################################################
+                # If Chunk doesnt contain an Admonition
+                ################################################################
+                
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
                 for line in chunk.lines
                     write(io, line.second, '\n') # Skip indent
@@ -1065,6 +1068,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
         
     end
 
+    # Add Question related functions at the end
     for (i, uuid) in enumerate(singleChoiceUuids)
         content = singleChoiceContent[i]
         print(ionb, "# ╔═╡ ", uuid, '\n')
