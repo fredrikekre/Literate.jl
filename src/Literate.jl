@@ -949,7 +949,6 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 
                 str = chunkToMD(chunk)
                 
-                ################################################################
                 # Content before the Admonition
                 ################################################################
 
@@ -970,7 +969,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     end
                 end
                 
-                ################################################################
+
                 # The Admonition
                 ################################################################
                 
@@ -979,13 +978,20 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 questionCategory = admonition[1].category
                 str = string(Markdown.MD(admonition[1]))
 
+                ################################################################
+                # Single-Choice Admonition
+                ################################################################
 
                 if questionCategory == "sc"
                     answers = []
                     questionDict = Dict("correct" => "")
                     qBuf = IOBuffer()
-                            
-                    for line in split(str, "\n")
+
+                    answerList = filter(x -> isa(x, Markdown.List), admonition[1].content)
+                    println(answerList)
+                    answerStr = string(Markdown.MD(answerList))
+
+                    for line in split(answerStr, "\n")
                         if startswith(lstrip(line), r"[1-9]\.")
                             answer = lstrip(line)
                             
@@ -997,10 +1003,15 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                             answer = formatAnswer(answer)
                             answer = string(answer)
                             push!(answers, answer)
-                        else 
-                            if line != "" && !startswith(line, "!!!")
-                                write(qBuf, lstrip(line), "\n")
-                            end
+                        end 
+                    end
+
+                    restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
+                    restStr = string(Markdown.MD(restList))
+                            
+                    for line in split(restStr, "\n")
+                        if line != "" && !startswith(line, "!!!")
+                            write(qBuf, lstrip(line), "\n")
                         end
                     end
 
@@ -1013,9 +1024,8 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     result = writeControlFlow(questionName, qStr)
                     write(io, result, '\n')
 
-                    ################################################################
                     # Content after the Admonition
-                    ################################################################
+                    ############################################################
 
                     if admoIndex < length(mdContent)
                         index = admoIndex + 1
@@ -1028,6 +1038,8 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     write(io, "\"\"\"\n")
 
                     # Pluto nb helper functions 
+                    ############################################################
+                    
                     cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
 
                     write(io, radioBind, '\n')
@@ -1036,6 +1048,10 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     write(io, logicBind, '\n')
                     cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
                 else
+                    ############################################################
+                    # Normal Admonitions
+                    ############################################################
+
                     index = admoIndex
                     while index <= length(mdContent)
                         para = string(Markdown.MD(mdContent[index]))
@@ -1047,7 +1063,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 end
             else
                 ################################################################
-                # If Chunk doesnt contain an Admonition
+                # Chunk doesnt contain an Admonition
                 ################################################################
                 
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
