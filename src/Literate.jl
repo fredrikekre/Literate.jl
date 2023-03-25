@@ -1036,8 +1036,15 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     write(io, line.second, '\n') # Skip indent
                 end
                 write(io, "\"\"\"\n")
+                content = String(take!(io))
+                uuid = uuid4(content, cellCounter)
+                cellCounter += 1
+                push!(uuids, uuid)
+                push!(folds, fold)
+                print(ionb, "# ╔═╡ ", uuid, '\n')
+                write(ionb, content, '\n')
             end
-            content = String(take!(io))
+            
         else # isa(chunk, CodeChunk)
             for line in chunk.lines
                 write(io, line, '\n')
@@ -1056,14 +1063,15 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 foreach(l -> print(io, "  ", l, '\n'), eachline(IOBuffer(content)))
                 print(io, "end\n")
                 content = String(take!(io))
+                uuid = uuid4(content, cellCounter)
+                cellCounter += 1
+                push!(uuids, uuid)
+                push!(folds, fold)
+                print(ionb, "# ╔═╡ ", uuid, '\n')
+                write(ionb, content, '\n')
             end
         end
-        uuid = uuid4(content, cellCounter)
-        cellCounter += 1
-        push!(uuids, uuid)
-        push!(folds, fold)
-        print(ionb, "# ╔═╡ ", uuid, '\n')
-        write(ionb, content, '\n')
+        
     end
 
     for (i, uuid) in enumerate(singleChoiceUuids)
