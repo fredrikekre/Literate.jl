@@ -504,7 +504,7 @@ function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
                 end
             end
 
-            admoBind = writeBind(questionName, answers)
+            admoBind = writeRadioBind(questionName, answers)
 
             name = "$(questionName)Check"
             toWrite = "    "*"md\"\$("*"$name"*")\""*"\n"
@@ -835,18 +835,39 @@ function containsAdmonition(chunk)
     return false
 end
 
-function writeBind(questionName, answers)
-    questionName = replace(questionName, r"[^\d\w]+" => "")
+function writeRadioBind(questionName, answers)
     radios = [String(answer) for answer in answers]
     return """$(questionName)Check = @bind $(questionName)Answer Radio($(radios));"""
 end
 
-function writeLogic(questionName, questionDict)
-    questionName = replace(questionName, r"[^\d\w]+" => "")
+function writeMultiBind(questionName, answers)
+    multi = [String(answer) for answer in answers]
+    return """$(questionName)Check = @bind $(questionName)Answer confirm(MultiCheckBox($(multi), orientation=:column));"""
+end
+
+function writeSingleLogic(questionName, questionDict)
     logic = 
     """
     function $(questionName)Test($(questionName)Answer)
         return $(questionName)Answer == "$(questionDict["correct"])"
+    end;"""
+    return logic
+end
+
+function writeMultiLogic(questionName, questionDict)
+    logic = 
+    """
+    function $(questionName)Test($(questionName)Answer)
+        if length($(questionName)Answer) != length($(questionDict["correct"]))
+            return false
+        else
+            for item in $(questionName)Answer
+                if !in(item, $(questionDict["correct"]))
+                    return false
+                end
+            end
+        end
+        return true
     end;"""
     return logic
 end
@@ -974,7 +995,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 ################################################################
                 
                 admonition = filter(x -> x isa Markdown.Admonition, str.content)
-                questionName = "$(admonition[1].title)" * "$(replace(string(gensym()), "#" => ""))"
+                questionName = replace("$(admonition[1].title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
                 questionCategory = admonition[1].category
                 str = string(Markdown.MD(admonition[1]))
 
@@ -985,11 +1006,12 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 if questionCategory == "sc"
                     answers = []
                     questionDict = Dict("correct" => "")
-                    qBuf = IOBuffer()
 
                     answerList = filter(x -> isa(x, Markdown.List), admonition[1].content)
                     answerStr = string(Markdown.MD(answerList))
 
+
+                    #there might be a nicer way to do it by using radio pairs
                     for line in split(answerStr, "\n")
                         if startswith(lstrip(line), r"[1-9]\.")
                             answer = lstrip(line)
@@ -1009,8 +1031,8 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
 
                     restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
 
-                    radioBind = writeBind(questionName, answers)
-                    logicBind = writeLogic(questionName, questionDict)
+                    radioBind = writeRadioBind(questionName, answers)
+                    logicBind = writeSingleLogic(questionName, questionDict)
                     
                     result = writeControlFlow(questionName, restList)
                     write(io, result, '\n')
@@ -1038,6 +1060,66 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
 
                     write(io, logicBind, '\n')
                     cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
+                elseif questionCategory == "mc"
+                    ############################################################
+                    # Multiple-Choice Admonition
+                    ############################################################
+                    
+                    answers = []
+                    questionDict = Dict("correct" => String[])
+
+                    answerList = filter(x -> isa(x, Markdown.List), admonition[1].content)
+                    answerStr = string(Markdown.MD(answerList))
+
+                    for line in split(answerStr, "\n")
+                        if startswith(lstrip(line), r"[1-9]\.")
+                            answer = lstrip(line)
+                            
+                            correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
+                            if correct
+                                answer = formatAnswer(answer)
+                                push!(questionDict["correct"], escape_string(answer))
+                            end
+                            answer = formatAnswer(answer)
+                            push!(answers, answer)
+                        end 
+                    end
+
+                    codeList = filter(x -> isa(x, Markdown.Code), admonition[1].content)
+                    codeStr = string(Markdown.MD(codeList))
+
+                    restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
+
+                    radioBind = writeMultiBind(questionName, answers)
+                    logicBind = writeMultiLogic(questionName, questionDict)
+                    
+                    result = writeControlFlow(questionName, restList)
+                    write(io, result, '\n')
+
+                    # Content after the Admonition
+                    ############################################################
+
+                    if admoIndex < length(mdContent)
+                        index = admoIndex + 1
+                        while index <= length(mdContent)
+                            para = string(Markdown.MD(mdContent[index]))
+                            write(io, para, '\n')
+                            index += 1
+                        end
+                    end
+                    write(io, "\"\"\"\n")
+
+                    # Pluto nb helper functions 
+                    ############################################################
+                    
+                    cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
+
+                    write(io, radioBind, '\n')
+                    cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
+
+                    write(io, logicBind, '\n')
+                    cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
+                    
                 else
                     ############################################################
                     # Normal Admonitions
