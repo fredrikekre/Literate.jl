@@ -851,13 +851,13 @@ function writeLogic(questionName, questionDict)
     return logic
 end
 
-function writeControlFlow(questionName, qStr)
+function writeControlFlow(questionName, restList)
     controlFlow = """
     \$(
     if $(questionName)Test($(questionName)Answer)
-        Markdown.MD(Markdown.Admonition("correct", "$(questionName)", [md"$(qStr)", md"\$($(questionName)Check)"]))
+        Markdown.MD(Markdown.Admonition("correct", "$(questionName)", [$restList, md"\$($(questionName)Check)"]))
     else
-        Markdown.MD(Markdown.Admonition("danger", "$(questionName)", [md"$(qStr)", md"\$($(questionName)Check)"]))
+        Markdown.MD(Markdown.Admonition("danger", "$(questionName)", [$restList, md"\$($(questionName)Check)"]))
     end
     )
     """
@@ -880,7 +880,7 @@ function formatAnswer(answer)
     answer = replace(answer, "<!–-correct–>" => "")
     answer = replace(answer, "`" => "")
     answer = rstrip(answer)
-    return answer
+    return string(answer)
 end
 
 function formatCells(io, ionb, cellCounter, uuids, folds, fold)
@@ -988,7 +988,6 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     qBuf = IOBuffer()
 
                     answerList = filter(x -> isa(x, Markdown.List), admonition[1].content)
-                    println(answerList)
                     answerStr = string(Markdown.MD(answerList))
 
                     for line in split(answerStr, "\n")
@@ -998,30 +997,22 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                             correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
                             if correct
                                 answer = formatAnswer(answer)
-                                questionDict["correct"] = escape_string(string(answer))
+                                questionDict["correct"] = escape_string(answer)
                             end
                             answer = formatAnswer(answer)
-                            answer = string(answer)
                             push!(answers, answer)
                         end 
                     end
 
+                    codeList = filter(x -> isa(x, Markdown.Code), admonition[1].content)
+                    codeStr = string(Markdown.MD(codeList))
+
                     restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
-                    restStr = string(Markdown.MD(restList))
-                            
-                    for line in split(restStr, "\n")
-                        if line != "" && !startswith(line, "!!!")
-                            write(qBuf, lstrip(line), "\n")
-                        end
-                    end
 
                     radioBind = writeBind(questionName, answers)
                     logicBind = writeLogic(questionName, questionDict)
                     
-                    seek(qBuf, 0)
-                    qStr = rstrip(read(qBuf, String))
-
-                    result = writeControlFlow(questionName, qStr)
+                    result = writeControlFlow(questionName, restList)
                     write(io, result, '\n')
 
                     # Content after the Admonition
