@@ -845,6 +845,16 @@ function writeMultiBind(questionName, answers)
     return """$(questionName)Check = @bind $(questionName)Answer confirm(MultiCheckBox($(multi), orientation=:column));"""
 end
 
+function writeFreeBind(questionName, tests)
+    return """$(questionName)Check = @bind $(questionName)Answer MultiCheckBox([
+        $(join(["""
+        try
+            string($(test))
+        catch
+            "to be added"
+        end => "$(test)" """ for test in tests], ",\n"))], orientation=:column, default=["Test Passed" for test in $tests]);"""
+end
+
 function writeSingleLogic(questionName, questionDict)
     logic = 
     """
@@ -868,6 +878,15 @@ function writeMultiLogic(questionName, questionDict)
             end
         end
         return true
+    end;"""
+    return logic
+end
+
+function writeFreeLogic(questionName, tests)
+    logic = 
+    """
+    function $(questionName)Test($(questionName)Answer)
+        return $(questionName)Answer == ["Test Passed" for test in $tests]
     end;"""
     return logic
 end
@@ -896,12 +915,18 @@ function chunkToMD(chunk)
 end
 
 function formatAnswer(answer)
-    answer = replace(answer, r"[1-9]\.?\s" => "")
+    answer = replace(answer, r"^[1-9]\.\s" => "")
     answer = replace(answer, "<!---correct-->" => "")
     answer = replace(answer, "<!–-correct–>" => "")
     answer = replace(answer, "`" => "")
     answer = rstrip(answer)
     return string(answer)
+end
+
+function formatTest(test)
+    test = replace(test, r"^[1-9]\.\s" => "")
+    test = rstrip(test)
+    return string(test)
 end
 
 function formatCells(io, ionb, cellCounter, uuids, folds, fold)
@@ -935,7 +960,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
         ### A Pluto.jl notebook ###
         # v0.16.0
         # ╔═╡ a0000000-0000-0000-0000-000000000000
-        using $(flavor.use_cm ? "CommonMark, PlutoUI" : "Markdown")
+        using $(flavor.use_cm ? "CommonMark, PlutoUI, Test" : "Markdown")
 
         """)
 
@@ -987,6 +1012,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                         para = string(Markdown.MD(mdContent[index]))
                         write(io, para, '\n')
                         index += 1
+                        println(para)
                     end
                 end
                 
@@ -1117,6 +1143,58 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     write(io, radioBind, '\n')
                     cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
 
+                    write(io, logicBind, '\n')
+                    cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
+                    
+                elseif questionCategory == "freecode"
+                    ############################################################
+                    # Freecode Admonition
+                    ############################################################
+                    
+                    tests = []
+
+                    testList = filter(x -> isa(x, Markdown.List), admonition[1].content)
+                    testStr = string(Markdown.MD(testList))
+
+                    for line in split(testStr, "\n")
+                        if startswith(lstrip(line), r"[1-9]\.")
+                            test = formatTest(lstrip(line))
+                            push!(tests, test)
+                        end
+                    end
+
+                    codeList = filter(x -> isa(x, Markdown.Code), admonition[1].content)
+                    codeStr = string(Markdown.MD(codeList))
+
+                    restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
+
+                    radioBind = writeFreeBind(questionName, tests)
+                    logicBind = writeFreeLogic(questionName, tests)
+                    
+                    result = writeControlFlow(questionName, restList)
+                    write(io, result, '\n')
+
+                    # Content after the Admonition
+                    ############################################################
+
+                    if admoIndex < length(mdContent)
+                        index = admoIndex + 1
+                        while index <= length(mdContent)
+                            para = string(Markdown.MD(mdContent[index]))
+                            write(io, para, '\n')
+                            index += 1
+                        end
+                    end
+                    write(io, "\"\"\"\n")
+
+                    # Pluto nb helper functions 
+                    ############################################################
+                    
+                    cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
+
+                    write(io, radioBind, '\n')
+                    cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
+                    
                     write(io, logicBind, '\n')
                     cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
                     
