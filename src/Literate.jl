@@ -909,6 +909,157 @@ function formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoice
     return cellCounter
 end
 
+function processNonAdmonitions(item, io)
+    # Handle non-admonition elements
+    write(io, string(Markdown.MD(item)), '\n')
+end
+
+function processSingleChoice(admonition, depth, io, helperList)
+    # Handle single-choice processing
+    questionName = replace("$(admonition.title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
+    answers = []
+    questionDict = Dict("correct" => "")
+
+    answerList = filter(x -> isa(x, Markdown.List), admonition.content)
+    answerStr = string(Markdown.MD(answerList[end]))
+
+
+    #there might be a nicer way to do it by using radio pairs
+    for line in split(answerStr, "\n")
+        if startswith(lstrip(line), r"[1-9]\.")
+            answer = lstrip(line)
+            
+            correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
+            if correct
+                answer = formatAnswer(answer)
+                questionDict["correct"] = escape_string(answer)
+            end
+            answer = formatAnswer(answer)
+            push!(answers, answer)
+        end 
+    end
+
+    restList = filter(x -> !isa(x, Markdown.List), admonition.content)
+    if length(answerList) > 1
+        push!(restList, answerList[begin:end-1])
+    end
+
+    radioBind = writeRadioBind(questionName, answers)
+    logicBind = writeSingleLogic(questionName, questionDict)
+    
+    result = writeControlFlow(questionName, restList)
+    write(io, result, '\n')
+
+    # Pluto nb helper functions 
+    ####################################################
+    
+    push!(helperList, radioBind)
+    push!(helperList, logicBind)
+end
+
+function processMultipleChoice(admonition, depth, io, helperList)
+    # Handle multiple-choice processing
+    questionName = replace("$(admonition.title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
+    answers = []
+    questionDict = Dict("correct" => String[])
+
+    answerList = filter(x -> isa(x, Markdown.List), admonition.content)
+    answerStr = string(Markdown.MD(answerList[end]))
+
+    for line in split(answerStr, "\n")
+        if startswith(lstrip(line), r"[1-9]\.")
+            answer = lstrip(line)
+            
+            correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
+            if correct
+                answer = formatAnswer(answer)
+                push!(questionDict["correct"], escape_string(answer))
+            end
+            answer = formatAnswer(answer)
+            push!(answers, answer)
+        end 
+    end
+
+    restList = filter(x -> !isa(x, Markdown.List), admonition.content)
+    if length(answerList) > 1
+        push!(restList, answerList[begin:end-1])
+    end
+
+    radioBind = writeMultiBind(questionName, answers)
+    logicBind = writeMultiLogic(questionName, questionDict)
+    
+    result = writeControlFlow(questionName, restList)
+    write(io, result, '\n')
+
+    # Pluto nb helper functions 
+    ####################################################
+    
+    push!(helperList, radioBind)
+    push!(helperList, logicBind)
+end
+
+function processFreecode(admonition, depth, io, helperList, helperTestList)
+    # Handle freecode processing
+    questionName = replace("$(admonition.title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
+    tests = []
+
+    testList = filter(x -> isa(x, Markdown.List), admonition.content)
+    testStr = string(Markdown.MD(testList[end]))
+
+    for line in split(testStr, "\n")
+        if startswith(lstrip(line), r"[1-9]\.")
+            test = formatTest(lstrip(line))
+            push!(tests, test)
+        end
+    end
+
+    restList = filter(x -> !isa(x, Markdown.List), admonition.content)
+    if length(testList) > 1
+        push!(restList, testList[begin:end-1])
+    end
+
+    radioBind = writeFreeBind(questionName, tests)
+    logicBind = writeFreeLogic(questionName, tests)
+    
+    result = writeControlFlow(questionName, restList)
+    write(io, result, '\n')
+
+    # Pluto nb helper functions 
+    ####################################################
+
+    push!(helperTestList, radioBind)
+    push!(helperList, logicBind)
+end
+
+function processNormalAdmonition(admonition, depth, io)
+    write(io, string(Markdown.MD(admonition)), '\n')
+end
+
+function processAdmonition(admonition, depth, io, helperList, helperTestList)
+    category = admonition.category
+
+    if category == "sc"
+        processSingleChoice(admonition, depth, io, helperList)
+    elseif category == "mc"
+        processMultipleChoice(admonition, depth, io, helperList)
+    elseif category == "freecode"
+        processFreecode(admonition, depth, io, helperList, helperTestList)
+    else
+        processNormalAdmonition(admonition, depth, io)
+    end
+end
+
+function processContent(mdContent, io)
+    for item in mdContent
+        if isa(item, Markdown.Admonition)
+            processAdmonition(item, 0, io)
+        else
+            processNonAdmonitions(item, io)
+        end
+    end
+end
+
+
 function create_notebook(flavor::PlutoFlavor, chunks, config)
     ionb = IOBuffer()
     # Print header
@@ -952,9 +1103,6 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 str = chunkToMD(chunk)
                 helperList = []
                 helperTestList = []
-                
-                # Content before the Admonition
-                ################################################################
 
                 mdContent = str.content
                 for item in mdContent
@@ -965,136 +1113,10 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                         ########################################################
                 
                         admonition = item
-                        questionName = replace("$(admonition.title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
+                        
                         questionCategory = admonition.category
 
-                        if questionCategory == "sc"
-                            ####################################################
-                            # Single-Choice Admonition
-                            ####################################################
-
-                            answers = []
-                            questionDict = Dict("correct" => "")
-
-                            answerList = filter(x -> isa(x, Markdown.List), admonition.content)
-                            answerStr = string(Markdown.MD(answerList[end]))
-
-
-                            #there might be a nicer way to do it by using radio pairs
-                            for line in split(answerStr, "\n")
-                                if startswith(lstrip(line), r"[1-9]\.")
-                                    answer = lstrip(line)
-                                    
-                                    correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
-                                    if correct
-                                        answer = formatAnswer(answer)
-                                        questionDict["correct"] = escape_string(answer)
-                                    end
-                                    answer = formatAnswer(answer)
-                                    push!(answers, answer)
-                                end 
-                            end
-
-                            restList = filter(x -> !isa(x, Markdown.List), admonition.content)
-                            if length(answerList) > 1
-                                push!(restList, answerList[begin:end-1])
-                            end
-
-                            radioBind = writeRadioBind(questionName, answers)
-                            logicBind = writeSingleLogic(questionName, questionDict)
-                            
-                            result = writeControlFlow(questionName, restList)
-                            write(io, result, '\n')
-
-                            # Pluto nb helper functions 
-                            ####################################################
-                            
-                            push!(helperList, radioBind)
-                            push!(helperList, logicBind)
-
-                        elseif questionCategory == "mc"
-                            ####################################################
-                            # Multiple-Choice Admonition
-                            ####################################################
-                            
-                            answers = []
-                            questionDict = Dict("correct" => String[])
-
-                            answerList = filter(x -> isa(x, Markdown.List), admonition.content)
-                            answerStr = string(Markdown.MD(answerList[end]))
-
-                            for line in split(answerStr, "\n")
-                                if startswith(lstrip(line), r"[1-9]\.")
-                                    answer = lstrip(line)
-                                    
-                                    correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
-                                    if correct
-                                        answer = formatAnswer(answer)
-                                        push!(questionDict["correct"], escape_string(answer))
-                                    end
-                                    answer = formatAnswer(answer)
-                                    push!(answers, answer)
-                                end 
-                            end
-
-                            restList = filter(x -> !isa(x, Markdown.List), admonition.content)
-                            if length(answerList) > 1
-                                push!(restList, answerList[begin:end-1])
-                            end
-
-                            radioBind = writeMultiBind(questionName, answers)
-                            logicBind = writeMultiLogic(questionName, questionDict)
-                            
-                            result = writeControlFlow(questionName, restList)
-                            write(io, result, '\n')
-
-                            # Pluto nb helper functions 
-                            ####################################################
-                            
-                            push!(helperList, radioBind)
-                            push!(helperList, logicBind)
-
-                        elseif questionCategory == "freecode"
-                            ####################################################
-                            # Freecode Admonition
-                            ####################################################
-                            
-                            tests = []
-
-                            testList = filter(x -> isa(x, Markdown.List), admonition.content)
-                            testStr = string(Markdown.MD(testList[end]))
-
-                            for line in split(testStr, "\n")
-                                if startswith(lstrip(line), r"[1-9]\.")
-                                    test = formatTest(lstrip(line))
-                                    push!(tests, test)
-                                end
-                            end
-
-                            restList = filter(x -> !isa(x, Markdown.List), admonition.content)
-                            if length(testList) > 1
-                                push!(restList, testList[begin:end-1])
-                            end
-
-                            radioBind = writeFreeBind(questionName, tests)
-                            logicBind = writeFreeLogic(questionName, tests)
-                            
-                            result = writeControlFlow(questionName, restList)
-                            write(io, result, '\n')
-
-                            # Pluto nb helper functions 
-                            ####################################################
-
-                            push!(helperTestList, radioBind)
-                            push!(helperList, logicBind)
-
-                        else
-                            ####################################################
-                            # Normal Admonitions
-                            ####################################################
-
-                            write(io, string(Markdown.MD(item)), '\n')
-                        end
+                        processAdmonition(admonition, 0, io, helperList, helperTestList)
                     end
                 end
 
@@ -1132,6 +1154,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
             content = read(io, String)
             # Compute number of expressions in the code block and perhaps wrap in begin/end
             nexprs, idx = 0, 1
+            ex = nothing
             while true
                 ex, idx = Meta.parse(content, idx)
                 ex === nothing && break
