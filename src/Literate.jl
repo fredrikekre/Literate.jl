@@ -994,223 +994,167 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
                 
                 str = chunkToMD(chunk)
+                helperList = []
+                helperTestList = []
                 
                 # Content before the Admonition
                 ################################################################
 
                 mdContent = str.content
-                admoIndex = 1
-                for (i, item) in enumerate(mdContent)
-                    if isa(item, Markdown.Admonition)
-                        admoIndex = i
-                    end
-                end
+                for item in mdContent
+                    if !isa(item, Markdown.Admonition)
+                        write(io, string(Markdown.MD(item)), '\n')
+                    elseif isa(item, Markdown.Admonition)
+                        # The Admonition
+                        ########################################################
                 
-                if admoIndex > 1
-                    index = 1
-                    while index < admoIndex
-                        para = string(Markdown.MD(mdContent[index]))
-                        write(io, para, '\n')
-                        index += 1
-                    end
-                end
-                
+                        admonition = item
+                        questionName = replace("$(admonition.title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
+                        questionCategory = admonition.category
 
-                # The Admonition
-                ################################################################
-                
-                admonition = filter(x -> x isa Markdown.Admonition, str.content)
-                questionName = replace("$(admonition[1].title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
-                questionCategory = admonition[1].category
-                str = string(Markdown.MD(admonition[1]))
+                        ################################################################
+                        # Single-Choice Admonition
+                        ################################################################
 
-                ################################################################
-                # Single-Choice Admonition
-                ################################################################
+                        if questionCategory == "sc"
+                            answers = []
+                            questionDict = Dict("correct" => "")
 
-                if questionCategory == "sc"
-                    answers = []
-                    questionDict = Dict("correct" => "")
-
-                    answerList = filter(x -> isa(x, Markdown.List), admonition[1].content)
-                    answerStr = string(Markdown.MD(answerList[end]))
+                            answerList = filter(x -> isa(x, Markdown.List), admonition.content)
+                            answerStr = string(Markdown.MD(answerList[end]))
 
 
-                    #there might be a nicer way to do it by using radio pairs
-                    for line in split(answerStr, "\n")
-                        if startswith(lstrip(line), r"[1-9]\.")
-                            answer = lstrip(line)
-                            
-                            correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
-                            if correct
-                                answer = formatAnswer(answer)
-                                questionDict["correct"] = escape_string(answer)
+                            #there might be a nicer way to do it by using radio pairs
+                            for line in split(answerStr, "\n")
+                                if startswith(lstrip(line), r"[1-9]\.")
+                                    answer = lstrip(line)
+                                    
+                                    correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
+                                    if correct
+                                        answer = formatAnswer(answer)
+                                        questionDict["correct"] = escape_string(answer)
+                                    end
+                                    answer = formatAnswer(answer)
+                                    push!(answers, answer)
+                                end 
                             end
-                            answer = formatAnswer(answer)
-                            push!(answers, answer)
-                        end 
-                    end
 
-                    restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
-                    if length(answerList) > 1
-                        push!(restList, answerList[begin:end-1])
-                    end
-
-                    radioBind = writeRadioBind(questionName, answers)
-                    logicBind = writeSingleLogic(questionName, questionDict)
-                    
-                    result = writeControlFlow(questionName, restList)
-                    write(io, result, '\n')
-
-                    # Content after the Admonition
-                    ############################################################
-
-                    if admoIndex < length(mdContent)
-                        index = admoIndex + 1
-                        while index <= length(mdContent)
-                            para = string(Markdown.MD(mdContent[index]))
-                            write(io, para, '\n')
-                            index += 1
-                        end
-                    end
-                    write(io, "\"\"\"\n")
-
-                    # Pluto nb helper functions 
-                    ############################################################
-                    
-                    cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
-
-                    write(io, radioBind, '\n')
-                    cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
-
-                    write(io, logicBind, '\n')
-                    cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
-                elseif questionCategory == "mc"
-                    ############################################################
-                    # Multiple-Choice Admonition
-                    ############################################################
-                    
-                    answers = []
-                    questionDict = Dict("correct" => String[])
-
-                    answerList = filter(x -> isa(x, Markdown.List), admonition[1].content)
-                    answerStr = string(Markdown.MD(answerList[end]))
-
-                    for line in split(answerStr, "\n")
-                        if startswith(lstrip(line), r"[1-9]\.")
-                            answer = lstrip(line)
-                            
-                            correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
-                            if correct
-                                answer = formatAnswer(answer)
-                                push!(questionDict["correct"], escape_string(answer))
+                            restList = filter(x -> !isa(x, Markdown.List), admonition.content)
+                            if length(answerList) > 1
+                                push!(restList, answerList[begin:end-1])
                             end
-                            answer = formatAnswer(answer)
-                            push!(answers, answer)
-                        end 
-                    end
 
-                    restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
-                    if length(answerList) > 1
-                        push!(restList, answerList[begin:end-1])
-                    end
+                            radioBind = writeRadioBind(questionName, answers)
+                            logicBind = writeSingleLogic(questionName, questionDict)
+                            
+                            result = writeControlFlow(questionName, restList)
+                            write(io, result, '\n')
 
-                    radioBind = writeMultiBind(questionName, answers)
-                    logicBind = writeMultiLogic(questionName, questionDict)
-                    
-                    result = writeControlFlow(questionName, restList)
-                    write(io, result, '\n')
+                            # Pluto nb helper functions 
+                            ############################################################
+                            
+                            push!(helperList, radioBind)
+                            push!(helperList, logicBind)
 
-                    # Content after the Admonition
-                    ############################################################
+                        elseif questionCategory == "mc"
+                            ############################################################
+                            # Multiple-Choice Admonition
+                            ############################################################
+                            
+                            answers = []
+                            questionDict = Dict("correct" => String[])
 
-                    if admoIndex < length(mdContent)
-                        index = admoIndex + 1
-                        while index <= length(mdContent)
-                            para = string(Markdown.MD(mdContent[index]))
-                            write(io, para, '\n')
-                            index += 1
+                            answerList = filter(x -> isa(x, Markdown.List), admonition.content)
+                            answerStr = string(Markdown.MD(answerList[end]))
+
+                            for line in split(answerStr, "\n")
+                                if startswith(lstrip(line), r"[1-9]\.")
+                                    answer = lstrip(line)
+                                    
+                                    correct = occursin("<!---correct-->", string(answer)) || occursin("<!–-correct–>", string(answer))
+                                    if correct
+                                        answer = formatAnswer(answer)
+                                        push!(questionDict["correct"], escape_string(answer))
+                                    end
+                                    answer = formatAnswer(answer)
+                                    push!(answers, answer)
+                                end 
+                            end
+
+                            restList = filter(x -> !isa(x, Markdown.List), admonition.content)
+                            if length(answerList) > 1
+                                push!(restList, answerList[begin:end-1])
+                            end
+
+                            radioBind = writeMultiBind(questionName, answers)
+                            logicBind = writeMultiLogic(questionName, questionDict)
+                            
+                            result = writeControlFlow(questionName, restList)
+                            write(io, result, '\n')
+
+                            # Pluto nb helper functions 
+                            ############################################################
+                            
+                            push!(helperList, radioBind)
+                            push!(helperList, logicBind)
+
+                        elseif questionCategory == "freecode"
+                            ############################################################
+                            # Freecode Admonition
+                            ############################################################
+                            
+                            tests = []
+
+                            testList = filter(x -> isa(x, Markdown.List), admonition.content)
+                            testStr = string(Markdown.MD(testList[end]))
+
+                            for line in split(testStr, "\n")
+                                if startswith(lstrip(line), r"[1-9]\.")
+                                    test = formatTest(lstrip(line))
+                                    push!(tests, test)
+                                end
+                            end
+
+                            restList = filter(x -> !isa(x, Markdown.List), admonition.content)
+                            if length(testList) > 1
+                                push!(restList, testList[begin:end-1])
+                            end
+
+                            radioBind = writeFreeBind(questionName, tests)
+                            logicBind = writeFreeLogic(questionName, tests)
+                            
+                            result = writeControlFlow(questionName, restList)
+                            write(io, result, '\n')
+
+                            # Pluto nb helper functions 
+                            ############################################################
+
+                            push!(helperTestList, radioBind)
+                            push!(helperList, logicBind)
+
+                        else
+                            ############################################################
+                            # Normal Admonitions
+                            ############################################################
+
+                            write(io, string(Markdown.MD(item)), '\n')
                         end
                     end
-                    write(io, "\"\"\"\n")
+                end
 
-                    # Pluto nb helper functions 
-                    ############################################################
-                    
-                    cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
+                write(io, "\"\"\"\n")
+                cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
 
-                    write(io, radioBind, '\n')
-                    cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
-
-                    write(io, logicBind, '\n')
-                    cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
-                    
-                elseif questionCategory == "freecode"
-                    ############################################################
-                    # Freecode Admonition
-                    ############################################################
-                    
-                    tests = []
-
-                    testList = filter(x -> isa(x, Markdown.List), admonition[1].content)
-                    testStr = string(Markdown.MD(testList[end]))
-
-                    for line in split(testStr, "\n")
-                        if startswith(lstrip(line), r"[1-9]\.")
-                            test = formatTest(lstrip(line))
-                            push!(tests, test)
-                        end
-                    end
-
-                    restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
-                    if length(testList) > 1
-                        push!(restList, testList[begin:end-1])
-                    end
-
-                    radioBind = writeFreeBind(questionName, tests)
-                    logicBind = writeFreeLogic(questionName, tests)
-                    
-                    result = writeControlFlow(questionName, restList)
-                    write(io, result, '\n')
-
-                    # Content after the Admonition
-                    ############################################################
-
-                    if admoIndex < length(mdContent)
-                        index = admoIndex + 1
-                        while index <= length(mdContent)
-                            para = string(Markdown.MD(mdContent[index]))
-                            write(io, para, '\n')
-                            index += 1
-                        end
-                    end
-                    write(io, "\"\"\"\n")
-
-                    # Pluto nb helper functions 
-                    ############################################################
-                    
-                    cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
-
-                    write(io, radioBind, '\n')
-                    cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
-                    
-                    write(io, logicBind, '\n')
-                    cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
-                    
-                else
-                    ############################################################
-                    # Normal Admonitions
-                    ############################################################
-
-                    index = admoIndex
-                    while index <= length(mdContent)
-                        para = string(Markdown.MD(mdContent[index]))
-                        write(io, para, '\n')
-                        index += 1
-                    end
-                    write(io, "\"\"\"\n")
+                for item in helperTestList
+                    write(io, item, '\n')
                     cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
                 end
+
+                for item in helperList
+                    write(io, item, '\n')
+                    cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
+                end
+
             else
                 ################################################################
                 # Chunk doesnt contain an Admonition
