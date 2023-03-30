@@ -468,53 +468,9 @@ function script(inputfile, outputdir=pwd(); config::Dict=Dict(), kwargs...)
             end
             write(ioscript, '\n') # add a newline between each chunk
         elseif isa(chunk, MDChunk) && config["keep_comments"]::Bool
-            write(ioscript, "# hello")
-            buffer = IOBuffer()
             for line in chunk.lines
-                write(buffer, line.first * line.second, '\n')
+                write(ioscript, rstrip(line.first * "# " * line.second) * '\n')
             end
-            seek(buffer, 0)
-            str = Markdown.parse(read(buffer, String))
-            admonition = filter(x -> x isa Markdown.Admonition, str.content)
-            questionName = admonition[1].title
-            str = string(Markdown.MD(admonition[1]))
-
-            io = IOBuffer()
-            answers = []
-            questionDict = Dict("correct" => "")
-                    
-            for line in split(str, "\n")
-                if startswith(lstrip(line), r"[1-9]\.")
-                    answer = lstrip(line)
-                
-                    if occursin("<!---correct-->", answer)
-                        questionDict["correct"] = string(answer[1])
-                    end
-                
-                    answer = replace(answer, r"[1-9]\.?\s" => "")
-                    answer = replace(answer, "<!---correct-->" => "")
-                    answer = replace(answer, "<!–-correct–>" => "")
-                    answer = replace(answer, "`" => "")
-                    answer = rstrip(answer)
-                    push!(answers, answer)
-                else 
-                    if line != ""
-                        write(io, line, "\n\n")
-                    end
-                end
-            end
-
-            admoBind = writeRadioBind(questionName, answers)
-
-            name = "$(questionName)Check"
-            toWrite = "    "*"md\"\$("*"$name"*")\""*"\n"
-                    
-            write(io, toWrite)
-            seek(io, 0)
-            result = read(io, String)
-            write(ioscript, result, '\n')
-            write(ioscript, "# " * "hello im here" * "\n")
-
             write(ioscript, '\n') # add a newline between each chunk
         end
     end
@@ -1012,11 +968,11 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                         questionName = replace("$(admonition.title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
                         questionCategory = admonition.category
 
-                        ################################################################
-                        # Single-Choice Admonition
-                        ################################################################
-
                         if questionCategory == "sc"
+                            ####################################################
+                            # Single-Choice Admonition
+                            ####################################################
+
                             answers = []
                             questionDict = Dict("correct" => "")
 
@@ -1051,15 +1007,15 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                             write(io, result, '\n')
 
                             # Pluto nb helper functions 
-                            ############################################################
+                            ####################################################
                             
                             push!(helperList, radioBind)
                             push!(helperList, logicBind)
 
                         elseif questionCategory == "mc"
-                            ############################################################
+                            ####################################################
                             # Multiple-Choice Admonition
-                            ############################################################
+                            ####################################################
                             
                             answers = []
                             questionDict = Dict("correct" => String[])
@@ -1093,15 +1049,15 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                             write(io, result, '\n')
 
                             # Pluto nb helper functions 
-                            ############################################################
+                            ####################################################
                             
                             push!(helperList, radioBind)
                             push!(helperList, logicBind)
 
                         elseif questionCategory == "freecode"
-                            ############################################################
+                            ####################################################
                             # Freecode Admonition
-                            ############################################################
+                            ####################################################
                             
                             tests = []
 
@@ -1127,15 +1083,15 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                             write(io, result, '\n')
 
                             # Pluto nb helper functions 
-                            ############################################################
+                            ####################################################
 
                             push!(helperTestList, radioBind)
                             push!(helperList, logicBind)
 
                         else
-                            ############################################################
+                            ####################################################
                             # Normal Admonitions
-                            ############################################################
+                            ####################################################
 
                             write(io, string(Markdown.MD(item)), '\n')
                         end
