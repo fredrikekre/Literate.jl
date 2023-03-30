@@ -1012,7 +1012,6 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                         para = string(Markdown.MD(mdContent[index]))
                         write(io, para, '\n')
                         index += 1
-                        println(para)
                     end
                 end
                 
@@ -1034,7 +1033,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     questionDict = Dict("correct" => "")
 
                     answerList = filter(x -> isa(x, Markdown.List), admonition[1].content)
-                    answerStr = string(Markdown.MD(answerList))
+                    answerStr = string(Markdown.MD(answerList[end]))
 
 
                     #there might be a nicer way to do it by using radio pairs
@@ -1052,10 +1051,10 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                         end 
                     end
 
-                    codeList = filter(x -> isa(x, Markdown.Code), admonition[1].content)
-                    codeStr = string(Markdown.MD(codeList))
-
                     restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
+                    if length(answerList) > 1
+                        push!(restList, answerList[begin:end-1])
+                    end
 
                     radioBind = writeRadioBind(questionName, answers)
                     logicBind = writeSingleLogic(questionName, questionDict)
@@ -1095,7 +1094,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     questionDict = Dict("correct" => String[])
 
                     answerList = filter(x -> isa(x, Markdown.List), admonition[1].content)
-                    answerStr = string(Markdown.MD(answerList))
+                    answerStr = string(Markdown.MD(answerList[end]))
 
                     for line in split(answerStr, "\n")
                         if startswith(lstrip(line), r"[1-9]\.")
@@ -1111,10 +1110,10 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                         end 
                     end
 
-                    codeList = filter(x -> isa(x, Markdown.Code), admonition[1].content)
-                    codeStr = string(Markdown.MD(codeList))
-
                     restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
+                    if length(answerList) > 1
+                        push!(restList, answerList[begin:end-1])
+                    end
 
                     radioBind = writeMultiBind(questionName, answers)
                     logicBind = writeMultiLogic(questionName, questionDict)
@@ -1154,7 +1153,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     tests = []
 
                     testList = filter(x -> isa(x, Markdown.List), admonition[1].content)
-                    testStr = string(Markdown.MD(testList))
+                    testStr = string(Markdown.MD(testList[end]))
 
                     for line in split(testStr, "\n")
                         if startswith(lstrip(line), r"[1-9]\.")
@@ -1163,10 +1162,10 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                         end
                     end
 
-                    codeList = filter(x -> isa(x, Markdown.Code), admonition[1].content)
-                    codeStr = string(Markdown.MD(codeList))
-
                     restList = filter(x -> !isa(x, Markdown.List), admonition[1].content)
+                    if length(testList) > 1
+                        push!(restList, testList[begin:end-1])
+                    end
 
                     radioBind = writeFreeBind(questionName, tests)
                     logicBind = writeFreeLogic(questionName, tests)
