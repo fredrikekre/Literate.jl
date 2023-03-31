@@ -862,8 +862,7 @@ function chunkToMD(chunk)
         write(buffer, line.first * line.second, '\n')
     end
     seek(buffer, 0)
-    str = Markdown.parse(read(buffer, String))
-    return str
+    return Markdown.parse(read(buffer, String))
 end
 
 function formatAnswer(answer)
@@ -907,10 +906,10 @@ end
 
 function processNonAdmonitions(item, io)
     # Handle non-admonition elements
-    write(io, string(Markdown.MD(item)), '\n')
+    return string(Markdown.MD(item))
 end
 
-function processSingleChoice(admonition, depth, io, helperList)
+function processSingleChoice(admonition, io, helperList, helperTestList)
     # Handle single-choice processing
     questionName = replace("$(admonition.title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
     answers = []
@@ -940,20 +939,19 @@ function processSingleChoice(admonition, depth, io, helperList)
         push!(restList, answerList[begin:end-1])
     end
 
+    # Pluto nb helper functions 
+    #####################################################
+
     radioBind = writeRadioBind(questionName, answers)
     logicBind = writeSingleLogic(questionName, questionDict)
     
-    result = writeControlFlow(questionName, restList)
-    write(io, result, '\n')
-
-    # Pluto nb helper functions 
-    ####################################################
-    
     push!(helperList, radioBind)
     push!(helperList, logicBind)
+    
+    return writeControlFlow(questionName, restList)
 end
 
-function processMultipleChoice(admonition, depth, io, helperList)
+function processMultipleChoice(admonition, io, helperList)
     # Handle multiple-choice processing
     questionName = replace("$(admonition.title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
     answers = []
@@ -981,20 +979,19 @@ function processMultipleChoice(admonition, depth, io, helperList)
         push!(restList, answerList[begin:end-1])
     end
 
+    # Pluto nb helper functions 
+    ####################################################
+
     radioBind = writeMultiBind(questionName, answers)
     logicBind = writeMultiLogic(questionName, questionDict)
     
-    result = writeControlFlow(questionName, restList)
-    write(io, result, '\n')
-
-    # Pluto nb helper functions 
-    ####################################################
-    
     push!(helperList, radioBind)
     push!(helperList, logicBind)
+    
+    return writeControlFlow(questionName, restList)
 end
 
-function processFreecode(admonition, depth, io, helperList, helperTestList)
+function processFreecode(admonition, io, helperList, helperTestList)
     # Handle freecode processing
     questionName = replace("$(admonition.title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
     tests = []
@@ -1014,44 +1011,55 @@ function processFreecode(admonition, depth, io, helperList, helperTestList)
         push!(restList, testList[begin:end-1])
     end
 
-    radioBind = writeFreeBind(questionName, tests)
-    logicBind = writeFreeLogic(questionName, tests)
-    
-    result = writeControlFlow(questionName, restList)
-    write(io, result, '\n')
-
     # Pluto nb helper functions 
     ####################################################
 
+    radioBind = writeFreeBind(questionName, tests)
+    logicBind = writeFreeLogic(questionName, tests)
+
     push!(helperTestList, radioBind)
     push!(helperList, logicBind)
+    
+    return writeControlFlow(questionName, restList)
 end
 
-function processNormalAdmonition(admonition, depth, io)
-    write(io, string(Markdown.MD(admonition)), '\n')
+function processNormalAdmonition(admonition, io, helperList, helperTestList)
+    newContentList = []
+    for element in admonition.content
+        if isa(element, Markdown.Admonition)
+            processedElement = processAdmonition(element, io, helperList, helperTestList)
+            push!(newContentList, Markdown.Paragraph([processedElement]))
+        else
+            push!(newContentList, element)
+        end
+    end
+
+    updatedAdmonition = Markdown.Admonition(admonition.category, admonition.title, newContentList)
+    return string(Markdown.MD(updatedAdmonition))
 end
 
-function processAdmonition(admonition, depth, io, helperList, helperTestList)
+function processAdmonition(admonition, io, helperList, helperTestList)
     category = admonition.category
 
     if category == "sc"
-        processSingleChoice(admonition, depth, io, helperList)
+        return processSingleChoice(admonition, io, helperList, helperTestList)
     elseif category == "mc"
-        processMultipleChoice(admonition, depth, io, helperList)
+        return processMultipleChoice(admonition, io, helperList)
     elseif category == "freecode"
-        processFreecode(admonition, depth, io, helperList, helperTestList)
+        return processFreecode(admonition, io, helperList, helperTestList)
     else
-        processNormalAdmonition(admonition, depth, io)
+        return processNormalAdmonition(admonition, io, helperList, helperTestList)
     end
 end
 
-function processContent(mdContent, io)
+function writeContent(mdContent, io, helperList, helperTestList)
     for item in mdContent
         if isa(item, Markdown.Admonition)
-            processAdmonition(item, 0, io)
+            result = processAdmonition(item, io, helperList, helperTestList)
         else
-            processNonAdmonitions(item, io)
+            result = processNonAdmonitions(item, io)
         end
+        write(io, result, '\n')
     end
 end
 
@@ -1094,29 +1102,16 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 line = escape_string(chunk.lines[1].second, '"')
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"", line, "\"\n")
             elseif containsAdmonition(chunk)
-                write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
-                
-                str = chunkToMD(chunk)
                 helperList = []
                 helperTestList = []
 
+                str = chunkToMD(chunk)
                 mdContent = str.content
-                for item in mdContent
-                    if !isa(item, Markdown.Admonition)
-                        write(io, string(Markdown.MD(item)), '\n')
-                    elseif isa(item, Markdown.Admonition)
-                        # The Admonition
-                        ########################################################
-                
-                        admonition = item
-                        
-                        questionCategory = admonition.category
 
-                        processAdmonition(admonition, 0, io, helperList, helperTestList)
-                    end
-                end
-
+                write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
+                writeContent(mdContent, io, helperList, helperTestList)
                 write(io, "\"\"\"\n")
+                
                 cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
 
                 for item in helperTestList
@@ -1128,11 +1123,8 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                     write(io, item, '\n')
                     cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
                 end
-
             else
-                ################################################################
-                # Chunk doesnt contain an Admonition
-                ################################################################
+                # Handle chunks without admonitions
                 
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
                 for line in chunk.lines
@@ -1148,6 +1140,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
             end
             seek(io, 0)
             content = read(io, String)
+
             # Compute number of expressions in the code block and perhaps wrap in begin/end
             nexprs, idx = 0, 1
             ex = nothing
