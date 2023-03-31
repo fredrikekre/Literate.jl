@@ -893,13 +893,13 @@ function formatCells(io, ionb, cellCounter, uuids, folds, fold)
     return cellCounter
 end
 
-function formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
+function formatCellsEnd(io, ionb, cellCounter, helperContent, helperUuids, helperFolds, fold)
     content = String(take!(io))
     uuid = uuid4(content, cellCounter)
     cellCounter += 1
-    push!(singleChoiceUuids, uuid)
-    push!(singleChoiceFolds, fold)
-    push!(singleChoiceContent, content)
+    push!(helperUuids, uuid)
+    push!(helperFolds, fold)
+    push!(helperContent, content)
 
     return cellCounter
 end
@@ -1077,9 +1077,9 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
 
     # Print cells
     uuids = Base.UUID[]
-    singleChoiceUuids = Base.UUID[]
-    singleChoiceFolds = Bool[]
-    singleChoiceContent = String[]
+    helperUuids = Base.UUID[]
+    helperFolds = Bool[]
+    helperContent = String[]
     folds = Bool[]
     default_fold = Dict{String,Bool}("markdown"=>true, "code"=>false) # toggleable ???
     cellCounter = 1
@@ -1121,7 +1121,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
 
                 for item in helperList
                     write(io, item, '\n')
-                    cellCounter = formatCellsEnd(io, ionb, cellCounter, singleChoiceContent, singleChoiceUuids, singleChoiceFolds, fold)
+                    cellCounter = formatCellsEnd(io, ionb, cellCounter, helperContent, helperUuids, helperFolds, fold)
                 end
             else
                 # Handle chunks without admonitions
@@ -1163,14 +1163,14 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
     end
 
     # Add Question related functions at the end
-    for (i, uuid) in enumerate(singleChoiceUuids)
-        content = singleChoiceContent[i]
+    for (i, uuid) in enumerate(helperUuids)
+        content = helperContent[i]
         print(ionb, "# ╔═╡ ", uuid, '\n')
         write(ionb, content, '\n')
     end
     
-    uuids = vcat(uuids, singleChoiceUuids)
-    folds = vcat(folds, singleChoiceFolds)
+    uuids = vcat(uuids, helperUuids)
+    folds = vcat(folds, helperFolds)
 
     # Print cell order
     print(ionb, "# ╔═╡ Cell order:\n# ╟─a0000000-0000-0000-0000-000000000000\n")
