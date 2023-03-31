@@ -850,11 +850,7 @@ end
 function writeControlFlow(questionName, restList)
     controlFlow = """
     \$(
-    if $(questionName)Test($(questionName)Answer)
-        Markdown.MD(Markdown.Admonition("correct", "$(questionName)", [$restList, md"\$($(questionName)Check)"]))
-    else
-        Markdown.MD(Markdown.Admonition("danger", "$(questionName)", [$restList, md"\$($(questionName)Check)"]))
-    end
+    Markdown.MD(Markdown.Admonition($(questionName)Test($(questionName)Answer) ? "correct" : "danger", "$(questionName)", [$restList, md"\$($(questionName)Check)"]))
     )
     """
     return controlFlow 
