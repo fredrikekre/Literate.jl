@@ -907,7 +907,7 @@ function processNonAdmonitions(item, io)
     return string(Markdown.MD(item))
 end
 
-function processSingleChoice(admonition, io, helperList, helperTestList)
+function processSingleChoice(admonition, io, helperList)
     # Handle single-choice processing
     questionName = replace("$(admonition.title)" * "$(replace(string(gensym()), "#" => ""))", r"[^\d\w]+" => "")
     answers = []
@@ -1038,7 +1038,7 @@ function processAdmonition(admonition, io, helperList, helperTestList)
     category = admonition.category
 
     if category == "sc"
-        return processSingleChoice(admonition, io, helperList, helperTestList)
+        return processSingleChoice(admonition, io, helperList)
     elseif category == "mc"
         return processMultipleChoice(admonition, io, helperList)
     elseif category == "freecode"
