@@ -848,11 +848,9 @@ function writeFreeLogic(questionName, tests)
 end
 
 function writeControlFlow(questionName, restList)
-    controlFlow = """
-    \$(
+    controlFlow = """\$(
     Markdown.MD(Markdown.Admonition($(questionName)Test($(questionName)Answer) ? "correct" : "danger", "$(questionName)", [$restList, md"\$($(questionName)Check)"]))
-    )
-    """
+    )"""
     return controlFlow 
 end
 
@@ -918,8 +916,6 @@ function processSingleChoice(admonition, io, helperList, helperTestList)
     answerList = filter(x -> isa(x, Markdown.List), admonition.content)
     answerStr = string(Markdown.MD(answerList[end]))
 
-
-    #there might be a nicer way to do it by using radio pairs
     for line in split(answerStr, "\n")
         if startswith(lstrip(line), r"[1-9]\.")
             answer = lstrip(line)
@@ -1114,6 +1110,7 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 
                 cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
 
+                # helper functions 
                 for item in helperTestList
                     write(io, item, '\n')
                     cellCounter = formatCells(io, ionb, cellCounter, uuids, folds, fold)
@@ -1125,7 +1122,6 @@ function create_notebook(flavor::PlutoFlavor, chunks, config)
                 end
             else
                 # Handle chunks without admonitions
-                
                 write(io, "$(flavor.use_cm ? "cm" : "md")\"\"\"\n")
                 for line in chunk.lines
                     write(io, line.second, '\n') # Skip indent
