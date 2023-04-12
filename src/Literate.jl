@@ -6,7 +6,7 @@ https://fredrikekre.github.io/Literate.jl/ for documentation.
 """
 module Literate
 
-import JSON, REPL, IOCapture
+import JSON, REPL, IOCapture, Markdown
 
 include("IJulia.jl")
 import .IJulia
