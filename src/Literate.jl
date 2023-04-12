@@ -16,6 +16,7 @@ struct DefaultFlavor <: AbstractFlavor end
 struct DocumenterFlavor <: AbstractFlavor end
 struct CommonMarkFlavor <: AbstractFlavor end
 struct FranklinFlavor <: AbstractFlavor end
+struct Carpentries <: AbstractFlavor end
 
 # # Some simple rules:
 #
