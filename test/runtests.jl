@@ -293,6 +293,7 @@ const GITLAB_ENV = Dict(
     (k => nothing for k in keys(TRAVIS_ENV))...,
     (k => nothing for k in keys(ACTIONS_ENV))...,
 )
+
 @testset "Literate.script" begin; Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do
@@ -850,9 +851,9 @@ end end
             markdown = read(joinpath(outdir, "inputfile.md"), String)
             @test occursin("```\n2\n```", markdown) # text/plain
             @test occursin("```\n2×2 $(Matrix{Int}):\n 1  2\n 3  4\n```", markdown) # text/plain
-            @test occursin(r"!\[\]\(\d+\.png\)", markdown) # image/png
-            @test occursin(r"!\[\]\(\d+\.jpeg\)", markdown) # image/jpeg
-            @test occursin(r"!\[\]\(\d+\.svg\)", markdown) # image/svg+xml, fredrikekre/Literate.jl#182
+            @test occursin(r"!\[\]\(inputfile-5\.png\)", markdown) # image/png
+            @test occursin(r"!\[\]\(inputfile-6\.jpeg\)", markdown) # image/jpeg
+            @test occursin(r"!\[\]\(inputfile-7\.svg\)", markdown) # image/svg+xml, fredrikekre/Literate.jl#182
             @test occursin("# MD", markdown) # text/markdown
             @test occursin("```@raw html\n<h1>MD</h1>\n```", markdown) # text/html
             @test occursin("```\nPlain\n```", markdown) # text/plain, fredrikekre/Literate#187

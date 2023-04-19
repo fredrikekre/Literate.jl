@@ -40,6 +40,16 @@ HTML formats.
     img = DisplayAs.Text(DisplayAs.PNG(img))
     ```
 
+### [Printing tables in Markdown](@id printing-tables-in-markdown)
+
+Tables that support the [Tables.jl](https://tables.juliadata.org/) interface can be included in Markdown output with the lightweight package [MarkdownTables.jl](https://github.com/tpapp/MarkdownTables.jl).
+
+```julia
+using MarkdownTables
+table = [(a = 1, b = 2), (a = 3, b = 4)]
+table |> markdown_table()
+```
+
 ### [Adding admonitions using compound line filtering](@id admonitions-md)
 
 Admonitions are a useful feature for drawing attention to particular elements of 

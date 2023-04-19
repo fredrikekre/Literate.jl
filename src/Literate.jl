@@ -566,8 +566,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
     # create the markdown file
     sb = sandbox()
     iomd = IOBuffer()
-    continued = false
-    for chunk in chunks
+    for (chunknum, chunk) in enumerate(chunks)
         if isa(chunk, MDChunk)
             for line in chunk.lines
                 write(iomd, line.second, '\n') # skip indent here
@@ -600,7 +599,9 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
                                       inputfile=config["literate_inputfile"],
                                       fake_source=config["literate_outputfile"],
                                       flavor=config["flavor"],
-                                      image_formats=config["image_formats"])
+                                      image_formats=config["image_formats"],
+                                      file_prefix="$(config["name"])-$(chunknum)",
+                    )
                 end
             end
         end
@@ -617,7 +618,7 @@ end
 
 function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
                            inputfile::String, fake_source::String,
-                           flavor::AbstractFlavor, image_formats::Vector)
+                           flavor::AbstractFlavor, image_formats::Vector, file_prefix::String)
     # TODO: Deal with explicit display(...) calls
     r, str, _ = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source)
     # issue #101: consecutive codefenced blocks need newline
@@ -634,7 +635,7 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
         end
         for (mime, ext) in image_formats
             if Base.invokelatest(showable, mime, r)
-                file = string(hash(block) % UInt32) * ext
+                file = file_prefix * ext
                 open(joinpath(outputdir, file), "w") do io
                     Base.invokelatest(show, io, mime, r)
                 end
