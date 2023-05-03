@@ -867,7 +867,6 @@ function formatAnswer(answer)
     answer = replace(answer, r"^[1-9]\.\s" => "")
     answer = replace(answer, "<!---correct-->" => "")
     answer = replace(answer, "<!–-correct–>" => "")
-    answer = replace(answer, "`" => "")
     answer = rstrip(answer)
     return string(answer)
 end
