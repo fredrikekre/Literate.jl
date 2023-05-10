@@ -88,6 +88,27 @@ Literate can output markdown in different flavors. The flavor is specified using
    to [Franklin.jl](https://franklinjl.org/).
  - `flavor = Literate.QuartoFlavor()` : this outputs markdown file (with file extension ".qmd") meant to be used with [Quarto CLI](https://quarto.org).
 
+#### Quarto Flavor Tips & Tricks
+
+[Quarto](https://quarto.org/) is a new and exciting open-source scientific and technical publishing system, which can extend the range of output formats from your Literate.jl-formatted scripts.
+Literate.jl will produce a `.qmd` file, which can be used as input to Quarto CLI to produce a variety of output formats, including HTML, PDF, Word and RevealJS slides.
+
+Syntax tips:
+- `# `(hashtag followed by a space) at the beginning of a line will be stripped and anything following will rendered as a markdown, e.g., `# # Header level 1` in your script will be rendered as `# Header level 1` in your .qmd file (ie, it will show as a header). Use this for adding the YAML header at the top.
+- `#`(hashtag not followed by a space) at the beginning of a line will be stripped and anything following will be rendered as part of the code block. This is useful to provide Quarto commands in computation blocks, e.g., `## echo: false` in your script will be rendered as `#| echo: false` which will tell Quarto to not echo the code block in the output (see [Guide: Executions options](https://quarto.org/docs/computations/execution-options.html) for more commands).
+- Make sure to always provide the YAML header and specify IJulia kernel when executing the file by Quarto, e.g., 
+```# ---\n# title: "My Report"\n# jupyter: julia-1.9\n# ---` (notice how all lines are escaped with a `# ` that Literate.jl will strip and render the markdown - see Quarto's YAML [header examples](https://quarto.org/docs/get-started/hello/vscode.html#render-and-preview))
+- If any markdown components (eg, headers) are not rendering correctly in your Quarto outputs, make sure they are surrounded by empty lines (eg, add an empty line before and after the header) to help Quarto parse them correctly
+
+Steps to install:
+- Install [Quarto CLI](https://quarto.org/docs/getting-started/installation.html)
+- Run `quarto check` to ensure all is installed correctly (you will need Python, Jupyter, and IJulia kernel, see [Getting Started](https://quarto.org/docs/get-started/computations/vscode.html))
+
+Steps to create reports:
+- Make sure you have the right header specifying which IJulia kernel to use (e.g. `jupyter: julia-1.9`), otherwise Quarto will use the default Python kernel
+- Convert your Literate.jl script to a `.qmd` file, e.g. `literate("my_script.jl", flavor = Literate.QuartoFlavor())`
+- Run Quarto CLI to produce your desired output format, e.g. `quarto render my_script.qmd --to html`
+
 
 ## [**4.2.** Notebook output](@id Notebook-output)
 
