@@ -16,7 +16,7 @@ struct DefaultFlavor <: AbstractFlavor end
 struct DocumenterFlavor <: AbstractFlavor end
 struct CommonMarkFlavor <: AbstractFlavor end
 struct FranklinFlavor <: AbstractFlavor end
-struct Carpentries <: AbstractFlavor end
+struct CarpentriesFlavor <: AbstractFlavor end
 
 # # Some simple rules:
 #
@@ -499,6 +499,104 @@ function write_result(content, config; print=print)
     return outputfile
 end
 
+# Define general functions needed for admonitions formating.
+
+function containsAdmonition(chunk)
+        if startswith(strip(line.first * line.second), "!!!")
+            return true
+        end
+    end
+    return false
+end
+
+function chunkToMD(chunk)
+    buffer = IOBuffer()
+    for line in chunk.lines
+        write(buffer, line.first * line.second, '\n')
+    end
+    seek(buffer, 0)
+    return Markdown.parse(read(buffer, String))
+end
+
+function processNonAdmonitions(item, io)
+    # Handle non-admonition elements
+    return string(Markdown.MD(item))
+end
+
+function writeContent(mdContent, io) 
+    for item in mdContent
+        if isa(item, Markdown.Admonition)
+            result = CarpentriesAdmonition(item, io)
+        else
+            result = processNonAdmonitions(item, io)
+        end
+        write(io, result, '\n')
+    end
+end
+
+
+#Functions needed for addition transformation into Carpentries style. Markdown style into pandoc fenced divs
+
+function CarpentriesCallout(admonition, io)
+    for line in admonition
+        if startswith(strip(line.first * line.second), "!!!")
+            write(io, ":::::::: callout", '\n')
+        else
+            write(io, line, '\n')
+        end
+    end
+    write(io, "::::::::", '\n')
+end
+
+function CarpentriesTestamonial(admonition, io)
+    for line in admonition
+        if startswith(strip(line.first * line.second), "!!!")
+            write(io, ":::::::: testamonial", '\n')
+        else
+            write(io, line, '\n')
+        end
+    end
+    write(io, "::::::::", '\n')
+end
+
+function CarpentriesChallenge(admonition, io)
+    for line in admonition
+        if startswith(strip(line.first * line.second), r"!!! [smf][cr]")
+            write(io, ":::::::: challenge", '\n')
+        elseif startswith(strip(line.first * line.second), "!!! solution")
+            write(io, ":::::::: solution", '\n')
+        else
+            write(io, line, '\n')
+        end
+    end
+    write(io, "::::::::", '\n', "::::::::", '\n')
+end
+
+function CarpentriesWarning(admonition, io)
+    for line in admonition
+        if startswith(strip(line.first * line.second), "!!!")
+            write(io, ":::::::: warning", '\n')
+        else
+            write(io, line, '\n')
+        end
+    end
+    write(io, "::::::::", '\n')
+end
+
+function CarpentriesAdmonition(admonition, io)
+    category = admonition.category
+
+    if category == "sc" || "mc" || "freecode"
+        return CarpentriesChallenge(admonition, io)
+    elseif category == "tip"
+        return CarpentriesTestamonial(admonition, io)
+    elseif category == "warning"
+        return CarpentriesWarning(admonition, io)
+    elseif category == "info" || "note"
+        return CarpentriesCallout(admonition, io)
+    end
+end
+
 """
     Literate.script(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
 
@@ -550,48 +648,102 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
     # preprocessing and parsing
     chunks, config =
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:md)
-
+    flavor=config["flavor"]
     # create the markdown file
     sb = sandbox()
     iomd = IOBuffer()
-    for (chunknum, chunk) in enumerate(chunks)
-        if isa(chunk, MDChunk)
-            for line in chunk.lines
-                write(iomd, line.second, '\n') # skip indent here
-            end
-        else # isa(chunk, CodeChunk)
-            iocode = IOBuffer()
-            codefence = config["codefence"]::Pair
-            write(iocode, codefence.first)
-            # make sure the code block is finalized if we are printing to ```@example
-            # (or ````@example, any number of backticks >= 3 works)
-            if chunk.continued && occursin(r"^`{3,}@example", codefence.first) && isdocumenter(config)
-                write(iocode, "; continued = true")
-            end
-            write(iocode, '\n')
-            # filter out trailing #hide unless code is executed by Documenter
-            execute = config["execute"]::Bool
-            write_hide = isdocumenter(config) && !execute
-            write_line(line) = write_hide || !endswith(line, "#hide")
-            for line in chunk.lines
-                write_line(line) && write(iocode, line, '\n')
-            end
-            if write_hide && REPL.ends_with_semicolon(chunk.lines[end])
-                write(iocode, "nothing #hide\n")
-            end
-            write(iocode, codefence.second, '\n')
-            any(write_line, chunk.lines) && write(iomd, seekstart(iocode))
-            if execute
-                cd(config["literate_outputdir"]) do
-                    execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
+    
+    for chunk in chunks
+        io = IOBuffer()
+        if flavor isa CarpentriesFlavor
+            if isa(chunk, MDChunk)
+                if containsAdmonition(chunk)
+
+                    str = chunkToMD(chunk)
+                    mdContent = str.content
+
+                   writeContent(mdContent, io)
+
+                else
+                    # Handle chunks without admonitions
+                    for line in chunk.lines
+                        write(io, line.second, '\n') # Skip indent
+                    end
+                end
+            ## else is copied from vanilla:
+            else # isa(chunk, CodeChunk)
+                  iocode = IOBuffer()
+                  codefence = config["codefence"]::Pair
+                  write(iocode, codefence.first)
+                  # make sure the code block is finalized if we are printing to ```@example
+                   # (or ````@example, any number of backticks >= 3 works)
+                    if chunk.continued && occursin(r"^`{3,}@example", codefence.first) && isdocumenter(config)
+                        write(iocode, "; continued = true")
+                    end
+                    write(iocode, '\n')
+                    # filter out trailing #hide unless code is executed by Documenter
+                    execute = config["execute"]::Bool
+                    write_hide = isdocumenter(config) && !execute
+                    write_line(line) = write_hide || !endswith(line, "#hide")
+                    for line in chunk.lines
+                        write_line(line) && write(iocode, line, '\n')
+                    end
+                    if write_hide && REPL.ends_with_semicolon(chunk.lines[end])
+                        write(iocode, "nothing #hide\n")
+                    end
+                    write(iocode, codefence.second, '\n')
+                    any(write_line, chunk.lines) && write(iomd, seekstart(iocode))
+                    if execute
+                        cd(config["literate_outputdir"]) do
+                            execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
+                                              inputfile=config["literate_inputfile"],
+                                              fake_source=config["literate_outputfile"],
+                                              flavor=config["flavor"],
+                                              image_formats=config["image_formats"],
+                                              file_prefix="$(config["name"])-$(chunknum)",
+                        )
+                    end
+                end
+        else
+            # Vanilla Function
+            for (chunknum, chunk) in enumerate(chunks)
+                if isa(chunk, MDChunk)
+                    for line in chunk.lines
+                        write(iomd, line.second, '\n') # skip indent here
+                    end
+                else # isa(chunk, CodeChunk)
+                    iocode = IOBuffer()
+                    codefence = config["codefence"]::Pair
+                    write(iocode, codefence.first)
+                    # make sure the code block is finalized if we are printing to ```@example
+                    # (or ````@example, any number of backticks >= 3 works)
+                    if chunk.continued && occursin(r"^`{3,}@example", codefence.first) && isdocumenter(config)
+                        write(iocode, "; continued = true")
+                    end
+                    write(iocode, '\n')
+                    # filter out trailing #hide unless code is executed by Documenter
+                    execute = config["execute"]::Bool
+                    write_hide = isdocumenter(config) && !execute
+                    write_line(line) = write_hide || !endswith(line, "#hide")
+                    for line in chunk.lines
+                        write_line(line) && write(iocode, line, '\n')
+                    end
+                    if write_hide && REPL.ends_with_semicolon(chunk.lines[end])
+                        write(iocode, "nothing #hide\n")
+                    end
+                    write(iocode, codefence.second, '\n')
+                    any(write_line, chunk.lines) && write(iomd, seekstart(iocode))
+                    if execute
+                        cd(config["literate_outputdir"]) do
+                        execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
                                       inputfile=config["literate_inputfile"],
                                       fake_source=config["literate_outputfile"],
                                       flavor=config["flavor"],
                                       image_formats=config["image_formats"],
                                       file_prefix="$(config["name"])-$(chunknum)",
-                    )
+                        )
+                    end
                 end
-            end
         end
         write(iomd, '\n') # add a newline between each chunk
     end
@@ -602,7 +754,10 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
     # write to file
     outputfile = write_result(content, config)
     return outputfile
-end
+
+end  
+
+
 
 function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
                            inputfile::String, fake_source::String,
@@ -612,6 +767,7 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
     # issue #101: consecutive codefenced blocks need newline
     # issue #144: quadruple backticks allow for triple backticks in the output
     plain_fence = "\n````\n" =>  "\n````"
+    # Here CarpentiresFlavor fork...
     if r !== nothing && !REPL.ends_with_semicolon(block)
         if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
            Base.invokelatest(showable, MIME("text/html"), r)
