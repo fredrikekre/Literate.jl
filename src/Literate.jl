@@ -16,7 +16,7 @@ struct DefaultFlavor <: AbstractFlavor end
 struct DocumenterFlavor <: AbstractFlavor end
 struct CommonMarkFlavor <: AbstractFlavor end
 struct FranklinFlavor <: AbstractFlavor end
-struct CarpentriesFlavor <: AbstractFlavor end
+struct CarpentriesFlavor <: AbstractFlavor end 
 
 # # Some simple rules:
 #
@@ -499,6 +499,45 @@ function write_result(content, config; print=print)
     return outputfile
 end
 
+"""
+    Literate.script(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
+
+Generate a plain script file from `inputfile` and write the result to `outputdir`.
+
+See the manual section on [Configuration](@ref) for documentation
+of possible configuration with `config` and other keyword arguments.
+"""
+function script(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
+    # preprocessing and parsing
+    chunks, config =
+        preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:jl)
+
+    # create the script file
+    ioscript = IOBuffer()
+    for chunk in chunks
+        if isa(chunk, CodeChunk)
+            for line in chunk.lines
+                write(ioscript, line, '\n')
+            end
+            write(ioscript, '\n') # add a newline between each chunk
+        elseif isa(chunk, MDChunk) && config["keep_comments"]::Bool
+            for line in chunk.lines
+                write(ioscript, rstrip(line.first * "# " * line.second) * '\n')
+            end
+            write(ioscript, '\n') # add a newline between each chunk
+        end
+    end
+
+    # custom post-processing from user
+    content = config["postprocess"](String(take!(ioscript)))
+
+    # write to file
+    outputfile = write_result(content, config)
+    return outputfile
+end
+
+
+#_______________________________________________________________________________________
 # Define general functions needed for admonitions formating.
 
 function containsAdmonition(chunk)
@@ -561,7 +600,7 @@ end
 
 function CarpentriesChallenge(admonition, io)
     for line in admonition
-        if startswith(strip(line.first * line.second), r"!!! [smf][cr]")
+        if startswith(strip(line.first * line.second), r"\S+\s[smf][cr]")
             write(io, ":::::::: challenge", '\n')
         elseif startswith(strip(line.first * line.second), "!!! solution")
             write(io, ":::::::: solution", '\n')
@@ -583,6 +622,16 @@ function CarpentriesWarning(admonition, io)
     write(io, "::::::::", '\n')
 end
 
+function CarpentriesYAML(admonition, io)
+    for line in admonition
+        if startswith(strip(line.first * line.second), "!!!")
+            write(io, "", '\n')
+        else
+            write(io, line, '\n')
+        end
+    end
+end
+
 function CarpentriesAdmonition(admonition, io)
     category = admonition.category
 
@@ -594,45 +643,12 @@ function CarpentriesAdmonition(admonition, io)
         return CarpentriesWarning(admonition, io)
     elseif category == "info" || "note"
         return CarpentriesCallout(admonition, io)
+    elseif category == "carp"
+        return CarpentriesYAML(admonition, io)
     end
 end
+#_______________________________________________________________________________________
 
-"""
-    Literate.script(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
-
-Generate a plain script file from `inputfile` and write the result to `outputdir`.
-
-See the manual section on [Configuration](@ref) for documentation
-of possible configuration with `config` and other keyword arguments.
-"""
-function script(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
-    # preprocessing and parsing
-    chunks, config =
-        preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:jl)
-
-    # create the script file
-    ioscript = IOBuffer()
-    for chunk in chunks
-        if isa(chunk, CodeChunk)
-            for line in chunk.lines
-                write(ioscript, line, '\n')
-            end
-            write(ioscript, '\n') # add a newline between each chunk
-        elseif isa(chunk, MDChunk) && config["keep_comments"]::Bool
-            for line in chunk.lines
-                write(ioscript, rstrip(line.first * "# " * line.second) * '\n')
-            end
-            write(ioscript, '\n') # add a newline between each chunk
-        end
-    end
-
-    # custom post-processing from user
-    content = config["postprocess"](String(take!(ioscript)))
-
-    # write to file
-    outputfile = write_result(content, config)
-    return outputfile
-end
 
 
 """
@@ -703,7 +719,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
                                               file_prefix="$(config["name"])-$(chunknum)",
                         )
                     end
-                end
+            end
         else
             # Vanilla Function
             for (chunknum, chunk) in enumerate(chunks)
@@ -744,6 +760,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
                         )
                     end
                 end
+            end
         end
         write(iomd, '\n') # add a newline between each chunk
     end
