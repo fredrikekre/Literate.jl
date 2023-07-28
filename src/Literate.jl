@@ -561,25 +561,25 @@ end
 function chunkToMD(chunk)
     buffer = IOBuffer()
     for line in chunk.lines
-        write(buffer, line.first * line.second, '\n')
+        write(buffer, line.first * line.second, "\n\n")
     end
-    seek(buffer, 0)
-    return Markdown.parse(read(buffer, String))
+    str = String(take!(buffer))
+    return Markdown.parse(str)
 end
 
-function processNonAdmonitions(item)
+function processNonAdmonitions(item, io)
     # Handle non-admonition elements
-    return string(Markdown.MD(item))
+    write(io, string(Markdown.MD(item)))
 end
 
 function writeContent(mdContent, io) 
     for item in mdContent
         if isa(item, Markdown.Admonition)
-            result = CarpentriesAdmonition(item, io)
+            CarpentriesAdmonition(item, io)
         else
-            result = processNonAdmonitions(item)
+            processNonAdmonitions(item, io)
         end
-        write(io, result, '\n')
+        # write(io, '\n')
     end
 end
 
@@ -588,13 +588,15 @@ end
 
 function CarpentriesCallout(admonition, io)
     for line in admonition
-        if startswith(strip(line.first * line.second), "!!!")
+        if startswith(line, "!!!")
             write(io, ":::::::: callout", '\n')
         else
-            write(io, line, '\n')
+            if line != ""
+               write(io, line, '\n')
+            end
         end
     end
-    write(io, "::::::::", '\n')
+    write(io, "::::::::", "\n\n")
 end
 
 function CarpentriesTestamonial(admonition, io)
@@ -605,7 +607,7 @@ function CarpentriesTestamonial(admonition, io)
             write(io, line, '\n')
         end
     end
-    write(io, "::::::::", '\n')
+    write(io, "::::::::", "\n\n")
 end
 
 function CarpentriesChallenge(admonition, io)
@@ -618,7 +620,7 @@ function CarpentriesChallenge(admonition, io)
             write(io, line, '\n')
         end
     end
-    write(io, "::::::::", '\n', "::::::::", '\n')
+    write(io, "::::::::", "\n\n", "::::::::", "\n\n")
 end
 
 function CarpentriesWarning(admonition, io)
@@ -629,13 +631,13 @@ function CarpentriesWarning(admonition, io)
             write(io, line, '\n')
         end
     end
-    write(io, "::::::::", '\n')
+    write(io, "::::::::", "\n\n")
 end
 
 function CarpentriesYAML(admonition, io)
     for line in admonition
-        if startswith(strip(line.first * line.second), "!!!")
-            write(io, "", '\n')
+        if startswith(line, "!!!")
+            continue
         else
             write(io, line, '\n')
         end
@@ -644,17 +646,17 @@ end
 
 function CarpentriesAdmonition(admonition, io)
     category = admonition.category
-
-    if category == "sc" || "mc" || "freecode"
-        return CarpentriesChallenge(admonition, io)
+    admonition = split(string(Markdown.MD(admonition)), '\n')
+    if category in ("sc", "mc", "freecode")
+         CarpentriesChallenge(admonition, io)
     elseif category == "tip"
-        return CarpentriesTestamonial(admonition, io)
+         CarpentriesTestamonial(admonition, io)
     elseif category == "warning"
-        return CarpentriesWarning(admonition, io)
-    elseif category == "info" || "note"
-        return CarpentriesCallout(admonition, io)
+         CarpentriesWarning(admonition, io)
+    elseif category in ("info", "note")
+         CarpentriesCallout(admonition, io)
     elseif category == "carp"
-        return CarpentriesYAML(admonition, io)
+        CarpentriesYAML(admonition, io)
     end
 end
 #_______________________________________________________________________________________
@@ -687,7 +689,6 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
 
                     str = chunkToMD(chunk)
                     mdContent = str.content
-
                    writeContent(mdContent, iomd)
 
                 else
@@ -745,7 +746,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
                     for item in mdContent
                         if isa(item, Markdown.Admonition)
                             if startswith(strip(line.first * line.second), "!!! carp")
-                                result = ""
+                                continue
                             end
                         else
                             result=string(Markdown.MD(item))
