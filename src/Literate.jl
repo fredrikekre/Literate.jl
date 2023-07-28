@@ -548,6 +548,14 @@ function containsAdmonition(chunk)
     return false
 end
 
+function containsYAML(chunk)
+    if startswith(strip(line.first * line.second), "!!! carp")
+        return true
+    end
+end
+return false
+end
+
 function chunkToMD(chunk)
     buffer = IOBuffer()
     for line in chunk.lines
@@ -724,6 +732,23 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
             # Vanilla Function
             for (chunknum, chunk) in enumerate(chunks)
                 if isa(chunk, MDChunk)
+
+                    #______________________________________________________________________________________________________________
+                    if containsYAML(chunk) # This part is the only change. It (should) delete the YAML Admo for non Carpentries MD.
+                        str = chunkToMD(chunk)
+                        mdContent = str.content
+
+                        for item in mdContent
+                            if isa(item, Markdown.Admonition)
+                                result = ""
+                            else
+                                result=string(Markdown.MD(item))
+                            end
+                            write(io, result, '\n')
+                        end
+                    end
+                    #______________________________________________________________________________________________________________
+
                     for line in chunk.lines
                         write(iomd, line.second, '\n') # skip indent here
                     end
