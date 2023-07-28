@@ -728,7 +728,8 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
                                               image_formats=config["image_formats"],
                                               file_prefix="$(config["name"])-$(chunknum)",
                         )
-                    end
+                        end
+                end
             end
         end
     else
@@ -786,6 +787,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
                                   image_formats=config["image_formats"],
                                   file_prefix="$(config["name"])-$(chunknum)",
                     )
+                        end
                 end
             end
         end
@@ -800,7 +802,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
     outputfile = write_result(content, config)
     return outputfile
 
-end  
+end 
 
 
 
