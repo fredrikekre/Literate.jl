@@ -549,11 +549,11 @@ function containsAdmonition(chunk)
 end
 
 function containsYAML(chunk)
-    if startswith(strip(line.first * line.second), "!!! carp")
-        return true
-    end
-end
-return false
+        if startswith(strip(line.first * line.second), "!!! carp")
+            return true
+        end
+    #???
+    return false
 end
 
 function chunkToMD(chunk)
@@ -677,9 +677,10 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
     sb = sandbox()
     iomd = IOBuffer()
     
-    for chunk in chunks
-        io = IOBuffer()
-        if flavor isa CarpentriesFlavor
+    
+    if flavor isa CarpentriesFlavor
+        for chunk in chunks
+            io = IOBuffer()
             if isa(chunk, MDChunk)
                 if containsAdmonition(chunk)
 
@@ -728,67 +729,68 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
                         )
                     end
             end
-        else
-            # Vanilla Function
-            for (chunknum, chunk) in enumerate(chunks)
-                if isa(chunk, MDChunk)
+        end
+    else
+        # Vanilla Function
+        for (chunknum, chunk) in enumerate(chunks)
+            if isa(chunk, MDChunk)
 
-                    #______________________________________________________________________________________________________________
-                    if containsYAML(chunk) # This part is the only change. It (should) delete the YAML Admo for non Carpentries MD.
-                        str = chunkToMD(chunk)
-                        mdContent = str.content
+                #______________________________________________________________________________________________________________
+                if containsYAML(chunk) # This part is the only change. It (should) delete the YAML Admo for non Carpentries MD.
+                    str = chunkToMD(chunk)
+                    mdContent = str.content
 
-                        for item in mdContent
-                            if isa(item, Markdown.Admonition)
-                                result = ""
-                            else
-                                result=string(Markdown.MD(item))
-                            end
-                            write(io, result, '\n')
+                    for item in mdContent
+                        if isa(item, Markdown.Admonition)
+                            result = ""
+                        else
+                            result=string(Markdown.MD(item))
                         end
+                        write(io, result, '\n')
                     end
-                    #______________________________________________________________________________________________________________
+                end
+                #______________________________________________________________________________________________________________
 
-                    for line in chunk.lines
-                        write(iomd, line.second, '\n') # skip indent here
-                    end
-                else # isa(chunk, CodeChunk)
-                    iocode = IOBuffer()
-                    codefence = config["codefence"]::Pair
-                    write(iocode, codefence.first)
-                    # make sure the code block is finalized if we are printing to ```@example
-                    # (or ````@example, any number of backticks >= 3 works)
-                    if chunk.continued && occursin(r"^`{3,}@example", codefence.first) && isdocumenter(config)
-                        write(iocode, "; continued = true")
-                    end
-                    write(iocode, '\n')
-                    # filter out trailing #hide unless code is executed by Documenter
-                    execute = config["execute"]::Bool
-                    write_hide = isdocumenter(config) && !execute
-                    write_line(line) = write_hide || !endswith(line, "#hide")
-                    for line in chunk.lines
-                        write_line(line) && write(iocode, line, '\n')
-                    end
-                    if write_hide && REPL.ends_with_semicolon(chunk.lines[end])
-                        write(iocode, "nothing #hide\n")
-                    end
-                    write(iocode, codefence.second, '\n')
-                    any(write_line, chunk.lines) && write(iomd, seekstart(iocode))
-                    if execute
-                        cd(config["literate_outputdir"]) do
-                        execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
-                                      inputfile=config["literate_inputfile"],
-                                      fake_source=config["literate_outputfile"],
-                                      flavor=config["flavor"],
-                                      image_formats=config["image_formats"],
-                                      file_prefix="$(config["name"])-$(chunknum)",
-                        )
-                    end
+                for line in chunk.lines
+                    write(iomd, line.second, '\n') # skip indent here
+                end
+            else # isa(chunk, CodeChunk)
+                iocode = IOBuffer()
+                codefence = config["codefence"]::Pair
+                write(iocode, codefence.first)
+                # make sure the code block is finalized if we are printing to ```@example
+                # (or ````@example, any number of backticks >= 3 works)
+                if chunk.continued && occursin(r"^`{3,}@example", codefence.first) && isdocumenter(config)
+                    write(iocode, "; continued = true")
+                end
+                write(iocode, '\n')
+                # filter out trailing #hide unless code is executed by Documenter
+                execute = config["execute"]::Bool
+                write_hide = isdocumenter(config) && !execute
+                write_line(line) = write_hide || !endswith(line, "#hide")
+                for line in chunk.lines
+                    write_line(line) && write(iocode, line, '\n')
+                end
+                if write_hide && REPL.ends_with_semicolon(chunk.lines[end])
+                    write(iocode, "nothing #hide\n")
+                end
+                write(iocode, codefence.second, '\n')
+                any(write_line, chunk.lines) && write(iomd, seekstart(iocode))
+                if execute
+                    cd(config["literate_outputdir"]) do
+                    execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
+                                  inputfile=config["literate_inputfile"],
+                                  fake_source=config["literate_outputfile"],
+                                  flavor=config["flavor"],
+                                  image_formats=config["image_formats"],
+                                  file_prefix="$(config["name"])-$(chunknum)",
+                    )
                 end
             end
         end
-        write(iomd, '\n') # add a newline between each chunk
     end
+        write(iomd, '\n') # add a newline between each chunk
+
 
     # custom post-processing from user
     content = config["postprocess"](String(take!(iomd)))
