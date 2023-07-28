@@ -744,7 +744,9 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
 
                     for item in mdContent
                         if isa(item, Markdown.Admonition)
-                            result = ""
+                            if startswith(strip(line.first * line.second), "!!! carp")
+                                result = ""
+                            end
                         else
                             result=string(Markdown.MD(item))
                         end
