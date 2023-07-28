@@ -567,7 +567,7 @@ function chunkToMD(chunk)
     return Markdown.parse(read(buffer, String))
 end
 
-function processNonAdmonitions(item, io)
+function processNonAdmonitions(item)
     # Handle non-admonition elements
     return string(Markdown.MD(item))
 end
@@ -577,7 +577,7 @@ function writeContent(mdContent, io)
         if isa(item, Markdown.Admonition)
             result = CarpentriesAdmonition(item, io)
         else
-            result = processNonAdmonitions(item, io)
+            result = processNonAdmonitions(item)
         end
         write(io, result, '\n')
     end
