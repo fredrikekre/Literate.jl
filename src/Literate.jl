@@ -680,22 +680,21 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
     
     if flavor isa CarpentriesFlavor
         for chunk in chunks
-            io = IOBuffer()
             if isa(chunk, MDChunk)
                 if containsAdmonition(chunk)
 
                     str = chunkToMD(chunk)
                     mdContent = str.content
 
-                   writeContent(mdContent, io)
+                   writeContent(mdContent, iomd)
 
                 else
                     # Handle chunks without admonitions
                     for line in chunk.lines
-                        write(io, line.second, '\n') # Skip indent
+                        write(iomd, line.second, '\n') # Skip indent
                     end
                 end
-            ## else is copied from vanilla:
+            ## `else` is copied from vanilla:
             else # isa(chunk, CodeChunk)
                   iocode = IOBuffer()
                   codefence = config["codefence"]::Pair
@@ -746,7 +745,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
                         else
                             result=string(Markdown.MD(item))
                         end
-                        write(io, result, '\n')
+                        write(iomd, result, '\n')
                     end
                 end
                 #______________________________________________________________________________________________________________
@@ -789,7 +788,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
             end
         end
     end
-        write(iomd, '\n') # add a newline between each chunk
+    write(iomd, '\n') # add a newline between each chunk
 
 
     # custom post-processing from user
