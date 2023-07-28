@@ -733,7 +733,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
             end
         end
     else
-        # Vanilla Function
+        # kinda Vanilla Function
         for (chunknum, chunk) in enumerate(chunks)
             if isa(chunk, MDChunk)
 
