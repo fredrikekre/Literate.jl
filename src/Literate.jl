@@ -541,6 +541,7 @@ end
 # Define general functions needed for admonitions formating.
 
 function containsAdmonition(chunk)
+    for line in chunk.lines
         if startswith(strip(line.first * line.second), "!!!")
             return true
         end
@@ -549,10 +550,11 @@ function containsAdmonition(chunk)
 end
 
 function containsYAML(chunk)
+    for line in chunk.lines
         if startswith(strip(line.first * line.second), "!!! carp")
             return true
         end
-    #???
+    end
     return false
 end
 
