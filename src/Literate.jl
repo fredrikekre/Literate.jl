@@ -740,19 +740,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
 
                 #______________________________________________________________________________________________________________
                 if containsYAML(chunk) # This part is the only change. It (should) delete the YAML Admo for non Carpentries MD.
-                    str = chunkToMD(chunk)
-                    mdContent = str.content
-
-                    for item in mdContent
-                        if isa(item, Markdown.Admonition)
-                            if startswith(strip(line.first * line.second), "!!! carp")
-                                continue
-                            end
-                        else
-                            result=string(Markdown.MD(item))
-                        end
-                        write(iomd, result, '\n')
-                    end
+                    continue
                 end
                 #______________________________________________________________________________________________________________
 
