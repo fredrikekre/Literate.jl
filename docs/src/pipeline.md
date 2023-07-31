@@ -143,4 +143,4 @@ The last step of the generation is writing to file. The result is written to
 by the user (for example `docs/generated`), and `name` is a user supplied filename.
 It is recommended to add the output directory to `.gitignore` since the idea is that
 the generated documents will be generated as part of the build process rather than
-beeing files in the repo.
+being files in the repo.
