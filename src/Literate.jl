@@ -567,11 +567,6 @@ function chunkToMD(chunk)
     return Markdown.parse(str)
 end
 
-function processNonAdmonitions(item, io)
-    # Handle non-admonition elements
-    write(io, string(Markdown.MD(item)))
-end
-
 function rewriteContent!(mdContent)
     for (i, item) in enumerate(mdContent.content)
         if isa(item, Markdown.Admonition)
