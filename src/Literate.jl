@@ -573,7 +573,7 @@ function processNonAdmonitions(item, io)
 end
 
 function writeContent(mdContent, io)
-    for item in mdContent
+    for item in mdContent.content
         if isa(item, Markdown.Admonition)
             CarpentriesAdmonition(item, io)
         else
@@ -601,7 +601,7 @@ end
 
 function CarpentriesTestamonial(admonition, io)
     for line in admonition
-        if startswith(strip(line.first * line.second), "!!!")
+        if startswith(strip(line), "!!!")
             write(io, ":::::::: testamonial", '\n')
         else
             write(io, line, '\n')
@@ -612,9 +612,9 @@ end
 
 function CarpentriesChallenge(admonition, io)
     for line in admonition
-        if startswith(strip(line.first * line.second), r"\S+\s[smf][cr]")
+        if startswith(strip(line), r"\S+\s[smf][cr]")
             write(io, ":::::::: challenge", '\n')
-        elseif startswith(strip(line.first * line.second), "!!! solution")
+        elseif startswith(strip(line), "!!! solution")
             write(io, ":::::::: solution", '\n')
         else
             write(io, line, '\n')
@@ -625,7 +625,7 @@ end
 
 function CarpentriesWarning(admonition, io)
     for line in admonition
-        if startswith(strip(line.first * line.second), "!!!")
+        if startswith(strip(line), "!!!")
             write(io, ":::::::: warning", '\n')
         else
             write(io, line, '\n')
@@ -701,13 +701,12 @@ function write_md_chunks!(iomd, chunks, outputdir, config)
             #______________________________________________________________________________________________________________
             if flavor isa CarpentriesFlavor
                 if containsAdmonition(chunk)
-                    writeContent(chunk.lines, iomd)
+                    writeContent(chunkToMD(chunk), iomd)
                 end
-            else
+            end
                 if containsYAML(chunk) # This part is the only change. It (should) delete the YAML Admo for non Carpentries MD.
                     continue
                 end
-            end
             #______________________________________________________________________________________________________________
 
             for line in chunk.lines
