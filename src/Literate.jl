@@ -587,8 +587,8 @@ function CarpentriesCallout(admonition)
     vcat(Markdown.Paragraph(":::::::: callout\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
 end
 
-function CarpentriesTestamonial(admonition)
-    vcat(Markdown.Paragraph(":::::::: testamonial\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
+function CarpentriesTestimonial(admonition)
+    vcat(Markdown.Paragraph(":::::::: testimonial\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
 end
 
 function CarpentriesSolution(admonition)
@@ -614,7 +614,7 @@ function CarpentriesAdmonition(admonition)
     elseif category == "solution"
         CarpentriesSolution(admonition)
     elseif category == "tip"
-        CarpentriesTestamonial(admonition)
+        CarpentriesTestimonial(admonition)
     elseif category == "warning"
         CarpentriesWarning(admonition)
     elseif category in ("info", "note")
