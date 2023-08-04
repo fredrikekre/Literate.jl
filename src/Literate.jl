@@ -572,91 +572,60 @@ function processNonAdmonitions(item, io)
     write(io, string(Markdown.MD(item)))
 end
 
-function writeContent(mdContent, io)
-    for item in mdContent.content
+function rewriteContent!(mdContent)
+    for (i, item) in enumerate(mdContent.content)
         if isa(item, Markdown.Admonition)
-            CarpentriesAdmonition(item, io)
-        else
-            processNonAdmonitions(item, io)
+            mdContent.content[i] = if any(x->x isa Markdown.Admonition, item.content)
+                CarpentriesAdmonition(rewriteContent!(item))
+            else
+                CarpentriesAdmonition(item)
+            end
         end
-        # write(io, '\n')
     end
+    mdContent
 end
 
 
 #Functions needed for addition transformation into Carpentries style. Markdown style into pandoc fenced divs
 
-function CarpentriesCallout(admonition, io)
-    for line in admonition
-        if startswith(line, "!!!")
-            write(io, ":::::::: callout", '\n')
-        else
-            if line != ""
-                write(io, line, '\n')
-            end
-        end
-    end
-    write(io, "::::::::", "\n\n")
+function CarpentriesCallout(admonition)
+    vcat(Markdown.Paragraph(":::::::: callout\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
 end
 
-function CarpentriesTestamonial(admonition, io)
-    for line in admonition
-        if startswith(strip(line), "!!!")
-            write(io, ":::::::: testamonial", '\n')
-        else
-            write(io, line, '\n')
-        end
-    end
-    write(io, "::::::::", "\n\n")
+function CarpentriesTestamonial(admonition)
+    vcat(Markdown.Paragraph(":::::::: testamonial\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
 end
 
-function CarpentriesChallenge(admonition, io)
-    for line in admonition
-        if startswith(strip(line), r"\S+\s[smf][cr]")
-            write(io, ":::::::: challenge", '\n')
-        elseif startswith(strip(line), "!!! solution")
-            write(io, ":::::::: solution", '\n')
-        else
-            write(io, line, '\n')
-        end
-    end
-    write(io, "::::::::", "\n\n", "::::::::", "\n\n")
+function CarpentriesSolution(admonition)
+    vcat(Markdown.Paragraph(":::::::: solution\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
 end
 
-function CarpentriesWarning(admonition, io)
-    for line in admonition
-        if startswith(strip(line), "!!!")
-            write(io, ":::::::: warning", '\n')
-        else
-            write(io, line, '\n')
-        end
-    end
-    write(io, "::::::::", "\n\n")
+function CarpentriesChallenge(admonition)
+    vcat(Markdown.Paragraph(":::::::: challenge\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
 end
 
-function CarpentriesYAML(admonition, io)
-    for line in admonition
-        if startswith(line, "!!!")
-            continue
-        else
-            write(io, line, '\n')
-        end
-    end
+function CarpentriesWarning(admonition)
+    vcat(Markdown.Paragraph(":::::::: warning\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
 end
 
-function CarpentriesAdmonition(admonition, io)
+function CarpentriesYAML(admonition)
+    admonition.content
+end
+
+function CarpentriesAdmonition(admonition)
     category = admonition.category
-    admonition = split(string(Markdown.MD(admonition)), '\n')
-    if category in ("sc", "mc", "freecode")
-        CarpentriesChallenge(admonition, io)
+    return if category in ("challenge", "sc", "mc", "freecode")
+        CarpentriesChallenge(admonition)
+    elseif category == "solution"
+        CarpentriesSolution(admonition)
     elseif category == "tip"
-        CarpentriesTestamonial(admonition, io)
+        CarpentriesTestamonial(admonition)
     elseif category == "warning"
-        CarpentriesWarning(admonition, io)
+        CarpentriesWarning(admonition)
     elseif category in ("info", "note")
-        CarpentriesCallout(admonition, io)
+        CarpentriesCallout(admonition)
     elseif category == "carp"
-        CarpentriesYAML(admonition, io)
+        CarpentriesYAML(admonition)
     end
 end
 #_______________________________________________________________________________________
@@ -701,12 +670,15 @@ function write_md_chunks!(iomd, chunks, outputdir, config)
             #______________________________________________________________________________________________________________
             if flavor isa CarpentriesFlavor
                 if containsAdmonition(chunk)
-                    writeContent(chunkToMD(chunk), iomd)
-                end
-            end
-                if containsYAML(chunk) # This part is the only change. It (should) delete the YAML Admo for non Carpentries MD.
+                    md_chunk = chunkToMD(chunk)
+                    rewriteContent!(md_chunk)
+                    write(iomd, string(Markdown.MD(md_chunk)))
                     continue
                 end
+            end
+            if containsYAML(chunk) # This part is the only change. It (should) delete the YAML Admo for non Carpentries MD.
+                continue
+            end
             #______________________________________________________________________________________________________________
 
             for line in chunk.lines
