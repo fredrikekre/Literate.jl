@@ -549,15 +549,6 @@ function containsAdmonition(chunk)
     return false
 end
 
-function containsYAML(chunk)
-    for line in chunk.lines
-        if startswith(strip(line.first * line.second), "!!! carp")
-            return true
-        end
-    end
-    return false
-end
-
 function chunkToMD(chunk)
     buffer = IOBuffer()
     for line in chunk.lines
@@ -570,10 +561,10 @@ end
 function rewriteContent!(mdContent)
     for (i, item) in enumerate(mdContent.content)
         if isa(item, Markdown.Admonition)
-            mdContent.content[i] = if any(x->x isa Markdown.Admonition, item.content)
-                CarpentriesAdmonition(rewriteContent!(item))
+            mdContent.content[i] = if any(x -> x isa Markdown.Admonition, item.content)
+                admonition_to_fenced_div(rewriteContent!(item))
             else
-                CarpentriesAdmonition(item)
+                admonition_to_fenced_div(item)
             end
         end
     end
@@ -583,46 +574,19 @@ end
 
 #Functions needed for addition transformation into Carpentries style. Markdown style into pandoc fenced divs
 
-function CarpentriesCallout(admonition)
-    vcat(Markdown.Paragraph(":::::::: callout\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
-end
-
-function CarpentriesTestimonial(admonition)
-    vcat(Markdown.Paragraph(":::::::: testimonial\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
-end
-
-function CarpentriesSolution(admonition)
-    vcat(Markdown.Paragraph(":::::::: solution\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
-end
-
-function CarpentriesChallenge(admonition)
-    vcat(Markdown.Paragraph(":::::::: challenge\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
-end
-
-function CarpentriesWarning(admonition)
-    vcat(Markdown.Paragraph(":::::::: warning\n"), admonition.content, Markdown.Paragraph("::::::::\n\n"))
-end
-
-function CarpentriesYAML(admonition)
-    admonition.content
-end
-
-function CarpentriesAdmonition(admonition)
+function admonition_to_fenced_div(admonition)
     category = admonition.category
-    return if category in ("challenge", "sc", "mc", "freecode")
-        CarpentriesChallenge(admonition)
-    elseif category == "solution"
-        CarpentriesSolution(admonition)
-    elseif category == "tip"
-        CarpentriesTestimonial(admonition)
-    elseif category == "warning"
-        CarpentriesWarning(admonition)
-    elseif category in ("info", "note")
-        CarpentriesCallout(admonition)
-    elseif category == "carp"
-        CarpentriesYAML(admonition)
+    if category == "yaml"
+        single_paragraph = [Markdown.HorizontalRule(), Markdown.Paragraph(
+                reduce(vcat, map(Base.Fix2(getproperty, :content), Iterators.filter(Base.Fix2(!isa, Markdown.HorizontalRule), admonition.content))) .* '\n'
+            ), Markdown.HorizontalRule()]
+        return single_paragraph
     end
+    title = admonition.title
+    vcat(Markdown.Paragraph(":::::::: $category \n"),
+        isempty(title) ? [] : Markdown.Header{2}(title), admonition.content, Markdown.Paragraph("::::::::\n\n"))
 end
+
 #_______________________________________________________________________________________
 
 
@@ -670,9 +634,6 @@ function write_md_chunks!(iomd, chunks, outputdir, config)
                     write(iomd, string(Markdown.MD(md_chunk)))
                     continue
                 end
-            end
-            if containsYAML(chunk) # This part is the only change. It (should) delete the YAML Admo for non Carpentries MD.
-                continue
             end
             #______________________________________________________________________________________________________________
 
