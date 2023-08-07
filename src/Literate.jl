@@ -577,9 +577,10 @@ end
 function admonition_to_fenced_div(admonition)
     category = admonition.category
     if category == "yaml"
-        single_paragraph = [Markdown.HorizontalRule(), Markdown.Paragraph(
-                reduce(vcat, map(Base.Fix2(getproperty, :content), Iterators.filter(Base.Fix2(!isa, Markdown.HorizontalRule), admonition.content))) .* '\n'
-            ), Markdown.HorizontalRule()]
+        single_paragraph = Markdown.Paragraph(vcat("---\n",
+                reduce(vcat, map(Base.Fix2(getproperty, :content), Iterators.filter(Base.Fix2(!isa, Markdown.HorizontalRule), admonition.content))) .* '\n',
+                "---\n"
+            ))
         return single_paragraph
     end
     title = admonition.title
