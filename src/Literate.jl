@@ -6,7 +6,7 @@ https://fredrikekre.github.io/Literate.jl/ for documentation.
 """
 module Literate
 
-import JSON, REPL, IOCapture, Markdown
+import JSON, REPL, IOCapture, CommonMark
 
 include("IJulia.jl")
 import .IJulia
@@ -550,42 +550,37 @@ function containsAdmonition(chunk)
 end
 
 function chunkToMD(chunk)
+    parser = CommonMark.Parser()
+    CommonMark.enable!(parser, CommonMark.AdmonitionRule())
     buffer = IOBuffer()
     for line in chunk.lines
-        write(buffer, line.first * line.second, "\n\n")
+        write(buffer, line.first * line.second, '\n')
     end
     str = String(take!(buffer))
-    return Markdown.parse(str)
+    return parser(str)
 end
 
 function rewriteContent!(mdContent)
-    for (i, item) in enumerate(mdContent.content)
-        if isa(item, Markdown.Admonition)
-            mdContent.content[i] = if any(x -> x isa Markdown.Admonition, item.content)
-                admonition_to_fenced_div(rewriteContent!(item))
+    for (node, entering) in mdContent
+        if isa(node.t, CommonMark.Admonition)
+            admonition = node.t
+            node.t = CommonMark.Paragraph()
+            if admonition.category == "yaml"
+                node.first_child.t = CommonMark.Text()
+                node.first_child.nxt.t = CommonMark.Paragraph()
+                CommonMark.insert_after(node.first_child.nxt.last_child, CommonMark.text("\n---\n"))
+                CommonMark.insert_before(node.first_child.nxt, CommonMark.text("---\n"))
             else
-                admonition_to_fenced_div(item)
+                CommonMark.insert_before(node, CommonMark.text(""":::::: $(admonition.category)
+
+                ## $(admonition.title)
+
+                """))
+                CommonMark.insert_after(node, CommonMark.text("::::::\n\n"))
             end
         end
     end
     mdContent
-end
-
-
-#Functions needed for addition transformation into Carpentries style. Markdown style into pandoc fenced divs
-
-function admonition_to_fenced_div(admonition)
-    category = admonition.category
-    if category == "yaml"
-        single_paragraph = Markdown.Paragraph(vcat("---\n",
-                reduce(vcat, map(Base.Fix2(getproperty, :content), Iterators.filter(Base.Fix2(!isa, Markdown.HorizontalRule), admonition.content))) .* '\n',
-                "---\n"
-            ))
-        return single_paragraph
-    end
-    title = admonition.title
-    vcat(Markdown.Paragraph(":::::::: $category \n"),
-        isempty(title) ? [] : Markdown.Header{2}(title), admonition.content, Markdown.Paragraph("::::::::\n\n"))
 end
 
 #_______________________________________________________________________________________
@@ -631,8 +626,9 @@ function write_md_chunks!(iomd, chunks, outputdir, config)
             if flavor isa CarpentriesFlavor
                 if containsAdmonition(chunk)
                     md_chunk = chunkToMD(chunk)
+                    # CommonMark.term(stdout, md_chunk)
                     rewriteContent!(md_chunk)
-                    write(iomd, string(Markdown.MD(md_chunk)))
+                    CommonMark.markdown(iomd, md_chunk)
                     continue
                 end
             end
