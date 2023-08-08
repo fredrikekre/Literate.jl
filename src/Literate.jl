@@ -681,7 +681,7 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
     r, str, _ = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source)
     # issue #101: consecutive codefenced blocks need newline
     # issue #144: quadruple backticks allow for triple backticks in the output
-    plain_fence = "\n````\n" => "\n````"
+    plain_fence = "\n````$(flavor == CarpentriesFlavor() ? "output" : "")\n" => "\n````"
     # Here CarpentiresFlavor fork...
     if r !== nothing && !REPL.ends_with_semicolon(block)
         if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
