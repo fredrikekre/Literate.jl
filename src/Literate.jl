@@ -622,17 +622,14 @@ function write_md_chunks!(iomd, chunks, outputdir, config)
     for (chunknum, chunk) in enumerate(chunks)
         if isa(chunk, MDChunk)
 
-            #______________________________________________________________________________________________________________
             if flavor isa CarpentriesFlavor
                 if containsAdmonition(chunk)
                     md_chunk = chunkToMD(chunk)
-                    # CommonMark.term(stdout, md_chunk)
                     rewriteContent!(md_chunk)
                     CommonMark.markdown(iomd, md_chunk)
                     continue
                 end
             end
-            #______________________________________________________________________________________________________________
 
             for line in chunk.lines
                 write(iomd, line.second, '\n') # skip indent here
