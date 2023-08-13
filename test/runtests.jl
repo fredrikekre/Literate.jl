@@ -518,7 +518,7 @@ end end
             end
             expected_markdown = """
             ```@meta
-            EditURL = "https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl"
+            EditURL = "../inputfile.jl"
             ```
 
             # [Example](@id example-id)
@@ -649,7 +649,7 @@ end end
             @test occursin("Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
             @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/previews/PR42/file.jl", markdown)
             @test occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=previews/PR42/file.jl", markdown)
-            @test occursin("EditURL = \"https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
+            @test occursin("EditURL = \"../inputfile.jl\"", markdown)
 
             # Travis with no tag -> dev directory
             withenv(TRAVIS_ENV...,
@@ -660,7 +660,7 @@ end end
             @test occursin("Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
             @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/dev/file.jl", markdown)
             @test occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/file.jl", markdown)
-            @test occursin("EditURL = \"https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
+            @test occursin("EditURL = \"../inputfile.jl\"", markdown)
 
             # GitHub Actions with a tag
             withenv(ACTIONS_ENV...) do
@@ -670,7 +670,7 @@ end end
             @test occursin("Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
             @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/v1.2.0/file.jl", markdown)
             @test occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=v1.2.0/file.jl", markdown)
-            @test occursin("EditURL = \"https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
+            @test occursin("EditURL = \"../inputfile.jl\"", markdown)
 
             # GitHub Actions with PR preview build
             withenv(ACTIONS_ENV...,
@@ -682,7 +682,7 @@ end end
             @test occursin("Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
             @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/previews/PR42/file.jl", markdown)
             @test occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=previews/PR42/file.jl", markdown)
-            @test occursin("EditURL = \"https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
+            @test occursin("EditURL = \"../inputfile.jl\"", markdown)
 
             # GitHub Actions without a tag -> dev directory
             withenv(ACTIONS_ENV...,
@@ -693,7 +693,7 @@ end end
             @test occursin("Link to repo root: https://github.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
             @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/github/fredrikekre/Literate.jl/blob/gh-pages/dev/file.jl", markdown)
             @test occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/file.jl", markdown)
-            @test occursin("EditURL = \"https://github.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
+            @test occursin("EditURL = \"../inputfile.jl\"", markdown)
 
             # GitLab CI with GitLab Pages
             withenv(GITLAB_ENV...) do
@@ -703,7 +703,7 @@ end end
             @test occursin("Link to repo root: https://gitlab.com/fredrikekre/Literate.jl/blob/master/file.jl", markdown)
             @test occursin("Link to nbviewer: https://nbviewer.jupyter.org/urls/fredrikekre.gitlab.io/Literate.jl/file.jl", markdown)
             @test_broken occursin("Link to binder: https://mybinder.org/v2/gh/fredrikekre/Literate.jl/gh-pages?filepath=dev/file.jl", markdown)
-            @test occursin("EditURL = \"https://gitlab.com/fredrikekre/Literate.jl/blob/master/test/$(basename(sandbox))/inputfile.jl\"", markdown)
+            @test occursin("EditURL = \"../inputfile.jl\"", markdown)
 
             # building under DocumentationGenerator.jl
             withenv("DOCUMENTATIONGENERATOR" => "true",

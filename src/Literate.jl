@@ -356,9 +356,6 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
         cfg["repo_root_url"] = "https://github.com/$(repo_slug)/blob/$(cfg["edit_commit"])"
         cfg["nbviewer_root_url"] = "https://nbviewer.jupyter.org/github/$(repo_slug)/blob/$(deploy_branch)/$(deploy_folder)"
         cfg["binder_root_url"] = "https://mybinder.org/v2/gh/$(repo_slug)/$(deploy_branch)?filepath=$(deploy_folder)"
-        if (dir = get(ENV, "TRAVIS_BUILD_DIR", nothing)) !== nothing
-            cfg["repo_root_path"] = dir
-        end
     elseif haskey(ENV, "GITHUB_ACTIONS")
         repo_slug = get(ENV, "GITHUB_REPOSITORY", "unknown-repository")
         deploy_folder = if get(ENV, "GITHUB_EVENT_NAME", nothing) == "push"
@@ -375,9 +372,6 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
         cfg["repo_root_url"] = "https://github.com/$(repo_slug)/blob/$(cfg["edit_commit"])"
         cfg["nbviewer_root_url"] = "https://nbviewer.jupyter.org/github/$(repo_slug)/blob/$(deploy_branch)/$(deploy_folder)"
         cfg["binder_root_url"] = "https://mybinder.org/v2/gh/$(repo_slug)/$(deploy_branch)?filepath=$(deploy_folder)"
-        if (dir = get(ENV, "GITHUB_WORKSPACE", nothing)) !== nothing
-            cfg["repo_root_path"] = dir
-        end
     elseif haskey(ENV, "GITLAB_CI")
         if (url = get(ENV, "CI_PROJECT_URL", nothing)) !== nothing
             cfg["repo_root_url"] = "$(url)/blob/$(cfg["edit_commit"])"
@@ -385,9 +379,6 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
         if (url = get(ENV, "CI_PAGES_URL", nothing)) !== nothing &&
            (m = match(r"https://(.+)", url)) !== nothing
             cfg["nbviewer_root_url"] = "https://nbviewer.jupyter.org/urls/$(m[1])"
-        end
-        if (dir = get(ENV, "CI_PROJECT_DIR", nothing)) !== nothing
-            cfg["repo_root_path"] = dir
         end
     end
 
@@ -436,9 +427,6 @@ Available options:
 - `binder_root_url`: URL to the root of the repository as seen on mybinder. Determined
   automatically on Travis CI, GitHub Actions and GitLab CI.
   Used for `@__BINDER_ROOT_URL__`.
-- `repo_root_path`: Filepath to the root of the repository. Determined automatically on
-  Travis CI, GitHub Actions and GitLab CI. Used for computing
-  [Documenters `EditURL`](@ref Interaction-with-Documenter).
 - `image_formats`: A vector of `(mime, ext)` tuples, with the default
   `$(_DEFAULT_IMAGE_FORMATS)`. Results which are `showable` with a MIME type are saved with
   the first match, with the corresponding extension.
@@ -483,11 +471,11 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     # run some Documenter specific things for markdown output
     if type === :md && isdocumenter(config)
         # change the Edit on GitHub link
-        path = relpath(inputfile, get(config, "repo_root_path", pwd())::String)
-        path = replace(path, "\\" => "/")
+        edit_url = relpath(inputfile, config["literate_outputdir"])
+        edit_url = replace(edit_url, "\\" => "/")
         content = """
         # ```@meta
-        # EditURL = "@__REPO_ROOT_URL__/$(path)"
+        # EditURL = "$(edit_url)"
         # ```
 
         """ * content
