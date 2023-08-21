@@ -345,7 +345,6 @@ const GITLAB_ENV = Dict(
             hidden2 * hidden2
 
             # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
-
             """
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test script == expected_script
