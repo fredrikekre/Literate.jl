@@ -501,17 +501,18 @@ function script(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs.
 
     # create the script file
     ioscript = IOBuffer()
+    isfirst = true
     for chunk in chunks
         if isa(chunk, CodeChunk)
+            isfirst ? (isfirst = false) : write(ioscript, '\n') # add a newline between each chunk
             for line in chunk.lines
                 write(ioscript, line, '\n')
             end
-            write(ioscript, '\n') # add a newline between each chunk
         elseif isa(chunk, MDChunk) && config["keep_comments"]::Bool
+            isfirst ? (isfirst = false) : write(ioscript, '\n') # add a newline between each chunk
             for line in chunk.lines
                 write(ioscript, rstrip(line.first * "# " * line.second) * '\n')
             end
-            write(ioscript, '\n') # add a newline between each chunk
         end
     end
 
