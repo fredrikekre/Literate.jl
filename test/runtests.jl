@@ -234,6 +234,11 @@ content = """
         ## Indented comment
     end
 
+    # Some inline html
+    # ```@raw html
+    #   <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>
+    # ```
+
     # Semicolon output supression
     1 + 1;
 
@@ -599,6 +604,11 @@ end end
                 # Indented comment
             end
             ````
+
+            Some inline html
+            ```@raw html
+              <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>
+            ```
 
             Semicolon output supression
 
@@ -1022,6 +1032,14 @@ end end
                 "    # Indented markdown\\n",
                 "    # Indented comment\\n",
                 "end"
+               ]
+            """,
+
+            """
+               "source": [
+                "Some inline html\\n",
+                "\\n",
+                "  <a href=\\"https://github.com/fredrikekre/Literate.jl\\">Literate.jl</a>"
                ]
             """,
 
