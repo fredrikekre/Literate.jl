@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+<!-- ## [Unreleased] -->
+
+## [2.14.2] - 2023-08-28
 ### Fixed
 - Remove double newline in `Literate.script` output. ([#221][github-221])
 
@@ -251,7 +253,8 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-219]: https://github.com/fredrikekre/Literate.jl/pull/219
 [github-221]: https://github.com/fredrikekre/Literate.jl/pull/221
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.1...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.2...HEAD
+[2.14.2]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.1...v2.14.2
 [2.14.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.0...v2.14.1
 [2.14.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.3...v2.14.0
 [2.13.4]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.3...v2.13.4
