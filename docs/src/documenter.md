@@ -45,6 +45,16 @@ if we set `documenter = true`:
   \int f dx
   $$
   ```
+- Whereas Documenter requires HTML blocks to be escaped
+  ````
+  ```@raw html
+  <tag>...</tag>
+  ```
+  ````
+  the output to a notebook markdown cell will be raw HTML
+  ```
+  <tag>...</tag>
+  ```
 
 ### [`Literate.script`](@ref):
 - Documenter style `@ref`s and `@id` will be removed. This means that you can use

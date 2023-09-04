@@ -184,6 +184,8 @@ function replace_default(content, sym;
         # Replace Markdown stdlib math environments
         push!(repls, r"```math(.*?)```"s => s"$$\1$$")
         push!(repls, r"(?<!`)``([^`]+?)``(?!`)" => s"$\1$")
+        # Remove Documenter escape sequence around HTML
+        push!(repls, r"```@raw(\h+)html(.*?)```"s => s"\2")
     else # sym === :jl
         push!(repls, r"^#(!md|!nb|jl) "m => "")    # remove leading #!md, #!nb, and #jl
         push!(repls, r" #(!md|!nb|jl)$"m => "")    # remove trailing #!md, #!nb, and #jl
