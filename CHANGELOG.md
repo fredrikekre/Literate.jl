@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- ## [Unreleased] -->
 
+## [2.15.0] - 2023-09-05
+### Added
+- Documenter style `@raw html` blocks are automatically handled in Jupyter notebook output
+  (similar to how Documenter style ` ```math ` blocks are rewritten to `$$` blocks).
+  ([#222][github-222], [#223][github-223])
+
 ## [2.14.2] - 2023-08-28
 ### Fixed
 - Remove double newline in `Literate.script` output. ([#221][github-221])
@@ -252,8 +258,11 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-205]: https://github.com/fredrikekre/Literate.jl/pull/205
 [github-219]: https://github.com/fredrikekre/Literate.jl/pull/219
 [github-221]: https://github.com/fredrikekre/Literate.jl/pull/221
+[github-222]: https://github.com/fredrikekre/Literate.jl/issues/222
+[github-223]: https://github.com/fredrikekre/Literate.jl/pull/223
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.2...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.15.0...HEAD
+[2.15.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.2...v2.15.0
 [2.14.2]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.1...v2.14.2
 [2.14.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.0...v2.14.1
 [2.14.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.3...v2.14.0
