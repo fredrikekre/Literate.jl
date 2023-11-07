@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-<!-- ## [Unreleased] -->
+## [Unreleased]
+### Fixed
+- Fix a bug where `Literate.markdown` with `execute=true` would (try to) output images in
+  the wrong directory. This only occured when passing a relative output directory.
+  ([#228][github-228], [#229][github-229])
 
 ## [2.15.0] - 2023-09-05
 ### Added
@@ -260,6 +264,8 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-221]: https://github.com/fredrikekre/Literate.jl/pull/221
 [github-222]: https://github.com/fredrikekre/Literate.jl/issues/222
 [github-223]: https://github.com/fredrikekre/Literate.jl/pull/223
+[github-228]: https://github.com/fredrikekre/Literate.jl/issues/228
+[github-229]: https://github.com/fredrikekre/Literate.jl/pull/229
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.15.0...HEAD
 [2.15.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.2...v2.15.0
