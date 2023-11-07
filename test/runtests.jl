@@ -891,8 +891,22 @@ end end
             write(f, "1 + 1")
             Literate.markdown(f, outdir)
             @test occursin("file_with_space", read(joinpath(outdir, "file with space.md"), String))
-        end
-    end
+
+            # Relative output directory + image output
+            # https://github.com/fredrikekre/Literate.jl/issues/228
+            write(
+                inputfile,
+                """
+                struct SVG end
+                Base.show(io::IO, mime::MIME"image/svg+xml", ::SVG) = print(io, "issue228")
+                SVG()
+                """,
+            )
+            Literate.markdown(inputfile, relpath(outdir); execute=true,
+                              flavor=Literate.CommonMarkFlavor())
+            @test read(joinpath(outdir, "inputfile-1.svg"), String) == "issue228"
+        end # cd(sandbox)
+    end # mktemp
 end end
 
 @testset "Literate.notebook" begin; Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do

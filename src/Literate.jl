@@ -573,7 +573,8 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
             any(write_line, chunk.lines) && write(iomd, seekstart(iocode))
             if execute
                 cd(config["literate_outputdir"]) do
-                    execute_markdown!(iomd, sb, join(chunk.lines, '\n'), outputdir;
+                    execute_markdown!(iomd, sb, join(chunk.lines, '\n'),
+                                      config["literate_outputdir"];
                                       inputfile=config["literate_inputfile"],
                                       fake_source=config["literate_outputfile"],
                                       flavor=config["flavor"],
