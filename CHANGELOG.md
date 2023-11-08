@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- "Soft" scoping rules (see e.g. https://github.com/JuliaLang/SoftGlobalScope.jl) are now
+  available for code execution (markdown and notebook output). This is enabled by default
+  for Jupyter notebook output (to mimic how the IJulia kernel works), and disabled
+  otherwise. Soft scope rules can be enabled/disabled with the `softscope :: Bool`
+  configuration variable. ([#227][github-227], [#230][github-230])
 ### Changed
 - The minimum Julia version requirement for Literate >= 2.16.0 is now 1.6.0 (from 1.0.0).
   ([#230][github-230])
@@ -269,6 +275,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-221]: https://github.com/fredrikekre/Literate.jl/pull/221
 [github-222]: https://github.com/fredrikekre/Literate.jl/issues/222
 [github-223]: https://github.com/fredrikekre/Literate.jl/pull/223
+[github-227]: https://github.com/fredrikekre/Literate.jl/issues/227
 [github-228]: https://github.com/fredrikekre/Literate.jl/issues/228
 [github-229]: https://github.com/fredrikekre/Literate.jl/pull/229
 [github-230]: https://github.com/fredrikekre/Literate.jl/pull/230
