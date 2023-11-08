@@ -312,6 +312,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["flavor"] = type === (:md) ? DocumenterFlavor() : DefaultFlavor()
     cfg["credit"] = true
     cfg["mdstrings"] = false
+    cfg["softscope"] = type === (:nb) ? true : false # on for Jupyter notebooks
     cfg["keep_comments"] = false
     cfg["execute"] = type === :md ? false : true
     cfg["codefence"] = get(user_config, "flavor", cfg["flavor"]) isa DocumenterFlavor &&
@@ -408,6 +409,8 @@ Available options:
 - `devurl` (default: `"dev"`): URL for "in-development" docs, see [Documenter docs]
   (https://juliadocs.github.io/Documenter.jl/). Unused if `repo_root_url`/
   `nbviewer_root_url`/`binder_root_url` are set.
+- `softscope` (default: `true` for Jupyter notebooks, `false` otherwise): enable/disable
+  "soft" scoping rules when executing, see e.g. https://github.com/JuliaLang/SoftGlobalScope.jl.
 - `repo_root_url`: URL to the root of the repository. Determined automatically on Travis CI,
   GitHub Actions and GitLab CI. Used for `@__REPO_ROOT_URL__`.
 - `nbviewer_root_url`: URL to the root of the repository as seen on nbviewer. Determined
@@ -580,6 +583,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
                                       flavor=config["flavor"],
                                       image_formats=config["image_formats"],
                                       file_prefix="$(config["name"])-$(chunknum)",
+                                      softscope=config["softscope"],
                     )
                 end
             end
@@ -597,9 +601,10 @@ end
 
 function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
                            inputfile::String, fake_source::String,
-                           flavor::AbstractFlavor, image_formats::Vector, file_prefix::String)
+                           flavor::AbstractFlavor, image_formats::Vector, file_prefix::String,
+                           softscope::Bool)
     # TODO: Deal with explicit display(...) calls
-    r, str, _ = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source)
+    r, str, _ = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source, softscope=softscope)
     # issue #101: consecutive codefenced blocks need newline
     # issue #144: quadruple backticks allow for triple backticks in the output
     plain_fence = "\n````\n" =>  "\n````"
@@ -734,7 +739,8 @@ function jupyter_notebook(chunks, config)
         try
             cd(config["literate_outputdir"]) do
                 nb = execute_notebook(nb; inputfile=config["literate_inputfile"],
-                                          fake_source=config["literate_outputfile"])
+                                          fake_source=config["literate_outputfile"],
+                                          softscope=config["softscope"])
             end
         catch err
             @error "error when executing notebook based on input file: " *
@@ -745,7 +751,7 @@ function jupyter_notebook(chunks, config)
     return nb
 end
 
-function execute_notebook(nb; inputfile::String, fake_source::String)
+function execute_notebook(nb; inputfile::String, fake_source::String, softscope::Bool)
     sb = sandbox()
     execution_count = 0
     for cell in nb["cells"]
@@ -753,7 +759,7 @@ function execute_notebook(nb; inputfile::String, fake_source::String)
         execution_count += 1
         cell["execution_count"] = execution_count
         block = join(cell["source"])
-        r, str, display_dicts = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source)
+        r, str, display_dicts = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source, softscope=softscope)
 
         # str should go into stream
         if !isempty(str)
@@ -835,7 +841,7 @@ function Base.display(ld::LiterateDisplay, mime::MIME, x)
 end
 
 # Execute a code-block in a module and capture stdout/stderr and the result
-function execute_block(sb::Module, block::String; inputfile::String, fake_source::String)
+function execute_block(sb::Module, block::String; inputfile::String, fake_source::String, softscope::Bool)
     @debug """execute_block($sb, block)
     ```
     $(block)
@@ -851,7 +857,11 @@ function execute_block(sb::Module, block::String; inputfile::String, fake_source
     # `rethrow = Union{}` means that we try-catch all the exceptions thrown in the do-block
     # and return them via the return value (they get handled below).
     c = IOCapture.capture(rethrow = Union{}) do
-        include_string(sb, block, fake_source)
+        if softscope
+            include_string(REPL.softscope, sb, block, fake_source)
+        else
+            include_string(sb, block, fake_source)
+        end
     end
     popdisplay(disp) # IOCapture.capture has a try-catch so should always end up here
     if c.error
