@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-<!-- ## [Unreleased] -->
+## [Unreleased]
+### Changed
+- The minimum Julia version requirement for Literate >= 2.16.0 is now 1.6.0 (from 1.0.0).
+  ([#230][github-230])
 
 ## [2.15.1] - 2023-11-08
 ### Fixed
@@ -268,6 +271,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-223]: https://github.com/fredrikekre/Literate.jl/pull/223
 [github-228]: https://github.com/fredrikekre/Literate.jl/issues/228
 [github-229]: https://github.com/fredrikekre/Literate.jl/pull/229
+[github-230]: https://github.com/fredrikekre/Literate.jl/pull/230
 
 [Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.15.1...HEAD
 [2.15.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.15.0...v2.15.1
