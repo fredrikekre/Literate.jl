@@ -236,6 +236,11 @@ content = """
         ## Indented comment
     end
 
+    # Some inline html
+    # ```@raw html
+    #   <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>
+    # ```
+
     # Semicolon output supression
     1 + 1;
 
@@ -348,7 +353,6 @@ const GITLAB_ENV = Dict(
             hidden2 * hidden2
 
             # This file was generated using Literate.jl, https://github.com/fredrikekre/Literate.jl
-
             """
             script = read(joinpath(outdir, "inputfile.jl"), String)
             @test script == expected_script
@@ -604,6 +608,11 @@ end end
                 # Indented comment
             end
             ````
+
+            Some inline html
+            ```@raw html
+              <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>
+            ```
 
             Semicolon output supression
 
@@ -904,8 +913,43 @@ end end
             write(f, "1 + 1")
             Literate.markdown(f, outdir)
             @test occursin("file_with_space", read(joinpath(outdir, "file with space.md"), String))
-        end
-    end
+
+            # Relative output directory + image output
+            # https://github.com/fredrikekre/Literate.jl/issues/228
+            write(
+                inputfile,
+                """
+                struct SVG end
+                Base.show(io::IO, mime::MIME"image/svg+xml", ::SVG) = print(io, "issue228")
+                SVG()
+                """,
+            )
+            Literate.markdown(inputfile, relpath(outdir); execute=true,
+                              flavor=Literate.CommonMarkFlavor())
+            @test read(joinpath(outdir, "inputfile-1.svg"), String) == "issue228"
+
+            # Softscope
+            write(
+                inputfile,
+                """
+                ret = 0
+                for k = 1:10
+                    ret += k
+                end
+                println("ret = ", ret)
+                """
+            )
+            Literate.markdown(inputfile, outdir; execute=true, softscope=true)
+            @test occursin("ret = 55", read(joinpath(outdir, "inputfile.md"), String))
+            ## Disabled softscope
+            try
+                Literate.markdown(inputfile, outdir; execute=true, softscope=false)
+                error("unreachable")
+            catch err
+                @test occursin(r"`?ret`? not defined", sprint(Base.showerror, err))
+            end
+        end # cd(sandbox)
+    end # mktemp
 end end
 
 @testset "Literate.notebook" begin; Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
@@ -1046,6 +1090,14 @@ end end
                 "    # Indented markdown\\n",
                 "    # Indented comment\\n",
                 "end"
+               ]
+            """,
+
+            """
+               "source": [
+                "Some inline html\\n",
+                "\\n",
+                "  <a href=\\"https://github.com/fredrikekre/Literate.jl\\">Literate.jl</a>"
                ]
             """,
 
@@ -1311,8 +1363,33 @@ end end
             @test keys(cellout[1]["data"]) == Set(("text/latex",))
             @test cellout[1]["data"]["text/latex"] == "DF(4) as text/latex"
             @test !haskey(cellout[1], "execution_count")
-        end
-    end
+
+            # Softscope
+            # TODO: Windows CI says here, but no longer: The input file that have been used
+            #       above multiple times without problem now gives
+            #       "SystemError: opening file: Invalid argument" for some reason...
+            new_inputfile = "inputfile2.jl"
+            write(
+                new_inputfile,
+                """
+                ret = 0
+                for k = 1:10
+                    ret += k
+                end
+                println("ret = ", ret)
+                """
+            )
+            Literate.notebook(new_inputfile, outdir)
+            @test occursin("ret = 55", read(joinpath(outdir, "inputfile2.ipynb"), String))
+            ## Disabled softscope
+            try
+                Literate.notebook(new_inputfile, outdir; softscope=false)
+                error("unreachable")
+            catch err
+                @test occursin(r"`?ret`? not defined", sprint(Base.showerror, err))
+            end
+        end # cd(sandbox)
+    end # mktempdir
 end end
 
 @testset "Configuration" begin; Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do

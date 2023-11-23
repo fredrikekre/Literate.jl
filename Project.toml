@@ -1,6 +1,6 @@
 name = "Literate"
 uuid = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
-version = "2.14.1"
+version = "2.16.0"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -9,9 +9,11 @@ JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [compat]
+Base64 = "1"
 IOCapture = "0.2"
 JSON = "0.18, 0.19, 0.20, 0.21, 1"
-julia = "1"
+REPL = "1"
+julia = "1.6"
 
 [extras]
 DisplayAs = "0b91fe84-8a4c-11e9-3e1d-67c38462b6d6"

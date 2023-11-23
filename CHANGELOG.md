@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- ## [Unreleased] -->
 
+## [2.16.0] - 2023-11-08
+### Added
+- "Soft" scoping rules (see e.g. https://github.com/JuliaLang/SoftGlobalScope.jl) are now
+  available for code execution (markdown and notebook output). This is enabled by default
+  for Jupyter notebook output (to mimic how the IJulia kernel works), and disabled
+  otherwise. Soft scope rules can be enabled/disabled with the `softscope :: Bool`
+  configuration variable. ([#227][github-227], [#230][github-230])
+### Changed
+- The minimum Julia version requirement for Literate >= 2.16.0 is now 1.6.0 (from 1.0.0).
+  ([#230][github-230])
+
+## [2.15.1] - 2023-11-08
+### Fixed
+- Fix a bug where `Literate.markdown` with `execute=true` would (try to) output images in
+  the wrong directory. This only occured when passing a relative output directory.
+  ([#228][github-228], [#229][github-229])
+
+## [2.15.0] - 2023-09-05
+### Added
+- Documenter style `@raw html` blocks are automatically handled in Jupyter notebook output
+  (similar to how Documenter style ` ```math ` blocks are rewritten to `$$` blocks).
+  ([#222][github-222], [#223][github-223])
+
+## [2.14.2] - 2023-08-28
+### Fixed
+- Remove double newline in `Literate.script` output. ([#221][github-221])
+
 ## [2.14.1] - 2023-08-04
 ### Fixed
 - Update generated `EditURL` to use a relative path instead and let Documenter figure out
@@ -247,8 +274,19 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-204]: https://github.com/fredrikekre/Literate.jl/issues/204
 [github-205]: https://github.com/fredrikekre/Literate.jl/pull/205
 [github-219]: https://github.com/fredrikekre/Literate.jl/pull/219
+[github-221]: https://github.com/fredrikekre/Literate.jl/pull/221
+[github-222]: https://github.com/fredrikekre/Literate.jl/issues/222
+[github-223]: https://github.com/fredrikekre/Literate.jl/pull/223
+[github-227]: https://github.com/fredrikekre/Literate.jl/issues/227
+[github-228]: https://github.com/fredrikekre/Literate.jl/issues/228
+[github-229]: https://github.com/fredrikekre/Literate.jl/pull/229
+[github-230]: https://github.com/fredrikekre/Literate.jl/pull/230
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.1...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.16.0...HEAD
+[2.16.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.15.1...v2.16.0
+[2.15.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.15.0...v2.15.1
+[2.15.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.2...v2.15.0
+[2.14.2]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.1...v2.14.2
 [2.14.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.0...v2.14.1
 [2.14.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.3...v2.14.0
 [2.13.4]: https://github.com/fredrikekre/Literate.jl/compare/v2.13.3...v2.13.4
