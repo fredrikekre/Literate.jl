@@ -46,7 +46,7 @@ CodeChunk() = CodeChunk(String[], false)
 
 ismdline(line) = (occursin(r"^\h*#$", line) || occursin(r"^\h*# .*$", line)) && !occursin(r"^\h*##", line)
 
-function parse(content; allow_continued = true)
+function parse(flavor::AbstractFlavor, content; allow_continued = true)
     lines = collect(eachline(IOBuffer(content)))
 
     chunks = Chunk[]
@@ -76,9 +76,14 @@ function parse(content; allow_continued = true)
             if !(chunks[end] isa CodeChunk)
                 push!(chunks, CodeChunk())
             end
-            # remove "## " and "##\n", strip the leading "#" from "## xyz" and "##| xyz"
-            # Note: accepts only standard space character (not no-break space U+00A0)
-            line = replace(replace(line, r"^(\h*)#(#(:? |\|).*)$" => s"\1\2"), r"^(\h*#)#$" => s"\1")
+            # remove "## " and "##\n" (strips leading "#" for code comments)
+            if flavor isa QuartoFlavor
+                # for Quarto, strip leading "#" from code cell commands, eg, "##| echo: true" -> "#| echo: true"
+                line = replace(replace(line, r"^(\h*)#(#(:? |\|).*)$" => s"\1\2"), r"^(\h*#)#$" => s"\1")
+            else
+                # all other flavors
+                line = replace(replace(line, r"^(\h*)#(# .*)$" => s"\1\2"), r"^(\h*#)#$" => s"\1")
+            end
             push!(chunks[end].lines, line)
         end
     end
@@ -285,12 +290,12 @@ function edit_commit(inputfile, user_config)
 end
 
 # Default to DefaultFlavor() setting
-pick_codefence(flavor::AbstractFlavor,execute::Bool,name::AbstractString)=pick_codefence(DefaultFlavor(),execute,name)
-pick_codefence(flavor::DefaultFlavor,execute::Bool,name::AbstractString)=("````julia" => "````")
-pick_codefence(flavor::DocumenterFlavor,execute::Bool,name::AbstractString)=(execute ?
-    pick_codefence(DefaultFlavor(),execute,name) : ("````@example $(name)" => "````")
+pick_codefence(flavor::AbstractFlavor, execute::Bool, name::AbstractString)=pick_codefence(DefaultFlavor(), execute,name)
+pick_codefence(flavor::DefaultFlavor, execute::Bool, name::AbstractString)=("````julia" => "````")
+pick_codefence(flavor::DocumenterFlavor,execute::Bool, name::AbstractString)=(execute ?
+    pick_codefence(DefaultFlavor(), execute,name) : ("````@example $(name)" => "````")
 )
-pick_codefence(flavor::QuartoFlavor,execute::Bool,name::AbstractString)=(execute ?
+pick_codefence(flavor::QuartoFlavor, execute::Bool, name::AbstractString)=(execute ?
     error("QuartoFlavor does not support argument execute=true!") : ("```{julia}" => "```")
 )
 
@@ -490,7 +495,7 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     content = replace_default(content, type; config=config)
 
     # parse the content into chunks
-    chunks = parse(content; allow_continued = type !== :nb)
+    chunks = parse(config["flavor"], content; allow_continued = type !== :nb)
 
     return chunks, config
 end
