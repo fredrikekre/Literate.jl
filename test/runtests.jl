@@ -262,6 +262,9 @@ content = """
     #nb # %% [markdown] {"meta": "data"}
     #nb # # Explicit markdown cell with metadata
 
+    # It can sometimes happen that a text editor line-wraps [a link which shouldn't
+    # break](@ref bbaarr)
+
     #=
     First multiline
     comment
@@ -441,6 +444,11 @@ const GITLAB_ENV = Dict(
             @test occursin("# \\int f(x) dx", script)
             @test occursin("# First multiline", script)
             @test occursin("# Second multiline comment", script)
+            @test occursin(
+                """
+                # It can sometimes happen that a text editor line-wraps a link which shouldn't
+                # break""",
+                script)
 
             # mdstrings
             mdstrings_file = "inputfile_mdstrings.jl"
@@ -631,6 +639,9 @@ end end
             hidden2 * hidden2
             ````
 
+            It can sometimes happen that a text editor line-wraps [a link which shouldn't
+            break](@ref bbaarr)
+            
             First multiline
             comment
 
