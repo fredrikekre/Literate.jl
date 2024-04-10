@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- ## [Unreleased] -->
 
+## [2.16.1] - 2024-01-04
+### Fixed
+- Fix removal of Documenter-style `@ref` links spanning multiple lines. ([#224][github-224],
+  [#233][github-2233])
+
 ## [2.16.0] - 2023-11-08
 ### Added
 - "Soft" scoping rules (see e.g. https://github.com/JuliaLang/SoftGlobalScope.jl) are now
@@ -277,12 +282,15 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-221]: https://github.com/fredrikekre/Literate.jl/pull/221
 [github-222]: https://github.com/fredrikekre/Literate.jl/issues/222
 [github-223]: https://github.com/fredrikekre/Literate.jl/pull/223
+[github-224]: https://github.com/fredrikekre/Literate.jl/issues/224
 [github-227]: https://github.com/fredrikekre/Literate.jl/issues/227
 [github-228]: https://github.com/fredrikekre/Literate.jl/issues/228
 [github-229]: https://github.com/fredrikekre/Literate.jl/pull/229
 [github-230]: https://github.com/fredrikekre/Literate.jl/pull/230
+[github-233]: https://github.com/fredrikekre/Literate.jl/pull/233
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.16.0...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.16.1...HEAD
+[2.16.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.16.0...v2.16.1
 [2.16.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.15.1...v2.16.0
 [2.15.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.15.0...v2.15.1
 [2.15.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.14.2...v2.15.0

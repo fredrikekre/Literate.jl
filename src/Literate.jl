@@ -218,9 +218,9 @@ function replace_default(content, sym;
     # Run some Documenter specific things
     if !isdocumenter(config)
         ## - remove documenter style `@ref`s and `@id`s
-        push!(repls, r"\[(.*?)\]\(@ref\)" => s"\1")     # [foo](@ref) => foo
-        push!(repls, r"\[(.*?)\]\(@ref .*?\)" => s"\1") # [foo](@ref bar) => foo
-        push!(repls, r"\[(.*?)\]\(@id .*?\)" => s"\1")  # [foo](@id bar) => foo
+        push!(repls, r"\[([^]]+?)\]\(@ref\)"s => s"\1")     # [foo](@ref) => foo
+        push!(repls, r"\[([^]]+?)\]\(@ref .*?\)"s => s"\1") # [foo](@ref bar) => foo
+        push!(repls, r"\[([^]]+?)\]\(@id .*?\)"s => s"\1")  # [foo](@id bar) => foo
     end
 
     # do the replacements
