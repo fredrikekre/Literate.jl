@@ -14,6 +14,8 @@ The basic syntax is simple:
 Leading whitespace is allowed before `#`, but it will be removed when generating the
 output. Since `#`-lines are treated as markdown we can not use that for regular julia
 comments, for this you can instead use `## `, which will render as `# ` in the output.
+Alternatively, you can use `#~` for regular julia comments, which will render as `#` 
+and behaves well with code cell delimiters in VSCode.
 
 Lets look at a simple example:
 ```julia
