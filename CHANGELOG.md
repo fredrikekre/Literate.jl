@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+<!-- ## [Unreleased] -->
+
+## [2.17.0] - 2024-04-14
 ### Added
  - Literate can now output [Quarto](https://quarto.org/) notebooks (markdown documents with
    the `.qmd` file extension) by passing `flavor = Literate.QuartoFlavor()` to
@@ -297,7 +299,8 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [github-230]: https://github.com/fredrikekre/Literate.jl/pull/230
 [github-233]: https://github.com/fredrikekre/Literate.jl/pull/233
 
-[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.16.1...HEAD
+[Unreleased]: https://github.com/fredrikekre/Literate.jl/compare/v2.17.0...HEAD
+[2.17.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.16.1...v2.17.0
 [2.16.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.16.0...v2.16.1
 [2.16.0]: https://github.com/fredrikekre/Literate.jl/compare/v2.15.1...v2.16.0
 [2.15.1]: https://github.com/fredrikekre/Literate.jl/compare/v2.15.0...v2.15.1
