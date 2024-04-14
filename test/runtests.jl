@@ -1479,9 +1479,7 @@ end end
             @test default_codefence == pick_codefence(Literate.DocumenterFlavor(), true, "testname")
             documenter_codefence = ("````@example testname" => "````")
             @test documenter_codefence == pick_codefence(Literate.DocumenterFlavor(), false, "testname")
-            let expected_exception=ErrorException("QuartoFlavor does not support argument execute=true!")
-                @test_throws expected_exception pick_codefence(Literate.QuartoFlavor(), true, "testname")
-            end
+            @test ("```{julia}" => "```") == pick_codefence(Literate.QuartoFlavor(), true, "testname")
             @test ("```{julia}" => "```") == pick_codefence(Literate.QuartoFlavor(), false, "testname")
 
             # Misc default configs
