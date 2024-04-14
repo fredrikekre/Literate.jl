@@ -110,7 +110,7 @@ end
         ##
         ## Line 79
     # Line 80: Quarto Specific
-    ##| Line 81 
+    ##| Line 81
     """
     expected_chunks = Chunk[
         MDChunk(["" => "Line 1"]),
@@ -803,8 +803,8 @@ end end
 
             # flavor = QuartoFlavor()
             # execution of Quarto markdown is not allowed
-            let expected_error = ErrorException("QuartoFlavor does not support argument execute=true!")
-                @test_throws expected_error Literate.markdown("quarto.jl",flavor=Literate.QuartoFlavor(),execute=true)
+            let expected_error = ArgumentError("QuartoFlavor does not support argument `execute = true`.")
+                @test_throws expected_error Literate.markdown("quarto.jl", flavor = Literate.QuartoFlavor(), execute = true)
             end
             Literate.markdown(inputfile, outdir, flavor = Literate.QuartoFlavor(),execute=false)
             markdown = read(joinpath(outdir, "inputfile.qmd"), String)
