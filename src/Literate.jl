@@ -1,5 +1,5 @@
 """
-# Literate
+    Literate
 
 Julia package for Literate Programming. See
 https://fredrikekre.github.io/Literate.jl/ for documentation.
@@ -289,15 +289,23 @@ function edit_commit(inputfile, user_config)
     return fallback_edit_commit
 end
 
-# Default to DefaultFlavor() setting
-pick_codefence(flavor::AbstractFlavor, execute::Bool, name::AbstractString)=pick_codefence(DefaultFlavor(), execute,name)
-pick_codefence(flavor::DefaultFlavor, execute::Bool, name::AbstractString)=("````julia" => "````")
-pick_codefence(flavor::DocumenterFlavor,execute::Bool, name::AbstractString)=(execute ?
-    pick_codefence(DefaultFlavor(), execute,name) : ("````@example $(name)" => "````")
-)
-pick_codefence(flavor::QuartoFlavor, execute::Bool, name::AbstractString)=(execute ?
-    error("QuartoFlavor does not support argument execute=true!") : ("```{julia}" => "```")
-)
+# All flavors default to the DefaultFlavor() setting
+function pick_codefence(::AbstractFlavor, execute::Bool, name::AbstractString)
+    return pick_codefence(DefaultFlavor(), execute, name)
+end
+function pick_codefence(::DefaultFlavor, execute::Bool, name::AbstractString)
+    return "````julia" => "````"
+end
+function pick_codefence(::DocumenterFlavor, execute::Bool, name::AbstractString)
+    if execute
+        return pick_codefence(DefaultFlavor(), execute, name)
+    else
+        return "````@example $(name)" => "````"
+    end
+end
+function pick_codefence(::QuartoFlavor, execute::Bool, name::AbstractString)
+    return "```{julia}" => "```"
+end
 
 function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     # Combine user config with user kwargs
@@ -335,7 +343,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["codefence"] = pick_codefence(
         get(user_config, "flavor", cfg["flavor"]),
         get(user_config, "execute", cfg["execute"]),
-        get(user_config, "name", replace(cfg["name"], r"\s" => "_"))
+        get(user_config, "name", replace(cfg["name"], r"\s" => "_")),
     )
     cfg["image_formats"] = _DEFAULT_IMAGE_FORMATS
     cfg["edit_commit"] = edit_commit(inputfile, user_config)
@@ -447,6 +455,11 @@ function preprocessor(inputfile, outputdir; user_config, user_kwargs, type)
     # Create configuration by merging default and userdefined
     config = create_configuration(inputfile; user_config=user_config,
         user_kwargs=user_kwargs, type=type)
+
+    # Quarto output does not support execute = true
+    if config["flavor"] isa QuartoFlavor && config["execute"]
+        throw(ArgumentError("QuartoFlavor does not support `execute = true`."))
+    end
 
     # normalize paths
     inputfile = normpath(inputfile)
