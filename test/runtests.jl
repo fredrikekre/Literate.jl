@@ -803,7 +803,7 @@ end end
 
             # flavor = QuartoFlavor()
             # execution of Quarto markdown is not allowed
-            let expected_error = ArgumentError("QuartoFlavor does not support argument `execute = true`.")
+            let expected_error = ArgumentError("QuartoFlavor does not support `execute = true`.")
                 @test_throws expected_error Literate.markdown("quarto.jl", flavor = Literate.QuartoFlavor(), execute = true)
             end
             Literate.markdown(inputfile, outdir, flavor = Literate.QuartoFlavor(),execute=false)
