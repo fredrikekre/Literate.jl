@@ -31,8 +31,8 @@ if we set `documenter = true`:
   ````
 
 ### [`Literate.notebook`](@ref):
-- Documenter style `@ref`s and `@id` will be removed. This means that you can use
-  `@ref` and `@id` in the source file without them leaking to the notebook.
+- Documenter style `@ref`s, `@extref`s and `@id` will be removed. This means that you can use
+  `@ref`, `@extref` and `@id` in the source file without them leaking to the notebook.
 - Documenter style markdown math
   ````
   ```math
@@ -57,5 +57,5 @@ if we set `documenter = true`:
   ```
 
 ### [`Literate.script`](@ref):
-- Documenter style `@ref`s and `@id` will be removed. This means that you can use
-  `@ref` and `@id` in the source file without them leaking to the script.
+- Documenter style `@ref`s, `@extref`s and `@id` will be removed. This means that you can use
+  `@ref`, `@extref` and `@id` in the source file without them leaking to the script.
