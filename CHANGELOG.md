@@ -5,14 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
+## [v2.18.0] - 2024-04-17
 ### Added
- - Literate will now remove Documenter-style `@extref` links under the same
-   circumstances as `@ref` and `@id`.  Recent versions of Documenter use
-   `@extref` to links to the documentation of external packages.  See
-   https://github.com/JuliaDocs/Documenter.jl/issues/2366 for details of
-   the Documenter implementation. ([#245])
+ - Literate will now remove
+   [DocumenterInterlinks.jl](https://github.com/JuliaDocs/DocumenterInterLinks.jl)
+   `@extref` links similarly to how Documenter.jl `@ref` and `@id`'s are
+   removed. ([#245])
 
 ## [v2.17.0] - 2024-04-14
 ### Added
@@ -268,6 +266,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [v2.16.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.16.0
 [v2.16.1]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.16.1
 [v2.17.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.17.0
+[v2.18.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.18.0
 [#116]: https://github.com/fredrikekre/Literate.jl/issues/116
 [#144]: https://github.com/fredrikekre/Literate.jl/issues/144
 [#145]: https://github.com/fredrikekre/Literate.jl/issues/145
