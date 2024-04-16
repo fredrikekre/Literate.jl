@@ -220,6 +220,7 @@ end # testset parser
 content = """
     # # [Example](@id example-id)
     # [foo](@ref), [bar](@ref bbaarr)
+    # [baz](@extref), [bax](@extref bbaaxx)
     x = 1
     #md # Only markdown
     # Only markdown #md
@@ -580,6 +581,7 @@ end end
 
             # [Example](@id example-id)
             [foo](@ref), [bar](@ref bbaarr)
+            [baz](@extref), [bax](@extref bbaaxx)
 
             ````@example inputfile
             x = 1
@@ -1027,7 +1029,8 @@ end end
             """
                "source": [
                 "# Example\\n",
-                "foo, bar"
+                "foo, bar\\n",
+                "baz, bax"
                ]
             """,
 
@@ -1263,6 +1266,7 @@ end end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test !occursin("# [Example](@id example-id", notebook)
             @test !occursin("[foo](@ref), [bar](@ref bbaarr)", notebook)
+            @test !occursin("[baz](@ref), [bax](@ref bbaaxx)", notebook)
 
             # name
             Literate.notebook(inputfile, outdir, name = "foobar", execute = false)
