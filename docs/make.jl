@@ -45,6 +45,18 @@ if haskey(ENV, "GITHUB_ACTIONS")
     write(joinpath(@__DIR__, "src/outputformats.md"), str)
 end
 
+# Generate changelog
+using Changelog
+clog = joinpath(@__DIR__, "src", "changelog.md")
+Changelog.generate(
+    Changelog.Documenter(),
+    joinpath(@__DIR__, "..", "CHANGELOG.md"),
+    clog;
+    repo = "fredrikekre/Literate.jl",
+)
+write(clog, replace(read(clog, String), r"^# Literate.jl changelog"m => "# **9.** Changelog"))
+
+
 makedocs(
     format = Documenter.HTML(
         assets = ["assets/custom.css", "assets/favicon.ico"],
@@ -61,7 +73,9 @@ makedocs(
         "customprocessing.md",
         "documenter.md",
         "tips.md",
-        "generated/example.md"]
+        "generated/example.md",
+        "changelog.md",
+    ],
 )
 
 deploydocs(
