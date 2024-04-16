@@ -26,7 +26,8 @@ Literate.markdown("examples/README.jl", "."; flavor=Literate.CommonMarkFlavor())
 
 ### Related packages
 
-- [Weave.jl](https://github.com/JunoLab/Weave.jl) can generate Jupyter notebooks, HTML, or PDF directly from a Markdown format containing Julia code blocks.
+- [Weave.jl](https://github.com/JunoLab/Weave.jl) can generate Jupyter notebooks, HTML, or
+  PDF directly from a Markdown format containing Julia code blocks.
 - [Quarto](https://quarto.org) can generate Jupyter notebooks, HTML, or PDF directly from a
   Markdown format containing Julia code blocks, and also works with R and Python. (Note that
   Literate.jl can produce Quarto markdown files (`.qmd`) as well.)
