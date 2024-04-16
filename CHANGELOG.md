@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    circumstances as `@ref` and `@id`.  Recent versions of Documenter use
    `@extref` to links to the documentation of external packages.  See
    https://github.com/JuliaDocs/Documenter.jl/issues/2366 for details of
-   the Documenter implementation.
+   the Documenter implementation. ([#245])
 
 ## [v2.17.0] - 2024-04-14
 ### Added
@@ -312,6 +312,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [#229]: https://github.com/fredrikekre/Literate.jl/issues/229
 [#230]: https://github.com/fredrikekre/Literate.jl/issues/230
 [#233]: https://github.com/fredrikekre/Literate.jl/issues/233
+[#245]: https://github.com/fredrikekre/Literate.jl/issues/245
 [0872a96]: https://github.com/fredrikekre/Literate.jl/commit/0872a96
 [0f9e836]: https://github.com/fredrikekre/Literate.jl/commit/0f9e836
 [1d02868]: https://github.com/fredrikekre/Literate.jl/commit/1d02868
