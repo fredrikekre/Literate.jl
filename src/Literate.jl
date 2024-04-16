@@ -217,9 +217,11 @@ function replace_default(content, sym;
 
     # Run some Documenter specific things
     if !isdocumenter(config)
-        ## - remove documenter style `@ref`s and `@id`s
+        ## - remove documenter style `@ref`s, `@extref`s and `@id`s
         push!(repls, r"\[([^]]+?)\]\(@ref\)"s => s"\1")     # [foo](@ref) => foo
         push!(repls, r"\[([^]]+?)\]\(@ref .*?\)"s => s"\1") # [foo](@ref bar) => foo
+        push!(repls, r"\[([^]]+?)\]\(@extref\)"s => s"\1")     # [foo](@extref) => foo
+        push!(repls, r"\[([^]]+?)\]\(@extref .*?\)"s => s"\1") # [foo](@extref bar) => foo
         push!(repls, r"\[([^]]+?)\]\(@id .*?\)"s => s"\1")  # [foo](@id bar) => foo
     end
 

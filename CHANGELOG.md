@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+ - Literate will now remove Documenter-style `@extref` links under the same
+   circumstances as `@ref` and `@id`.  Recent versions of Documenter use
+   `@extref` to links to the documentation of external packages.  See
+   https://github.com/JuliaDocs/Documenter.jl/issues/2366 for details of
+   the Documenter implementation.
+
 ## [v2.17.0] - 2024-04-14
 ### Added
  - Literate can now output [Quarto](https://quarto.org/) notebooks (markdown documents with
