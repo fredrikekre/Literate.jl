@@ -11,6 +11,10 @@ import JSON, REPL, IOCapture
 include("IJulia.jl")
 import .IJulia
 
+if VERSION >= v"1.11.0-DEV.469"
+    eval(Meta.parse("public markdown, notebook, script"))
+end
+
 abstract type AbstractFlavor end
 struct DefaultFlavor <: AbstractFlavor end
 struct DocumenterFlavor <: AbstractFlavor end
