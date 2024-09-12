@@ -1310,6 +1310,15 @@ end end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test occursin("\"data\": {\n      \"text/plain\": \"31\"\n     }", notebook)
 
+            # issue #251
+            write(inputfile, "include(joinpath(\"issue251\", \"A.jl\"))")
+            mkdir(joinpath(outdir, "issue251"))
+            write(joinpath(outdir, "issue251", "A.jl"), "include(\"B.jl\")")
+            write(joinpath(outdir, "issue251", "B.jl"), "230 + 21")
+            Literate.notebook(inputfile, outdir)
+            notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
+            @test occursin("\"data\": {\n      \"text/plain\": \"251\"\n     }", notebook)
+
             # test error when executing notebook
             write(inputfile, "for i in 1:10\n    println(i)")
             r = @test_logs((:error, r"error when executing notebook based on input file: "), match_mode=:any,
