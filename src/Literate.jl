@@ -851,8 +851,8 @@ function sandbox()
     # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
     Core.eval(m, :(eval(x) = Core.eval($m, x)))
     # modules created with Module() does not have include defined
-    # abspath is needed since this will call `include_relative`
-    Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
+    # the source path for recursive include is set while executing the block
+    Core.eval(m, :(include(x) = Base.include($m, x)))
     return m
 end
 
@@ -894,10 +894,13 @@ function execute_block(sb::Module, block::String; inputfile::String, fake_source
     # `rethrow = Union{}` means that we try-catch all the exceptions thrown in the do-block
     # and return them via the return value (they get handled below).
     c = IOCapture.capture(rethrow = Union{}) do
-        if softscope
-            include_string(REPL.softscope, sb, block, fake_source)
-        else
-            include_string(sb, block, fake_source)
+        # TODO: Perhaps `include_string` should set :SOURCE_PATH?
+        task_local_storage(:SOURCE_PATH, fake_source) do
+            if softscope
+                include_string(REPL.softscope, sb, block, fake_source)
+            else
+                include_string(sb, block, fake_source)
+            end
         end
     end
     popdisplay(disp) # IOCapture.capture has a try-catch so should always end up here
