@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.19.1] - 2024-09-13
+### Fixed
+ - Set `:SOURCE_PATH` in the task local storage to the output file when executing code so
+   that recursive `include` works as expected. ([#251], [#252])
+
 ## [v2.19.0] - 2024-07-11
 ### Changed
  - `Literate.markdown`, `Literate.notebook`, and `Literate.script` are marked as `public` in
@@ -273,6 +278,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [v2.17.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.17.0
 [v2.18.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.18.0
 [v2.19.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.19.0
+[v2.19.1]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.19.1
 [#116]: https://github.com/fredrikekre/Literate.jl/issues/116
 [#144]: https://github.com/fredrikekre/Literate.jl/issues/144
 [#145]: https://github.com/fredrikekre/Literate.jl/issues/145
@@ -319,6 +325,8 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [#233]: https://github.com/fredrikekre/Literate.jl/issues/233
 [#245]: https://github.com/fredrikekre/Literate.jl/issues/245
 [#248]: https://github.com/fredrikekre/Literate.jl/issues/248
+[#251]: https://github.com/fredrikekre/Literate.jl/issues/251
+[#252]: https://github.com/fredrikekre/Literate.jl/issues/252
 [0872a96]: https://github.com/fredrikekre/Literate.jl/commit/0872a96
 [0f9e836]: https://github.com/fredrikekre/Literate.jl/commit/0f9e836
 [1d02868]: https://github.com/fredrikekre/Literate.jl/commit/1d02868
