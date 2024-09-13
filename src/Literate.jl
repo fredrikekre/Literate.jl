@@ -582,7 +582,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
         preprocessor(inputfile, outputdir; user_config=config, user_kwargs=kwargs, type=:md)
 
     # create the markdown file
-    sb = sandbox(config["literate_outputfile"])
+    sb = sandbox()
     iomd = IOBuffer()
     for (chunknum, chunk) in enumerate(chunks)
         if isa(chunk, MDChunk)
@@ -789,7 +789,7 @@ function jupyter_notebook(chunks, config)
 end
 
 function execute_notebook(nb; inputfile::String, fake_source::String, softscope::Bool)
-    sb = sandbox(fake_source)
+    sb = sandbox()
     execution_count = 0
     for cell in nb["cells"]
         cell["cell_type"] == "code" || continue
@@ -851,14 +851,8 @@ function sandbox()
     # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
     Core.eval(m, :(eval(x) = Core.eval($m, x)))
     # modules created with Module() does not have include defined
+    # the source path for recursive include is set while executing the block
     Core.eval(m, :(include(x) = Base.include($m, x)))
-    return m
-end
-
-function sandbox(source_file)
-    m = sandbox()
-    # For `include` to work, the source file must be set.
-    Core.eval(m, :(current_task().storage[:SOURCE_PATH] = $source_file))
     return m
 end
 
@@ -900,10 +894,13 @@ function execute_block(sb::Module, block::String; inputfile::String, fake_source
     # `rethrow = Union{}` means that we try-catch all the exceptions thrown in the do-block
     # and return them via the return value (they get handled below).
     c = IOCapture.capture(rethrow = Union{}) do
-        if softscope
-            include_string(REPL.softscope, sb, block, fake_source)
-        else
-            include_string(sb, block, fake_source)
+        # TODO: Perhaps `include_string` should set :SOURCE_PATH?
+        task_local_storage(:SOURCE_PATH, fake_source) do
+            if softscope
+                include_string(REPL.softscope, sb, block, fake_source)
+            else
+                include_string(sb, block, fake_source)
+            end
         end
     end
     popdisplay(disp) # IOCapture.capture has a try-catch so should always end up here

@@ -1310,8 +1310,8 @@ end end
             notebook = read(joinpath(outdir, "inputfile.ipynb"), String)
             @test occursin("\"data\": {\n      \"text/plain\": \"31\"\n     }", notebook)
 
-            # issue #251
-            write(inputfile, "include(joinpath(\"issue251\", \"A.jl\"))")
+            # issue #251 (recursive include)
+            write(inputfile, "include(\"issue251/A.jl\")")
             mkdir(joinpath(outdir, "issue251"))
             write(joinpath(outdir, "issue251", "A.jl"), "include(\"B.jl\")")
             write(joinpath(outdir, "issue251", "B.jl"), "230 + 21")
