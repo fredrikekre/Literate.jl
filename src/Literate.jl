@@ -641,39 +641,21 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
                            flavor::AbstractFlavor, image_formats::Vector, file_prefix::String,
                            softscope::Bool)
     # TODO: Deal with explicit display(...) calls
-    r, str, _ = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source, softscope=softscope)
+    r, str, display_dicts = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source, softscope=softscope)
+
     # issue #101: consecutive codefenced blocks need newline
     # issue #144: quadruple backticks allow for triple backticks in the output
     plain_fence = "\n````\n" =>  "\n````"
+
+    # Any explicit calls to display(...)
+    for dict in display_dicts
+        for (mime, data) in dict
+            display_markdown(io, data, outputdir, flavor, image_formats, file_prefix, plain_fence)
+        end
+    end
+
     if r !== nothing && !REPL.ends_with_semicolon(block)
-        if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
-           Base.invokelatest(showable, MIME("text/html"), r)
-            htmlfence = flavor isa FranklinFlavor ? ("~~~" => "~~~") : ("```@raw html" => "```")
-            write(io, "\n", htmlfence.first, "\n")
-            Base.invokelatest(show, io, MIME("text/html"), r)
-            write(io, "\n", htmlfence.second, "\n")
-            return
-        end
-        for (mime, ext) in image_formats
-            if Base.invokelatest(showable, mime, r)
-                file = file_prefix * ext
-                open(joinpath(outputdir, file), "w") do io
-                    Base.invokelatest(show, io, mime, r)
-                end
-                write(io, "![](", file, ")\n")
-                return
-            end
-        end
-        if Base.invokelatest(showable, MIME("text/markdown"), r)
-            write(io, '\n')
-            Base.invokelatest(show, io, MIME("text/markdown"), r)
-            write(io, '\n')
-            return
-        end
-        # fallback to text/plain
-        write(io, plain_fence.first)
-        Base.invokelatest(show, io, "text/plain", r)
-        write(io, plain_fence.second, '\n')
+        display_markdown(io, r, outputdir, flavor, image_formats, file_prefix, plain_fence)
         return
     elseif !isempty(str)
         write(io, plain_fence.first, str, plain_fence.second, '\n')
@@ -681,6 +663,37 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
     end
 end
 
+function display_markdown(io, data, outputdir, flavor, image_formats, file_prefix, plain_fence)
+    if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
+        Base.invokelatest(showable, MIME("text/html"), data)
+        htmlfence = flavor isa FranklinFlavor ? ("~~~" => "~~~") : ("```@raw html" => "```")
+        write(io, "\n", htmlfence.first, "\n")
+        Base.invokelatest(show, io, MIME("text/html"), data)
+        write(io, "\n", htmlfence.second, "\n")
+        return
+    end
+    for (mime, ext) in image_formats
+        if Base.invokelatest(showable, mime, data)
+            file = file_prefix * ext
+            open(joinpath(outputdir, file), "w") do io
+                Base.invokelatest(show, io, mime, data)
+            end
+            write(io, "![](", file, ")\n")
+            return
+        end
+    end
+    if Base.invokelatest(showable, MIME("text/markdown"), data)
+        write(io, '\n')
+        Base.invokelatest(show, io, MIME("text/markdown"), data)
+        write(io, '\n')
+        return
+    end
+    # fallback to text/plain
+    write(io, plain_fence.first)
+    Base.invokelatest(show, io, "text/plain", data)
+    write(io, plain_fence.second, '\n')
+    return
+end
 
 const JUPYTER_VERSION = v"4.3.0"
 

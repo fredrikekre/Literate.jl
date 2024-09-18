@@ -985,6 +985,28 @@ end end
                               flavor=Literate.CommonMarkFlavor())
             @test read(joinpath(outdir, "inputfile-1.svg"), String) == "issue228"
 
+            # Calls to display(x) and display(mime, x)
+            script = """
+            struct DF x end
+            Base.show(io::IO, ::MIME"text/plain", df::DF) = print(io, "DF(\$(df.x)) as text/plain")
+            Base.show(io::IO, ::MIME"text/html", df::DF) = print(io, "DF(\$(df.x)) as text/html")
+            Base.show(io::IO, ::MIME"text/latex", df::DF) = print(io, "DF(\$(df.x)) as text/latex")
+            #-
+            foreach(display, [DF(1), DF(2)])
+            DF(3)
+            #-
+            display(MIME("text/latex"), DF(4))
+            """
+            write(inputfile, script)
+            Literate.markdown(inputfile, outdir; execute=true)
+            markdown = read(joinpath(outdir, "inputfile.md"), String)
+            @test occursin("````\n\"DF(1) as text/plain\"\n````", markdown)
+            @test occursin("````\n\"DF(1) as text/html\"\n````", markdown)
+            @test occursin("````\n\"DF(2) as text/plain\"\n````", markdown)
+            @test occursin("````\n\"DF(2) as text/html\"\n````", markdown)
+            @test occursin("```@raw html\nDF(3) as text/html\n```", markdown)
+            @test occursin("````\n\"DF(4) as text/latex\"\n````", markdown)
+
             # Softscope
             write(
                 inputfile,
