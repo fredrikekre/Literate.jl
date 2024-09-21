@@ -991,15 +991,14 @@ end end
             DF(x) = DF{x}(x)
             Base.show(io::IO, ::MIME"text/plain", df::DF{1}) = print(io, "DF(\$(df.x)) as text/plain")
             Base.show(io::IO, ::MIME"text/html", df::DF{2}) = print(io, "DF(\$(df.x)) as text/html")
-            Base.show(io::IO, ::MIME"text/markdown", df::DF{3}) = print(io, "DF(\$(df.x)) as text/markdown")
-            Base.show(io::IO, ::MIME"text/latex", df::DF{4}) = print(io, "DF(\$(df.x)) as text/latex")
-            Base.show(io::IO, ::MIME"image/svg+xml", df::DF{5}) = print(io, "DF(\$(df.x)) as image/svg+xml")
-            Base.show(io::IO, ::MIME"image/png", df::DF{6}) = print(io, "DF(\$(df.x)) as image/png")
+            Base.show(io::IO, ::MIME"image/png", df::DF{3}) = print(io, "DF(\$(df.x)) as image/png")
+            Base.show(io::IO, ::MIME"text/markdown", df::DF{4}) = print(io, "DF(\$(df.x)) as text/markdown")
+            Base.show(io::IO, ::MIME"text/latex", df::DF{5}) = print(io, "DF(\$(df.x)) as text/latex")
+            Base.show(io::IO, ::MIME"image/svg+xml", df::DF{6}) = print(io, "DF(\$(df.x)) as image/svg+xml")
+            Base.show(io::IO, ::MIME"image/png", df::DF{7}) = print(io, "DF(\$(df.x)) as image/png")
             #-
-            foreach(display, [DF(1), DF(2), DF(3), DF(4), DF(5)])
-            DF(6)
-            #-
-            display(MIME("text/latex"), DF(4))
+            foreach(display, DF(i) for i in 1:6)
+            DF(7)
             """
             write(inputfile, script)
             Literate.markdown(inputfile, outdir; execute=true)
@@ -1008,31 +1007,37 @@ end end
             # Make sure each one shows up.
             @test occursin("DF(1)", markdown)
             @test occursin("DF(2)", markdown)
-            @test occursin("DF(3)", markdown)
+            @test occursin("inputfile-3-3.png", markdown)
             @test occursin("DF(4)", markdown)
-            @test occursin("inputfile-3-5.svg", markdown)
+            @test occursin("DF(5)", markdown)
+            @test occursin("inputfile-3-6.svg", markdown)
             @test occursin("inputfile-3.png", markdown)
 
             # Check the ordering.
             @test findfirst("DF(1)", markdown)[1] < findfirst("DF(2)", markdown)[1]
-            @test findfirst("DF(2)", markdown)[1] < findfirst("DF(3)", markdown)[1]
-            @test findfirst("DF(3)", markdown)[1] < findfirst("DF(4)", markdown)[1]
-            @test findfirst("DF(4)", markdown)[1] < findfirst("inputfile-3-5.svg", markdown)[1]
-            @test findfirst("inputfile-3-5.svg", markdown)[1] < findfirst("inputfile-3.png", markdown)[1]
+            @test findfirst("DF(2)", markdown)[1] < findfirst("inputfile-3-3.png", markdown)[1]
+            @test findfirst("inputfile-3-3.png", markdown)[1] < findfirst("DF(4)", markdown)[1]
+            @test findfirst("DF(4)", markdown)[1] < findfirst("DF(5)", markdown)[1]
+            @test findfirst("DF(5)", markdown)[1] < findfirst("inputfile-3-6.svg", markdown)[1]
+            @test findfirst("inputfile-3-6.svg", markdown)[1] < findfirst("inputfile-3.png", markdown)[1]
 
             # Check the formatting.
             @test occursin("````\nDF(1) as text/plain\n````", markdown)
             @test occursin("```@raw html\nDF(2) as text/html\n```", markdown)
-            @test occursin("\nDF(3) as text/markdown\n", markdown)
-            @test occursin("```latex\nDF(4) as text/latex\n```", markdown)
-            @test occursin("\n![](inputfile-3-5.svg)\n", markdown)
+            @test occursin("\n![](inputfile-3-3.png)\n", markdown)
+            @test occursin("\nDF(4) as text/markdown\n", markdown)
+            @test occursin("```latex\nDF(5) as text/latex\n```", markdown)
+            @test occursin("\n![](inputfile-3-6.svg)\n", markdown)
             @test occursin("\n![](inputfile-3.png)\n", markdown)
 
-            svg = read(joinpath(outdir, "inputfile-3-5.svg"), String)
-            @test svg == "DF(5) as image/svg+xml"
+            image = read(joinpath(outdir, "inputfile-3-3.png"), String)
+            @test image == "DF(3) as image/png"
 
-            png = read(joinpath(outdir, "inputfile-3.png"), String)
-            @test png == "DF(6) as image/png"
+            image = read(joinpath(outdir, "inputfile-3-6.svg"), String)
+            @test image == "DF(6) as image/svg+xml"
+
+            image = read(joinpath(outdir, "inputfile-3.png"), String)
+            @test image == "DF(7) as image/png"
 
             # Softscope
             write(
