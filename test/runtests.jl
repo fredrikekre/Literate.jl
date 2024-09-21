@@ -987,25 +987,52 @@ end end
 
             # Calls to display(x) and display(mime, x)
             script = """
-            struct DF x end
-            Base.show(io::IO, ::MIME"text/plain", df::DF) = print(io, "DF(\$(df.x)) as text/plain")
-            Base.show(io::IO, ::MIME"text/html", df::DF) = print(io, "DF(\$(df.x)) as text/html")
-            Base.show(io::IO, ::MIME"text/latex", df::DF) = print(io, "DF(\$(df.x)) as text/latex")
+            struct DF{N} x end
+            DF(x) = DF{x}(x)
+            Base.show(io::IO, ::MIME"text/plain", df::DF{1}) = print(io, "DF(\$(df.x)) as text/plain")
+            Base.show(io::IO, ::MIME"text/html", df::DF{2}) = print(io, "DF(\$(df.x)) as text/html")
+            Base.show(io::IO, ::MIME"text/markdown", df::DF{3}) = print(io, "DF(\$(df.x)) as text/markdown")
+            Base.show(io::IO, ::MIME"text/latex", df::DF{4}) = print(io, "DF(\$(df.x)) as text/latex")
+            Base.show(io::IO, ::MIME"image/svg+xml", df::DF{5}) = print(io, "DF(\$(df.x)) as image/svg+xml")
+            Base.show(io::IO, ::MIME"image/png", df::DF{6}) = print(io, "DF(\$(df.x)) as image/png")
             #-
-            foreach(display, [DF(1), DF(2)])
-            DF(3)
+            foreach(display, [DF(1), DF(2), DF(3), DF(4), DF(5)])
+            DF(6)
             #-
             display(MIME("text/latex"), DF(4))
             """
             write(inputfile, script)
             Literate.markdown(inputfile, outdir; execute=true)
             markdown = read(joinpath(outdir, "inputfile.md"), String)
-            @test occursin("````\n\"DF(1) as text/plain\"\n````", markdown)
-            @test occursin("````\n\"DF(1) as text/html\"\n````", markdown)
-            @test occursin("````\n\"DF(2) as text/plain\"\n````", markdown)
-            @test occursin("````\n\"DF(2) as text/html\"\n````", markdown)
-            @test occursin("```@raw html\nDF(3) as text/html\n```", markdown)
-            @test occursin("````\n\"DF(4) as text/latex\"\n````", markdown)
+
+            # Make sure each one shows up.
+            @test occursin("DF(1)", markdown)
+            @test occursin("DF(2)", markdown)
+            @test occursin("DF(3)", markdown)
+            @test occursin("DF(4)", markdown)
+            @test occursin("inputfile-3-5.svg", markdown)
+            @test occursin("inputfile-3.png", markdown)
+
+            # Check the ordering.
+            @test findfirst("DF(1)", markdown)[1] < findfirst("DF(2)", markdown)[1]
+            @test findfirst("DF(2)", markdown)[1] < findfirst("DF(3)", markdown)[1]
+            @test findfirst("DF(3)", markdown)[1] < findfirst("DF(4)", markdown)[1]
+            @test findfirst("DF(4)", markdown)[1] < findfirst("inputfile-3-5.svg", markdown)[1]
+            @test findfirst("inputfile-3-5.svg", markdown)[1] < findfirst("inputfile-3.png", markdown)[1]
+
+            # Check the formatting.
+            @test occursin("````\nDF(1) as text/plain\n````", markdown)
+            @test occursin("```@raw html\nDF(2) as text/html\n```", markdown)
+            @test occursin("\nDF(3) as text/markdown\n", markdown)
+            @test occursin("```latex\nDF(4) as text/latex\n```", markdown)
+            @test occursin("\n![](inputfile-3-5.svg)\n", markdown)
+            @test occursin("\n![](inputfile-3.png)\n", markdown)
+
+            svg = read(joinpath(outdir, "inputfile-3-5.svg"), String)
+            @test svg == "DF(5) as image/svg+xml"
+
+            png = read(joinpath(outdir, "inputfile-3.png"), String)
+            @test png == "DF(6) as image/png"
 
             # Softscope
             write(

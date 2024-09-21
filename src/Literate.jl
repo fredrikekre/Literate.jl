@@ -6,7 +6,7 @@ https://fredrikekre.github.io/Literate.jl/ for documentation.
 """
 module Literate
 
-import JSON, REPL, IOCapture
+import JSON, REPL, IOCapture, Base64
 
 include("IJulia.jl")
 import .IJulia
@@ -648,10 +648,8 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
     plain_fence = "\n````\n" =>  "\n````"
 
     # Any explicit calls to display(...)
-    for dict in display_dicts
-        for (mime, data) in dict
-            display_markdown(io, data, outputdir, flavor, image_formats, file_prefix, plain_fence)
-        end
+    for (i, d) in enumerate(display_dicts)
+        display_markdown_mime(io, d, outputdir, flavor, image_formats, "$(file_prefix)-$i", plain_fence)
     end
 
     if r !== nothing && !REPL.ends_with_semicolon(block)
@@ -678,7 +676,7 @@ function display_markdown(io, data, outputdir, flavor, image_formats, file_prefi
             open(joinpath(outputdir, file), "w") do io
                 Base.invokelatest(show, io, mime, data)
             end
-            write(io, "![](", file, ")\n")
+            write(io, "\n![](", file, ")\n")
             return
         end
     end
@@ -694,6 +692,52 @@ function display_markdown(io, data, outputdir, flavor, image_formats, file_prefi
     write(io, plain_fence.second, '\n')
     return
 end
+
+function display_markdown_mime(io, mime_dict, outputdir, flavor, image_formats, file_prefix, plain_fence)
+    if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
+        haskey(mime_dict, "text/html")
+        htmlfence = flavor isa FranklinFlavor ? ("~~~" => "~~~") : ("```@raw html" => "```")
+        data = mime_dict["text/html"]
+        write(io, "\n", htmlfence.first, "\n")
+        write(io, data)
+        write(io, "\n", htmlfence.second, "\n")
+        return
+    end
+
+    for (mime, ext) in image_formats
+        if haskey(mime_dict, string(mime))
+            data = mime_dict[string(mime)]
+            file = file_prefix * ext
+            if istextmime(mime)
+                write(joinpath(outputdir, file), data)
+            else
+                data_decoded = Base64.base64decode(data)
+                write(joinpath(outputdir, file), data_decoded)
+            end
+            write(io, "\n![](", file, ")\n")
+            return
+        end
+    end
+
+    if haskey(mime_dict, "text/latex")
+        data = mime_dict["text/latex"]
+        write(io, "\n```latex\n", data, "\n```\n")
+        return
+    end
+
+    if haskey(mime_dict, "text/markdown")
+        data = mime_dict["text/markdown"]
+        write(io, '\n', data, '\n')
+        return
+    end
+
+    # fallback to text/plain
+    @assert haskey(mime_dict, "text/plain")
+    write(io, plain_fence.first)
+    write(io, mime_dict["text/plain"])
+    write(io, plain_fence.second, '\n')
+end
+
 
 const JUPYTER_VERSION = v"4.3.0"
 
