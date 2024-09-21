@@ -680,7 +680,7 @@ function execute_markdown!(
         continue_on_error::Bool
     )
     r, str, display_dicts = execute_block(
-        sb, block; inputfile=inputfile, fake_source = fake_source,
+        sb, block; inputfile = inputfile, fake_source = fake_source,
         softscope = softscope, continue_on_error = continue_on_error
     )
     # issue #101: consecutive codefenced blocks need newline
