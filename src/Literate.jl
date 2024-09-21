@@ -6,7 +6,7 @@ https://fredrikekre.github.io/Literate.jl/ for documentation.
 """
 module Literate
 
-import JSON, REPL, IOCapture
+import JSON, REPL, IOCapture, Base64
 
 include("IJulia.jl")
 import .IJulia
@@ -641,44 +641,101 @@ function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
                            flavor::AbstractFlavor, image_formats::Vector, file_prefix::String,
                            softscope::Bool)
     # TODO: Deal with explicit display(...) calls
-    r, str, _ = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source, softscope=softscope)
+    r, str, display_dicts = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source, softscope=softscope)
+
     # issue #101: consecutive codefenced blocks need newline
     # issue #144: quadruple backticks allow for triple backticks in the output
     plain_fence = "\n````\n" =>  "\n````"
+
+    # Any explicit calls to display(...)
+    for (i, d) in enumerate(display_dicts)
+        display_markdown_mime(io, d, outputdir, flavor, image_formats, "$(file_prefix)-$i", plain_fence)
+    end
+
     if r !== nothing && !REPL.ends_with_semicolon(block)
-        if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
-           Base.invokelatest(showable, MIME("text/html"), r)
-            htmlfence = flavor isa FranklinFlavor ? ("~~~" => "~~~") : ("```@raw html" => "```")
-            write(io, "\n", htmlfence.first, "\n")
-            Base.invokelatest(show, io, MIME("text/html"), r)
-            write(io, "\n", htmlfence.second, "\n")
-            return
-        end
-        for (mime, ext) in image_formats
-            if Base.invokelatest(showable, mime, r)
-                file = file_prefix * ext
-                open(joinpath(outputdir, file), "w") do io
-                    Base.invokelatest(show, io, mime, r)
-                end
-                write(io, "![](", file, ")\n")
-                return
-            end
-        end
-        if Base.invokelatest(showable, MIME("text/markdown"), r)
-            write(io, '\n')
-            Base.invokelatest(show, io, MIME("text/markdown"), r)
-            write(io, '\n')
-            return
-        end
-        # fallback to text/plain
-        write(io, plain_fence.first)
-        Base.invokelatest(show, io, "text/plain", r)
-        write(io, plain_fence.second, '\n')
+        display_markdown(io, r, outputdir, flavor, image_formats, file_prefix, plain_fence)
         return
     elseif !isempty(str)
         write(io, plain_fence.first, str, plain_fence.second, '\n')
         return
     end
+end
+
+function display_markdown(io, data, outputdir, flavor, image_formats, file_prefix, plain_fence)
+    if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
+        Base.invokelatest(showable, MIME("text/html"), data)
+        htmlfence = flavor isa FranklinFlavor ? ("~~~" => "~~~") : ("```@raw html" => "```")
+        write(io, "\n", htmlfence.first, "\n")
+        Base.invokelatest(show, io, MIME("text/html"), data)
+        write(io, "\n", htmlfence.second, "\n")
+        return
+    end
+    for (mime, ext) in image_formats
+        if Base.invokelatest(showable, mime, data)
+            file = file_prefix * ext
+            open(joinpath(outputdir, file), "w") do io
+                Base.invokelatest(show, io, mime, data)
+            end
+            write(io, "\n![](", file, ")\n")
+            return
+        end
+    end
+    if Base.invokelatest(showable, MIME("text/markdown"), data)
+        write(io, '\n')
+        Base.invokelatest(show, io, MIME("text/markdown"), data)
+        write(io, '\n')
+        return
+    end
+    # fallback to text/plain
+    write(io, plain_fence.first)
+    Base.invokelatest(show, io, "text/plain", data)
+    write(io, plain_fence.second, '\n')
+    return
+end
+
+function display_markdown_mime(io, mime_dict, outputdir, flavor, image_formats, file_prefix, plain_fence)
+    if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
+        haskey(mime_dict, "text/html")
+        htmlfence = flavor isa FranklinFlavor ? ("~~~" => "~~~") : ("```@raw html" => "```")
+        data = mime_dict["text/html"]
+        write(io, "\n", htmlfence.first, "\n")
+        write(io, data)
+        write(io, "\n", htmlfence.second, "\n")
+        return
+    end
+
+    for (mime, ext) in image_formats
+        if haskey(mime_dict, string(mime))
+            data = mime_dict[string(mime)]
+            file = file_prefix * ext
+            if istextmime(mime)
+                write(joinpath(outputdir, file), data)
+            else
+                data_decoded = Base64.base64decode(data)
+                write(joinpath(outputdir, file), data_decoded)
+            end
+            write(io, "\n![](", file, ")\n")
+            return
+        end
+    end
+
+    if haskey(mime_dict, "text/latex")
+        data = mime_dict["text/latex"]
+        write(io, "\n```latex\n", data, "\n```\n")
+        return
+    end
+
+    if haskey(mime_dict, "text/markdown")
+        data = mime_dict["text/markdown"]
+        write(io, '\n', data, '\n')
+        return
+    end
+
+    # fallback to text/plain
+    @assert haskey(mime_dict, "text/plain")
+    write(io, plain_fence.first)
+    write(io, mime_dict["text/plain"])
+    write(io, plain_fence.second, '\n')
 end
 
 
