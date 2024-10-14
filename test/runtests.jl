@@ -1459,6 +1459,22 @@ end end
     end # mktempdir
 end end
 
+@testset "allow_errors=true" begin
+    input_with_error =
+        """
+        # The following will error
+
+        sqrt(-1.0)
+        """
+    mktempdir(@__DIR__) do sandbox
+        inputfile = joinpath(sandbox, "input.jl")
+        write(inputfile, input_with_error)
+        Literate.markdown(inputfile, sandbox; allow_errors = true, execute = true)
+        output_md = read(joinpath(sandbox, "input.md"), String)
+        @test occursin("DomainError(-1.0", output_md)
+    end
+end
+
 @testset "Configuration" begin; Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do

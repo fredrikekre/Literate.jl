@@ -346,6 +346,7 @@ function create_configuration(inputfile; user_config, user_kwargs, type=nothing)
     cfg["softscope"] = type === (:nb) ? true : false # on for Jupyter notebooks
     cfg["keep_comments"] = false
     cfg["execute"] = type === :md ? false : true
+    cfg["allow_errors"] = false
     cfg["codefence"] = pick_codefence(
         get(user_config, "flavor", cfg["flavor"]),
         get(user_config, "execute", cfg["execute"]),
@@ -433,6 +434,9 @@ Available options:
   output script. Only applicable for `Literate.script`.
 - `execute` (default: `true` for notebook, `false` for markdown): Whether to execute and
   capture the output. Only applicable for `Literate.notebook` and `Literate.markdown`.
+- `allow_errors` (default: `false`): Whether to capture and display error messages. If
+  `true`, blocks that error will display the error message. If `false`, errors will be
+  (re)thrown as is. Ignored when `execute == false`.
 - `codefence` (default: `````"````@example \$(name)" => "````"````` for `DocumenterFlavor()`
   and `````"````julia" => "````"````` otherwise): Pair containing opening and closing
   code fence for wrapping code blocks.
@@ -621,6 +625,7 @@ function markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwarg
                                       image_formats=config["image_formats"],
                                       file_prefix="$(config["name"])-$(chunknum)",
                                       softscope=config["softscope"],
+                                      allow_errors=config["allow_errors"],
                     )
                 end
             end
@@ -639,9 +644,10 @@ end
 function execute_markdown!(io::IO, sb::Module, block::String, outputdir;
                            inputfile::String, fake_source::String,
                            flavor::AbstractFlavor, image_formats::Vector, file_prefix::String,
-                           softscope::Bool)
+                           softscope::Bool, allow_errors::Bool)
     # TODO: Deal with explicit display(...) calls
-    r, str, _ = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source, softscope=softscope)
+    r, str, _ = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source,
+                              softscope=softscope, allow_errors=allow_errors)
     # issue #101: consecutive codefenced blocks need newline
     # issue #144: quadruple backticks allow for triple backticks in the output
     plain_fence = "\n````\n" =>  "\n````"
@@ -777,7 +783,9 @@ function jupyter_notebook(chunks, config)
             cd(config["literate_outputdir"]) do
                 nb = execute_notebook(nb; inputfile=config["literate_inputfile"],
                                           fake_source=config["literate_outputfile"],
-                                          softscope=config["softscope"])
+                                          softscope=config["softscope"],
+                                          allow_errors=config["allow_errors"],
+)
             end
         catch err
             @error "error when executing notebook based on input file: " *
@@ -788,7 +796,8 @@ function jupyter_notebook(chunks, config)
     return nb
 end
 
-function execute_notebook(nb; inputfile::String, fake_source::String, softscope::Bool)
+function execute_notebook(nb; inputfile::String, fake_source::String, softscope::Bool,
+                          allow_errors=allow_errors)
     sb = sandbox()
     execution_count = 0
     for cell in nb["cells"]
@@ -796,7 +805,9 @@ function execute_notebook(nb; inputfile::String, fake_source::String, softscope:
         execution_count += 1
         cell["execution_count"] = execution_count
         block = join(cell["source"])
-        r, str, display_dicts = execute_block(sb, block; inputfile=inputfile, fake_source=fake_source, softscope=softscope)
+        r, str, display_dicts = execute_block(sb, block; inputfile=inputfile,
+                                              fake_source=fake_source, softscope=softscope,
+                                              allow_errors=allow_errors)
 
         # str should go into stream
         if !isempty(str)
@@ -878,7 +889,8 @@ function Base.display(ld::LiterateDisplay, mime::MIME, x)
 end
 
 # Execute a code-block in a module and capture stdout/stderr and the result
-function execute_block(sb::Module, block::String; inputfile::String, fake_source::String, softscope::Bool)
+function execute_block(sb::Module, block::String; inputfile::String, fake_source::String,
+                       softscope::Bool, allow_errors::Bool)
     @debug """execute_block($sb, block)
     ```
     $(block)
@@ -904,7 +916,7 @@ function execute_block(sb::Module, block::String; inputfile::String, fake_source
         end
     end
     popdisplay(disp) # IOCapture.capture has a try-catch so should always end up here
-    if c.error
+    if c.error && !allow_errors
         error("""
              $(sprint(showerror, c.value))
              when executing the following code block from inputfile `$(Base.contractuser(inputfile))`
