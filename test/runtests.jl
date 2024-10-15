@@ -1459,7 +1459,7 @@ end end
     end # mktempdir
 end end
 
-@testset "allow_errors=true" begin
+@testset "continue_on_error=true" begin
     input_with_error =
         """
         # The following will error
@@ -1469,7 +1469,7 @@ end end
     mktempdir(@__DIR__) do sandbox
         inputfile = joinpath(sandbox, "input.jl")
         write(inputfile, input_with_error)
-        Literate.markdown(inputfile, sandbox; allow_errors = true, execute = true)
+        Literate.markdown(inputfile, sandbox; continue_on_error = true, execute = true)
         output_md = read(joinpath(sandbox, "input.md"), String)
         @test occursin("DomainError(-1.0", output_md)
     end
