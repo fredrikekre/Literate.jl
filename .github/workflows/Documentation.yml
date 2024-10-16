@@ -1,0 +1,27 @@
+---
+name: Documentation
+on:
+  push:
+    branches:
+      - 'master'
+      - 'release-'
+    tags: ['*']
+  pull_request:
+jobs:
+  docs:
+    name: 'Julia 1 - ubuntu-latest'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1'
+      - uses: julia-actions/cache@v2
+      - name: Install dependencies
+        run: julia --project=docs -e 'using Pkg; Pkg.instantiate()'
+      - name: Build and deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          GKSwstype: '100'
+        run: julia --project=docs --color=yes docs/make.jl
