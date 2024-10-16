@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Added
+ - A new keyword argument configuration `continue_on_error::Bool = false` has been added
+   which controls the behavior of code execution errors. By default (`continue_on_error =
+   false`) execution errors are re-thrown by Literate (as before). If `continue_on_error =
+   true` is set the error is used as the block result and execution continues with following
+   blocks. ([#201], [#257])
+
 ## [v2.19.1] - 2024-09-13
 ### Fixed
  - Set `:SOURCE_PATH` in the task local storage to the output file when executing code so
