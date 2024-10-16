@@ -434,9 +434,10 @@ Available options:
   output script. Only applicable for `Literate.script`.
 - `execute` (default: `true` for notebook, `false` for markdown): Whether to execute and
   capture the output. Only applicable for `Literate.notebook` and `Literate.markdown`.
-- `continue_on_error` (default: `false`): Whether to capture and display error messages. If
-  `true`, blocks that error will display the error message. If `false`, errors will be
-  (re)thrown as is. Ignored when `execute == false`.
+- `continue_on_error` (default: `false`): Whether to continue code execution of remaining
+  blocks after encountering an error. By default execution errors are re-thrown. If
+  `continue_on_error = true` the error will be used as the output of the block instead and
+  execution will continue. This option is only applicable when `execute = true`.
 - `codefence` (default: `````"````@example \$(name)" => "````"````` for `DocumenterFlavor()`
   and `````"````julia" => "````"````` otherwise): Pair containing opening and closing
   code fence for wrapping code blocks.
