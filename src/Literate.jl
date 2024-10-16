@@ -227,6 +227,25 @@ function replace_default(content, sym;
         push!(repls, r"\[([^]]+?)\]\(@extref\)"s => s"\1")     # [foo](@extref) => foo
         push!(repls, r"\[([^]]+?)\]\(@extref .*?\)"s => s"\1") # [foo](@extref bar) => foo
         push!(repls, r"\[([^]]+?)\]\(@id .*?\)"s => s"\1")  # [foo](@id bar) => foo
+        # Convert Documenter admonitions to markdown quotes
+        r = r"^# !!! (?<type>\w+)(?: \"(?<title>.+)\")?(?<lines>(\v^#     .*$)+)"m
+        adm_to_quote = function(s)
+            m = match(r, s)::RegexMatch
+            io = IOBuffer()
+            print(io, "# > **")
+            if (title = m[:title]; title !== nothing)
+                print(io, title)
+            else
+                type = uppercasefirst(String(m[:type]))
+                print(io, type)
+            end
+            print(io, "**\n# >")
+            for l in eachline(IOBuffer(m[:lines]); keep = true)
+                print(io, replace(l, r"^#     " => "# > "))
+            end
+            return String(take!(io))
+        end
+        push!(repls, r => adm_to_quote)
     end
 
     # do the replacements

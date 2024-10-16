@@ -12,6 +12,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    false`) execution errors are re-thrown by Literate (as before). If `continue_on_error =
    true` is set the error is used as the block result and execution continues with following
    blocks. ([#201], [#257])
+ - Literate now replaces Documenter-style admonitions when generating notebook output
+   ([#259]). Concretely,
+   ```
+   # !!! note
+   #     A note.
+
+   # !!! warn "Warning title text"
+   #     A warning.
+   ```
+   is replaced with
+   ```
+   # > **Note**
+   # >
+   # > A note.
+
+   # > **Warning title text**
+   # >
+   # > A warning.
+   ```
 
 ## [v2.19.1] - 2024-09-13
 ### Fixed
@@ -319,6 +338,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [#197]: https://github.com/fredrikekre/Literate.jl/issues/197
 [#199]: https://github.com/fredrikekre/Literate.jl/issues/199
 [#200]: https://github.com/fredrikekre/Literate.jl/issues/200
+[#201]: https://github.com/fredrikekre/Literate.jl/issues/201
 [#204]: https://github.com/fredrikekre/Literate.jl/issues/204
 [#205]: https://github.com/fredrikekre/Literate.jl/issues/205
 [#219]: https://github.com/fredrikekre/Literate.jl/issues/219
@@ -335,6 +355,8 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [#248]: https://github.com/fredrikekre/Literate.jl/issues/248
 [#251]: https://github.com/fredrikekre/Literate.jl/issues/251
 [#252]: https://github.com/fredrikekre/Literate.jl/issues/252
+[#257]: https://github.com/fredrikekre/Literate.jl/issues/257
+[#259]: https://github.com/fredrikekre/Literate.jl/issues/259
 [0872a96]: https://github.com/fredrikekre/Literate.jl/commit/0872a96
 [0f9e836]: https://github.com/fredrikekre/Literate.jl/commit/0f9e836
 [1d02868]: https://github.com/fredrikekre/Literate.jl/commit/1d02868

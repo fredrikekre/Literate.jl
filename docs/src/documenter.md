@@ -45,6 +45,24 @@ if we set `documenter = true`:
   \int f dx
   $$
   ```
+- Documenter style admonitions
+  ```
+  !!! note
+      An interesting note.
+
+  !!! warning "Warning title text"
+      An important warning.
+  ```
+  are replaced with notebook compatible quote blocks
+  ```
+  > **Note**
+  >
+  > An interesting note.
+
+  > **Warning title text**
+  >
+  > An important warning.
+  ```
 - Whereas Documenter requires HTML blocks to be escaped
   ````
   ```@raw html

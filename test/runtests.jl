@@ -1475,6 +1475,59 @@ end end
     end
 end
 
+@testset "admonitions" begin
+    src =
+    """
+    # !!! note
+    #     This is a note on one line.
+    #
+    # !!! warn "Warning title text"
+    #     This is a warning
+    #     on multiple lines.
+    """
+    mktempdir(@__DIR__) do sandbox
+        inputfile = joinpath(sandbox, "input.jl")
+        write(inputfile, src)
+        # Literate.markdown
+        Literate.markdown(inputfile, sandbox; documenter = false)
+        output = read(joinpath(sandbox, "input.md"), String)
+        expected = """
+        > **Note**
+        >
+        > This is a note on one line.
+
+        > **Warning title text**
+        >
+        > This is a warning
+        > on multiple lines.
+        """
+        @test occursin(expected, output)
+        # Literate.notebook
+        Literate.notebook(inputfile, sandbox)
+        output = read(joinpath(sandbox, "input.ipynb"), String)
+        @test occursin("> **Note**\\n", output)
+        @test occursin(">\\n", output)
+        @test occursin("> This is a note on one line.", output)
+        @test occursin("> **Warning title text**\\n", output)
+        @test occursin("> This is a warning\\n", output)
+        @test occursin("> on multiple lines.", output)
+        # Literate.script
+        Literate.script(inputfile, sandbox; name = "output", keep_comments = true)
+        output = read(joinpath(sandbox, "output.jl"), String)
+        expected = """
+        # > **Note**
+        # >
+        # > This is a note on one line.
+        #
+        # > **Warning title text**
+        # >
+        # > This is a warning
+        # > on multiple lines.
+        """
+        @test occursin(expected, output)
+    end
+end
+
 @testset "Configuration" begin; Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
     mktempdir(@__DIR__) do sandbox
         cd(sandbox) do
