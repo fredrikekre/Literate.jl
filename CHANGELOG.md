@@ -306,6 +306,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [v2.18.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.18.0
 [v2.19.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.19.0
 [v2.19.1]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.19.1
+[v2.20.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.20.0
 [#116]: https://github.com/fredrikekre/Literate.jl/issues/116
 [#144]: https://github.com/fredrikekre/Literate.jl/issues/144
 [#145]: https://github.com/fredrikekre/Literate.jl/issues/145
