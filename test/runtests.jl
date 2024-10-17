@@ -1462,8 +1462,8 @@ end end
 @testset "continue_on_error=true" begin
     input_with_error =
         """
-        # The following will error
-
+        # The following will print something, then error
+        print("I always wanted to calculate")
         sqrt(-1.0)
         """
     mktempdir(@__DIR__) do sandbox
@@ -1471,6 +1471,7 @@ end end
         write(inputfile, input_with_error)
         Literate.markdown(inputfile, sandbox; continue_on_error = true, execute = true)
         output_md = read(joinpath(sandbox, "input.md"), String)
+        @test occursin("I always wanted to calculate", output_md)
         @test occursin("ERROR: DomainError with -1.0", output_md)
     end
 end

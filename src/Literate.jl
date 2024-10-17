@@ -942,8 +942,8 @@ function execute_block(sb::Module, block::String; inputfile::String, fake_source
             if err isa LoadError # include_string may wrap error in LoadError
                 err = err.error
             end
-            error_output = "ERROR: " * sprint(showerror, err)
-            return nothing, error_output, disp.data
+            all_output = c.output * "\n\nERROR: " * sprint(showerror, err)
+            return nothing, all_output, disp.data
         else
            error("""
                  $(sprint(showerror, c.value))
