@@ -936,15 +936,24 @@ function execute_block(sb::Module, block::String; inputfile::String, fake_source
         end
     end
     popdisplay(disp) # IOCapture.capture has a try-catch so should always end up here
-    if c.error && !continue_on_error
-        error("""
-             $(sprint(showerror, c.value))
-             when executing the following code block from inputfile `$(Base.contractuser(inputfile))`
+    if c.error
+        if continue_on_error
+            err = c.value
+            if err isa LoadError # include_string may wrap error in LoadError
+                err = err.error
+            end
+            all_output = c.output * "\n\nERROR: " * sprint(showerror, err)
+            return nothing, all_output, disp.data
+        else
+           error("""
+                 $(sprint(showerror, c.value))
+                 when executing the following code block from inputfile `$(Base.contractuser(inputfile))`
 
-             ```julia
-             $block
-             ```
-             """)
+                 ```julia
+                 $block
+                 ```
+                 """)
+        end
     end
     return c.value, c.output, disp.data
 end
