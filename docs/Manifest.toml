@@ -1,6 +1,6 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.0"
+julia_version = "1.11.1"
 manifest_format = "2.0"
 project_hash = "2e078e25d2cbff6828e6677f0730b09dacc40677"
 
@@ -459,7 +459,7 @@ version = "1.11.0"
 deps = ["Base64", "IOCapture", "JSON", "REPL"]
 path = ".."
 uuid = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
-version = "2.20.0"
+version = "2.20.1"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
