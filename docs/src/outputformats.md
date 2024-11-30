@@ -103,6 +103,12 @@ which can extend the range of output formats from your Literate.jl-formatted scr
 Literate.jl will produce a `.qmd` file, which can be used as input to Quarto CLI to produce
 a variety of output formats, including HTML, PDF, Word and RevealJS slides.
 
+Once you convert your Julia scripts into QMD files with Literate, you have two options for running them. You choose between them via the YAML header.
+
+1. Use Jupyter + IJulia (the default option, which can cause complications because of Python dependencies). Set `jupyter: julia-1.10` in the YAML header, where `julia-1.10` is the name of your IJulia kernel.
+2. Use the new Julia-native [QuartoNotebookRunner](https://github.com/PumasAI/QuartoNotebookRunner.jl/). Set `engine: julia` in the YAML header.
+
+
 ##### Literate + Quarto syntax tips
 
 - `# `(hashtag followed by a space) at the beginning of a line will be stripped and anything
@@ -115,12 +121,12 @@ a variety of output formats, including HTML, PDF, Word and RevealJS slides.
   rendered as `#| echo: false` and would tell Quarto not to "echo" the outputs of the
   execution (see [Guide: Executions
   options](https://quarto.org/docs/computations/execution-options.html) for more commands).
-- Make sure to always provide the YAML header and specify IJulia kernel when executing the
+- Make sure to always provide the YAML header and specify which jupyter kernel or engine to use when executing the
   file by Quarto, e.g.,
   ```
   # ---
   # title: "My Report"
-  # jupyter: julia-1.9
+  # engine: julia
   # ---
   ```
   Notice how all lines are escaped with a `# ` so Literate.jl knows to strip the hashtags
@@ -130,6 +136,10 @@ a variety of output formats, including HTML, PDF, Word and RevealJS slides.
 - If any markdown components (e.g. headers) are not rendering correctly in your Quarto
   outputs, make sure they are surrounded by empty lines (e.g., add an empty line before and
   after the header) to help Quarto parse them correctly
+
+!!! warning "Quarto CLI Pre-Release Required"
+    The above snippet uses the Julia-native engine with QuartoNotebookRunner, which requires the pre-release version of [Quarto CLI 1.5.29](https://github.com/quarto-dev/quarto-cli/releases/tag/v1.5.29) or later.
+    If you cannot use latest Quarto CLI release, you can use the Jupyter + IJulia engine instead, by setting `jupyter: julia-1.10` in the YAML header, where `julia-1.10` is the name of your IJulia kernel.
 
 ##### Configuring Quarto for Julia code execution
 
@@ -151,6 +161,8 @@ a variety of output formats, including HTML, PDF, Word and RevealJS slides.
   quarto render my_script.qmd --to html
   ```
 
+See `examples/quarto_report.jl` for an example of a Literate.jl script that can be converted to a Quarto report. 
+For more Quarto examples, visit the [QuartoNotebookRunner Examples](https://github.com/PumasAI/QuartoNotebookRunner.jl/tree/main/test/examples).
 
 ## [**4.2.** Notebook output](@id Notebook-output)
 
