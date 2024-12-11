@@ -17,7 +17,7 @@ const application_vnd_vegalite_v2 = MIME("application/vnd.vegalite.v2+json")
 # return a String=>String dictionary of mimetype=>data
 # for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
-    data = Dict{String,Any}("text/plain" => limitstringmime(text_plain, x))
+    data = Dict{String, Any}("text/plain" => limitstringmime(text_plain, x))
     if showable(application_vnd_vegalite_v2, x)
         data[string(application_vnd_vegalite_v2)] = JSON.parse(limitstringmime(application_vnd_vegalite_v2, x))
     end
@@ -57,14 +57,14 @@ function limitstringmime(mime::MIME, x)
         if israwtext(mime, x)
             return String(x)
         else
-            show(IOContext(buf, :limit=>true, :color=>true), mime, x)
+            show(IOContext(buf, :limit => true, :color => true), mime, x)
         end
     else
         b64 = Base64EncodePipe(buf)
         if isa(x, Vector{UInt8})
             write(b64, x) # x assumed to be raw binary data
         else
-            show(IOContext(b64, :limit=>true, :color=>true), mime, x)
+            show(IOContext(b64, :limit => true, :color => true), mime, x)
         end
         close(b64)
     end

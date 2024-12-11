@@ -20,7 +20,7 @@
 # running these commands from the package root of Literate.jl:
 
 using Literate
-Literate.markdown("examples/README.jl", "."; flavor=Literate.CommonMarkFlavor())
+Literate.markdown("examples/README.jl", "."; flavor = Literate.CommonMarkFlavor())
 
 
 # ### Related packages
