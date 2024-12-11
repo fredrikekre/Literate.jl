@@ -5,7 +5,7 @@ if haskey(ENV, "GITHUB_ACTIONS")
 end
 
 deployconfig = Documenter.auto_detect_deploy_system()
-Documenter.post_status(deployconfig; type="pending", repo="github.com/fredrikekre/Literate.jl.git")
+Documenter.post_status(deployconfig; type = "pending", repo = "github.com/fredrikekre/Literate.jl.git")
 using Literate
 using Plots # to not capture precompilation output
 
@@ -14,7 +14,7 @@ EXAMPLE = joinpath(@__DIR__, "..", "examples", "example.jl")
 OUTPUT = joinpath(@__DIR__, "src/generated")
 
 function preprocess(str)
-    str = replace(str, "x = 123" => "y = 321"; count=1)
+    str = replace(str, "x = 123" => "y = 321"; count = 1)
     return str
 end
 
