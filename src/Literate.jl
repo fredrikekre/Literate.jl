@@ -566,6 +566,7 @@ end
     Literate.script(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
 
 Generate a plain script file from `inputfile` and write the result to `outputdir`.
+Returns the path to the generated file.
 
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
@@ -605,7 +606,7 @@ end
     Literate.markdown(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
 
 Generate a markdown file from `inputfile` and write the result
-to the directory `outputdir`.
+to the directory `outputdir`. Returns the path to the generated file.
 
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
@@ -742,6 +743,7 @@ line_is_nbmeta(line) = startswith(line, "%% ")
     Literate.notebook(inputfile, outputdir=pwd(); config::AbstractDict=Dict(), kwargs...)
 
 Generate a notebook from `inputfile` and write the result to `outputdir`.
+Returns the path to the generated file.
 
 See the manual section on [Configuration](@ref) for documentation
 of possible configuration with `config` and other keyword arguments.
