@@ -10,7 +10,7 @@ REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [compat]
 Base64 = "1"
-IOCapture = "0.2"
+IOCapture = "0.2, 1"
 JSON = "0.18, 0.19, 0.20, 0.21, 1"
 REPL = "1"
 julia = "1.6"
