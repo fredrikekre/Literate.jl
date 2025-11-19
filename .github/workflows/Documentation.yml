@@ -9,13 +9,13 @@ on:
   pull_request:
 jobs:
   docs:
-    name: 'Julia 1 - ubuntu-latest'
+    name: 'Julia 1.12 - ubuntu-latest'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: julia-actions/setup-julia@v2
         with:
-          version: '1'
+          version: '1.12'
       - uses: julia-actions/cache@v2
       - name: Install dependencies
         run: julia --project=docs -e 'using Pkg; Pkg.instantiate()'

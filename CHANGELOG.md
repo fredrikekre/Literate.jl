@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.21.0] - 2025-11-19
+### Changed
+ - Allow IOCapture version 1. ([#280])
+
 ## [v2.20.1] - 2024-10-17
 ### Fixed
  - Errors from code evaluation (with `continue_on_error = true`) are now properly displayed
@@ -313,6 +317,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [v2.19.1]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.19.1
 [v2.20.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.20.0
 [v2.20.1]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.20.1
+[v2.21.0]: https://github.com/fredrikekre/Literate.jl/releases/tag/v2.21.0
 [#116]: https://github.com/fredrikekre/Literate.jl/issues/116
 [#144]: https://github.com/fredrikekre/Literate.jl/issues/144
 [#145]: https://github.com/fredrikekre/Literate.jl/issues/145
@@ -365,6 +370,7 @@ https://discourse.julialang.org/t/ann-literate-jl/10651 for release announcement
 [#257]: https://github.com/fredrikekre/Literate.jl/issues/257
 [#259]: https://github.com/fredrikekre/Literate.jl/issues/259
 [#261]: https://github.com/fredrikekre/Literate.jl/issues/261
+[#280]: https://github.com/fredrikekre/Literate.jl/issues/280
 [0872a96]: https://github.com/fredrikekre/Literate.jl/commit/0872a96
 [0f9e836]: https://github.com/fredrikekre/Literate.jl/commit/0f9e836
 [1d02868]: https://github.com/fredrikekre/Literate.jl/commit/1d02868
