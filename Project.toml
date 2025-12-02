@@ -8,16 +8,12 @@ IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
+[workspace]
+projects = ["docs", "test"]
+
 [compat]
 Base64 = "1"
 IOCapture = "0.2, 1"
 JSON = "0.18, 0.19, 0.20, 0.21, 1"
 REPL = "1"
 julia = "1.6"
-
-[extras]
-DisplayAs = "0b91fe84-8a4c-11e9-3e1d-67c38462b6d6"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["DisplayAs", "Test"]
