@@ -1034,7 +1034,7 @@ end
         DF(7)
         """
         write(inputfile, script)
-        Literate.markdown(inputfile, outdir; execute=true)
+        Literate.markdown(inputfile, outdir; execute = true)
         markdown = read(joinpath(outdir, "inputfile.md"), String)
 
         # Make sure each one shows up.

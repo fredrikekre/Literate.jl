@@ -702,7 +702,7 @@ end
 
 function display_markdown(io, data, outputdir, flavor, image_formats, file_prefix, plain_fence)
     if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
-        Base.invokelatest(showable, MIME("text/html"), data)
+            Base.invokelatest(showable, MIME("text/html"), data)
         htmlfence = flavor isa FranklinFlavor ? ("~~~" => "~~~") : ("```@raw html" => "```")
         write(io, "\n", htmlfence.first, "\n")
         Base.invokelatest(show, io, MIME("text/html"), data)
@@ -734,7 +734,7 @@ end
 
 function display_markdown_mime(io, mime_dict, outputdir, flavor, image_formats, file_prefix, plain_fence)
     if (flavor isa FranklinFlavor || flavor isa DocumenterFlavor) &&
-        haskey(mime_dict, "text/html")
+            haskey(mime_dict, "text/html")
         htmlfence = flavor isa FranklinFlavor ? ("~~~" => "~~~") : ("```@raw html" => "```")
         data = mime_dict["text/html"]
         write(io, "\n", htmlfence.first, "\n")
@@ -775,6 +775,7 @@ function display_markdown_mime(io, mime_dict, outputdir, flavor, image_formats, 
     write(io, plain_fence.first)
     write(io, mime_dict["text/plain"])
     write(io, plain_fence.second, '\n')
+    return
 end
 
 
