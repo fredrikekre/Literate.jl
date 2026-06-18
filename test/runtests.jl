@@ -1073,13 +1073,13 @@ end
                    "source": [
                     "Not markdown\\n",
                     "Not markdown"
-                   ],
+                   ]
                 """,
                 """
                    "source": [
                     "x * 1\\n",
                     "x * 1"
-                   ],
+                   ]
                 """,
                 """
                    "source": [
@@ -1097,7 +1097,7 @@ end
                    "source": [
                     "Not script\\n",
                     "Not script"
-                   ],
+                   ]
                 """,
                 """
                    "source": [
@@ -1105,7 +1105,7 @@ end
                     "x * 3\\n",
                     "# # Comment\\n",
                     "# another comment"
-                   ],
+                   ]
                 """,
                 """
                    "source": [
