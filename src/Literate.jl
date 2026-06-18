@@ -227,21 +227,41 @@ function replace_default(
         push!(repls, r"\[([^]]+?)\]\(@id .*?\)"s => s"\1")  # [foo](@id bar) => foo
         # Convert Documenter admonitions to markdown quotes
         r = r"^# !!! (?<type>\w+)(?: \"(?<title>.+)\")?(?<lines>(\v^#     .*$)+)"m
-        adm_to_quote = function (s)
-            m = match(r, s)::RegexMatch
-            io = IOBuffer()
-            print(io, "# > **")
-            if (title = m[:title]; title !== nothing)
-                print(io, title)
-            else
-                type = uppercasefirst(String(m[:type]))
-                print(io, type)
+        if config["flavor"] isa QuartoFlavor
+            adm_to_quote = function (s)
+                m = match(r, s)::RegexMatch
+                io = IOBuffer()
+                print(io, "# ::: {.callout-") # to open the callout
+                print(io, string(m[:type]))
+                if (title = m[:title]; title !== nothing)
+                    print(io, s""" title=\"""")
+                    print(io, title)
+                    print(io, s"""\"""")
+                end
+                print(io, "}") # not sure how to detect the Quarto `collapse` option if any
+                for l in eachline(IOBuffer(m[:lines]); keep = true)
+                    print(io, replace(l, r"^#     " => "# "))
+                end
+                print(io, "\n# :::") # to close the callout
+                return String(take!(io))
             end
-            print(io, "**\n# >")
-            for l in eachline(IOBuffer(m[:lines]); keep = true)
-                print(io, replace(l, r"^#     " => "# > "))
+        else
+            adm_to_quote = function (s)
+                m = match(r, s)::RegexMatch
+                io = IOBuffer()
+                print(io, "# > **")
+                if (title = m[:title]; title !== nothing)
+                    print(io, title)
+                else
+                    type = uppercasefirst(String(m[:type]))
+                    print(io, type)
+                end
+                print(io, "**\n# >")
+                for l in eachline(IOBuffer(m[:lines]); keep = true)
+                    print(io, replace(l, r"^#     " => "# > "))
+                end
+                return String(take!(io))
             end
-            return String(take!(io))
         end
         push!(repls, r => adm_to_quote)
     end

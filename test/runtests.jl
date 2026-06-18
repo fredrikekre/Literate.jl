@@ -1531,6 +1531,20 @@ end
         > on multiple lines.
         """
         @test occursin(expected, output)
+        # Literate.markdown Literate.QuartoFlavor()
+        Literate.markdown(inputfile, sandbox; flavor = Literate.QuartoFlavor())
+        output = read(joinpath(sandbox, "input.qmd"), String)
+        expected = """
+        ::: {.callout-note}
+        This is a note on one line.
+        :::
+
+        ::: {.callout-warn title="Warning title text"}
+        This is a warning
+        on multiple lines.
+        :::
+        """
+        @test occursin(expected, output)
         # Literate.notebook
         Literate.notebook(inputfile, sandbox)
         output = read(joinpath(sandbox, "input.ipynb"), String)
