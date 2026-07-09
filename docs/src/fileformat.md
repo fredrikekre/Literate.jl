@@ -25,6 +25,7 @@ Lets look at a simple example:
 ## Define variable x and y
 x = 1//3
 y = 2//5
+z = 3//5 ## z is 3//5 and this is an end of line comment
 
 # When adding `x` and `y` together we obtain a new rational number:
 
