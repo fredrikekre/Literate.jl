@@ -902,11 +902,14 @@ end
 # Create a sandbox module for evaluation
 function sandbox()
     m = Module(gensym())
-    # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
-    Core.eval(m, :(eval(x) = Core.eval($m, x)))
-    # modules created with Module() does not have include defined
-    # the source path for recursive include is set while executing the block
-    Core.eval(m, :(include(x) = Base.include($m, x)))
+    # Module() may be missing eval/include (JuliaLang/julia#28552)
+    if VERSION < v"1.12" || !isdefined(m, :eval)
+        Core.eval(m, :(eval(x) = Core.eval($m, x)))
+    end
+    if !isdefined(m, :include)
+        # the source path for recursive include is set while executing the block
+        Core.eval(m, :(include(x) = Base.include($m, x)))
+    end
     return m
 end
 
