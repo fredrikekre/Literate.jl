@@ -618,14 +618,14 @@ function markdown(inputfile, outputdir = pwd(); config::AbstractDict = Dict(), k
 
     # create the markdown file
     sb = sandbox()
-    iomd = IOBuffer()
+    iomd = IOContext(PipeBuffer(), :color => get(kwargs, :color, Base.get_have_color()))
     for (chunknum, chunk) in enumerate(chunks)
         if isa(chunk, MDChunk)
             for line in chunk.lines
                 write(iomd, line.second, '\n') # skip indent here
             end
         else # isa(chunk, CodeChunk)
-            iocode = IOBuffer()
+            iocode = PipeBuffer()
             codefence = config["codefence"]::Pair
             write(iocode, codefence.first)
             # make sure the code block is finalized if we are printing to ```@example
@@ -645,7 +645,7 @@ function markdown(inputfile, outputdir = pwd(); config::AbstractDict = Dict(), k
                 write(iocode, "nothing #hide\n")
             end
             write(iocode, codefence.second, '\n')
-            any(write_line, chunk.lines) && write(iomd, seekstart(iocode))
+            any(write_line, chunk.lines) && write(iomd, read(iocode, String))
             if execute
                 cd(config["literate_outputdir"]) do
                     execute_markdown!(
@@ -666,7 +666,7 @@ function markdown(inputfile, outputdir = pwd(); config::AbstractDict = Dict(), k
     end
 
     # custom post-processing from user
-    content = config["postprocess"](String(take!(iomd)))
+    content = config["postprocess"](read(iomd, String))
 
     # write to file
     outputfile = write_result(content, config)
@@ -714,7 +714,7 @@ function execute_markdown!(
         end
         # fallback to text/plain
         write(io, plain_fence.first)
-        Base.invokelatest(show, io, "text/plain", r)
+        Base.invokelatest(show, io, MIME("text/plain"), r)
         write(io, plain_fence.second, '\n')
         return
     elseif !isempty(str)
